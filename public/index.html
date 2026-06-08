@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Monitoring Digitalisasi DPCD</title>
+    <!-- Premium type: Plus Jakarta Sans (display) + Inter (body). Graceful fallback to system stack if offline. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="app">
+
+    <!-- ===== TOP APP BAR ===== -->
+    <header class="appbar" data-screen-label="App Bar">
+        <div class="appbar-mark">DPCD</div>
+        <div class="appbar-title">
+            <h1>Project Monitoring<span class="title-suffix">&nbsp;· Digitalisasi</span></h1>
+            <span class="sub" id="last-updated">Tracking &amp; monitoring pekerjaan DPCD</span>
+        </div>
+        <div class="appbar-org">
+            <div class="org-main">PERTAMINA PATRA NIAGA</div>
+            <div class="org-sub">Refinery Reliability &amp; Engineering</div>
+        </div>
+    </header>
+
+    <!-- ===== CONTROL BAR ===== -->
+    <div class="controlbar">
+        <div class="segmented">
+            <button class="active" data-view="gantt" onclick="setView('gantt')">
+                <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="11" height="3" rx="1"></rect><rect x="7" y="10.5" width="13" height="3" rx="1"></rect><rect x="5" y="16" width="9" height="3" rx="1"></rect></svg>
+                Gantt
+            </button>
+            <button data-view="board" onclick="setView('board')">
+                <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="5" height="16" rx="1"></rect><rect x="9.5" y="4" width="5" height="11" rx="1"></rect><rect x="16" y="4" width="5" height="13" rx="1"></rect></svg>
+                Board
+            </button>
+            <button data-view="calendar" onclick="setView('calendar')">
+                <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4.5" width="18" height="16" rx="2"></rect><path d="M3 9h18"></path><path d="M8 2.5v4M16 2.5v4"></path></svg>
+                Calendar
+            </button>
+            <button data-view="pic" onclick="setView('pic')">
+                <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19a5.5 5.5 0 0 1 11 0"></path><path d="M16 6.2a3 3 0 0 1 0 5.6"></path><path d="M17.5 14.4A5.2 5.2 0 0 1 20.5 19"></path></svg>
+                PIC
+            </button>
+            <button data-view="blocker" onclick="setView('blocker')">
+                <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M5.6 5.6l12.8 12.8"></path></svg>
+                Blocker
+            </button>
+            <button data-view="prognosa" onclick="setView('prognosa')">
+                <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 21V4"></path><path d="M5 4h11l-2 3 2 3H5"></path></svg>
+                Prognosa
+            </button>
+        </div>
+        <button class="config-toggle" id="config-toggle" onclick="toggleConfig()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 6.8 19l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 5 12.6H4.9a2 2 0 1 1 0-4H5a1.6 1.6 0 0 0 1.1-2.7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 12 3.9V4a2 2 0 1 1 4 0v.1A1.6 1.6 0 0 0 19 5.2"></path></svg>
+            Setup Timeline <span class="chev">▾</span>
+        </button>
+        <div class="spacer"></div>
+        <div class="btn-group">
+            <button class="btn" onclick="addNewRow()">➕ Baris</button>
+            <button class="btn" onclick="toggleSCurve()">📈 S-Curve</button>
+            <button class="btn" onclick="showWeeklyReminder()">🔔 Reminder</button>
+            <button class="btn" onclick="showVersionHistory()">🕘 History</button>
+            <button class="btn" onclick="showExecutiveSummary()">📊 Executive</button>
+            <button class="btn" onclick="exportPDF()">🖨️ PDF</button>
+            <button class="btn accent" onclick="exportPPTX()">📑 PPTX</button>
+            <button class="btn" onclick="openMasterData()">🗂️ Master Data</button>
+            <button class="btn primary" onclick="saveToJSON()">💾 Simpan</button>
+        </div>
+    </div>
+
+    <!-- ===== CONFIG PANEL (collapsible) ===== -->
+    <div class="config-panel" id="config-panel">
+        <div class="input-group">
+            <label>Bulan Mulai</label>
+            <select id="cfg-month">
+                <option value="0">Januari</option><option value="1">Februari</option><option value="2">Maret</option>
+                <option value="3">April</option><option value="4">Mei</option><option value="5">Juni</option>
+                <option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option>
+                <option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
+            </select>
+        </div>
+        <div class="input-group"><label>Tahun Mulai</label><input type="number" id="cfg-year" value="2025"></div>
+        <div class="input-group"><label>Durasi (Bulan)</label><input type="number" id="cfg-duration" value="24"></div>
+        <div class="input-group cutoff-group"><label>Cut Off Date</label><input type="date" id="cfg-cutoff" onchange="updateDateLine();if(document.getElementById('scurve-container').classList.contains('show'))renderSCurve();"></div>
+        <button class="btn-generate" onclick="generateTimeline()">Update Timeline</button>
+    </div>
+
+    <!-- ===== LEGEND ===== -->
+    <div class="legend-row">
+        <div class="legend-block">
+            <div class="legend-item"><div class="box-plan"></div> Plan window</div>
+            <div class="legend-item"><div class="box-actual"></div> Actual progress</div>
+            <div class="legend-item"><div class="box-milestone"></div> Milestone</div>
+        </div>
+        <div class="legend-block">
+            <div class="legend-item"><span class="dot bg-blue"></span> Done</div>
+            <div class="legend-item"><span class="dot bg-green"></span> On Track</div>
+            <div class="legend-item"><span class="dot bg-yellow"></span> Slightly Delay</div>
+            <div class="legend-item"><span class="dot bg-red"></span> Delay</div>
+            <div class="legend-item"><span class="dot bg-grey"></span> Belum Mulai</div>
+        </div>
+        <div class="legend-block weekly-filter-block">
+            <label for="weekly-filter">Lihat kondisi:</label>
+            <select id="weekly-filter" onchange="onWeeklyFilterChange(this.value)">
+                <option value="__live__">Terkini (Live)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- ===== KPI SUMMARY CARDS ===== -->
+    <div class="summary-cards" id="summary-cards">
+        <div class="summary-card card-total" onclick="filterByCard('all')">
+            <div class="card-head"><div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg></div><div class="card-label">Total Aktif</div></div>
+            <div class="card-count num" id="card-total">0</div><div class="card-foot" id="foot-total">—</div>
+        </div>
+        <div class="summary-card card-done" onclick="filterByCard('bg-blue')">
+            <div class="card-head"><div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"></path></svg></div><div class="card-label">Done</div></div>
+            <div class="card-count num" id="card-done">0</div><div class="card-foot" id="foot-done">—</div>
+        </div>
+        <div class="summary-card card-ontrack" onclick="filterByCard('bg-green')">
+            <div class="card-head"><div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12h4l3 8 4-16 3 8h4"></path></svg></div><div class="card-label">On Track</div></div>
+            <div class="card-count num" id="card-ontrack">0</div><div class="card-foot" id="foot-ontrack">—</div>
+        </div>
+        <div class="summary-card card-warning" onclick="filterByCard('bg-yellow')">
+            <div class="card-head"><div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path></svg></div><div class="card-label">Slightly Delay</div></div>
+            <div class="card-count num" id="card-warning">0</div><div class="card-foot" id="foot-warning">—</div>
+        </div>
+        <div class="summary-card card-critical" onclick="filterByCard('bg-red')">
+            <div class="card-head"><div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5m0 4h.01"></path></svg></div><div class="card-label">Delay</div></div>
+            <div class="card-count num" id="card-critical">0</div><div class="card-foot" id="foot-critical">—</div>
+        </div>
+    </div>
+
+    <div class="filter-active-banner" id="filter-banner">
+        <span id="filter-banner-text">Filter aktif: —</span>
+        <button onclick="filterByCard('all')">✕ Reset</button>
+    </div>
+
+    <!-- ===== S-CURVE ===== -->
+    <div class="scurve-container" id="scurve-container">
+        <div class="scurve-header">
+            <h3>S-Curve · Plan vs Actual Progress</h3>
+            <button onclick="toggleSCurve()" title="Tutup">×</button>
+        </div>
+        <div class="scurve-body">
+            <div class="scurve-canvas-wrap"><canvas id="scurve-canvas" height="300"></canvas></div>
+            <div class="scurve-legend">
+                <div class="scurve-legend-item"><div class="scurve-legend-line" style="background:#7ba7c9;"></div> Plan</div>
+                <div class="scurve-legend-item"><div class="scurve-legend-line" style="background:#0e7c86;"></div> Actual</div>
+                <div class="scurve-legend-item"><div class="scurve-legend-line" style="background:#dc2626;border-top:2px dashed #dc2626;height:0;"></div> Cut-off</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== VIEW HEADER ===== -->
+    <div class="view-head">
+        <h2 id="view-title">Project Timeline</h2>
+        <span class="count-pill num" id="view-count">0 project</span>
+    </div>
+
+    <!-- ===== GANTT VIEW ===== -->
+    <div id="gantt-wrap">
+        <div class="gantt-container" id="gantt-table">
+            <div id="auto-date-line" class="auto-date-line" style="display:none;"><div id="date-label"></div></div>
+            <div class="gantt-header">
+                <div>Aksi</div>
+                <div>Activity Name</div>
+                <div class="timeline-header" id="header-content"></div>
+                <div title="Traffic Light Management">TLM</div>
+                <div>Status &amp; Kendala</div>
+            </div>
+            <div id="rows-container"></div>
+            <div id="timeline-meta" style="display:none;"></div>
+        </div>
+        <div class="pagination-bar">
+            <button class="page-btn" id="btn-prev" onclick="changePage(-1)">❮ Prev</button>
+            <span class="page-info num" id="page-info">Halaman 1 / 1</span>
+            <button class="page-btn" id="btn-next" onclick="changePage(1)">Next ❯</button>
+        </div>
+    </div>
+
+    <!-- ===== BOARD VIEW ===== -->
+    <div class="board-container" id="board-container">
+        <div class="board-scroll" id="board-scroll"></div>
+    </div>
+
+    <!-- ===== BLOCKER ANALYSIS VIEW ===== -->
+    <div class="blocker-container" id="blocker-container">
+        <div id="blocker-body"></div>
+    </div>
+
+    <!-- ===== PROGNOSA / FORECAST VIEW ===== -->
+    <div class="prognosa-container" id="prognosa-container">
+        <div id="prognosa-body"></div>
+    </div>
+
+    <!-- ===== CALENDAR OF EVENT VIEW ===== -->
+    <div class="cal-container" id="calendar-container">
+        <div class="cal-layout">
+            <div class="cal-main">
+                <div class="cal-toolbar">
+                    <div class="cal-nav">
+                        <button class="cal-nav-btn" id="cal-prev" onclick="calChangeMonth(-1)" title="Bulan sebelumnya">❮</button>
+                        <h3 class="cal-title" id="cal-title">—</h3>
+                        <button class="cal-nav-btn" id="cal-next" onclick="calChangeMonth(1)" title="Bulan berikutnya">❯</button>
+                    </div>
+                    <div class="cal-toolbar-actions">
+                        <button class="cal-today-btn" onclick="calGoToday()">Hari Ini</button>
+                        <button class="cal-add-btn" onclick="openEventForm(null)">＋ Tambah Event</button>
+                    </div>
+                </div>
+                <div class="cal-weekdays">
+                    <div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div class="cal-wkend">Sab</div><div class="cal-wkend">Min</div>
+                </div>
+                <div class="cal-grid" id="cal-grid"></div>
+            </div>
+            <aside class="cal-agenda">
+                <div class="cal-agenda-head">
+                    <h4>Agenda Mendatang</h4>
+                    <span class="cal-agenda-count num" id="cal-agenda-count">0</span>
+                </div>
+                <div class="cal-agenda-list" id="cal-agenda-list"></div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ===== PIC WORKLOAD VIEW ===== -->
+    <div class="pic-container" id="pic-container">
+        <div class="pic-body" id="pic-body"></div>
+    </div>
+
+</div>
+
+<!-- ===== PRINT REPORT (hidden on screen) ===== -->
+<div id="print-report"></div>
+
+<!-- Source version: assets are served normally by Express. -->
+
+
+<script src="/js/core.js"></script>
+<script src="/js/views.js"></script>
+<script src="/js/modals.js"></script>
+<script src="/js/exports.js"></script>
+<script src="/js/calendar.js"></script>
+
+
+</body></html>

@@ -1,0 +1,5603 @@
+{
+  "meta": {
+    "startMonth": 0,
+    "startYear": 2025,
+    "duration": 24,
+    "cutoff": "2026-06-03",
+    "lastUpdated": "2026-06-03"
+  },
+  "projects": [
+    {
+      "id": 1,
+      "name": "Development RAISE :  TA Excellent Tahap 1 & 2",
+      "planLeft": 0,
+      "planWidth": 28.9979,
+      "planTarget": 100,
+      "actualLeft": 0,
+      "actualWidth": 29.5309,
+      "actualProgress": 100,
+      "rag": "blue",
+      "status": "Tahap 1: Manage JoblistTahap 2: Planning joblist",
+      "pic": "",
+      "category": "",
+      "priority": "",
+      "notes": "",
+      "links": [],
+      "milestones": []
+    },
+    {
+      "id": 2,
+      "name": "Development RAISE :  TA Excellent Tahap 3",
+      "planLeft": 33.3689,
+      "planWidth": 45.394,
+      "planTarget": 100,
+      "actualLeft": 33.4755,
+      "actualWidth": 16.5372,
+      "actualProgress": 50,
+      "rag": "red",
+      "status": "Tahap 3: Tracking & Monitoring1. Relasi dengan PRISMA (setelah Jun. 26 ref. koordinasi dengan IT)​2. Paralel pembuatan solusi internal kertas kerja reservasi material dan dashboard (DONE), Aplikasi inHouse DPCD",
+      "pic": "Reza",
+      "category": "",
+      "priority": "",
+      "notes": "",
+      "links": [],
+      "milestones": []
+    },
+    {
+      "id": 3,
+      "name": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+      "planLeft": 0,
+      "planWidth": 53.3333,
+      "planTarget": 100,
+      "actualLeft": 0,
+      "actualWidth": 41.558,
+      "actualProgress": 90,
+      "rag": "yellow",
+      "status": "RAISE-OHex:1. Tahap 1 menu Master Plan dan Program Kerja.​2. Up to prod. target W4 Mei ’26 (DONE).​3. Lanjut testing pasca up to prod (link / process)​RAISE-Insp.CondMon :1. Administrasi persiapan publish tahap awal (ad-hoc s.d. insp. Report)​2. Up to prod. target W1 Juni ’26 (delay, recover paling lambat akhir Juni ‘26).​3. Saat ini proses testing master data (measur. Point & task list), ad hoc insp., insp. Report, dan eDMS.​",
+      "pic": "",
+      "category": "",
+      "priority": "",
+      "notes": "",
+      "links": [
+        "https://kitawarse01dev.pertamina.com/condmon/",
+        "https://ohex.aasm.my.id/"
+      ],
+      "milestones": []
+    },
+    {
+      "id": 4,
+      "name": "Implementasi AI di RAISE",
+      "planLeft": 41.7122,
+      "planWidth": 56.8056,
+      "planTarget": 100,
+      "actualLeft": 41.4951,
+      "actualWidth": 27.6738,
+      "actualProgress": 61,
+      "rag": "red",
+      "status": "1. Penyediaan server dev. dan prod. (done).​2. Proses dev. di server Vendor dan parallel review hasil",
+      "pic": "Adnan",
+      "category": "",
+      "priority": "",
+      "notes": "",
+      "links": [],
+      "milestones": []
+    },
+    {
+      "id": 5,
+      "name": "Enhancement Excellent :  Key in Data Dashboard",
+      "planLeft": 1.62514,
+      "planWidth": 22.8602,
+      "planTarget": 100,
+      "actualLeft": 1.73263,
+      "actualWidth": 50.3304,
+      "actualProgress": 95,
+      "rag": "yellow",
+      "status": "1. Migrasi data dari excel ke database (done).​2. Perubahan setup Dashboard (done).​3. Process up to prod. oleh IT target W3 Jun ‘26 (process)​",
+      "pic": "Gandhi Nugroho; Ulin Salsabila; Adnan Nasution",
+      "category": "Digitalisasi",
+      "priority": "High",
+      "notes": "",
+      "links": [],
+      "milestones": []
+    },
+    {
+      "id": 6,
+      "name": "Enhancement e-Workshop",
+      "planLeft": 1.62514,
+      "planWidth": 26.9772,
+      "planTarget": 100,
+      "actualLeft": 33.2611,
+      "actualWidth": 16.6847,
+      "actualProgress": 100,
+      "rag": "blue",
+      "status": "Modify MTTR formula (done).​",
+      "pic": "Adnan",
+      "category": "",
+      "priority": "",
+      "notes": "",
+      "links": [],
+      "milestones": [
+        {
+          "label": "UAT",
+          "left": 47.2767,
+          "top": 49.2721
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Enhancement MOCi",
+      "planLeft": 1.95016,
+      "planWidth": 22.5352,
+      "planTarget": 100,
+      "actualLeft": 33.2617,
+      "actualWidth": 33.693,
+      "actualProgress": 100,
+      "rag": "blue",
+      "status": "Perlu sosialisasi penggunaan dan selanjutnya arahan untuk beralih dari MOC lama.​",
+      "pic": "Adnan",
+      "category": "",
+      "priority": "",
+      "notes": "",
+      "links": [],
+      "milestones": [
+        {
+          "label": "UAT",
+          "left": 47.3059,
+          "top": 38.5377
+        },
+        {
+          "label": "Sosialisasi",
+          "left": 64.1251,
+          "top": 37.8033
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Enhancement BOC+ Mobile",
+      "planLeft": 1.95016,
+      "planWidth": 33.4778,
+      "planTarget": 100,
+      "actualLeft": 29.0358,
+      "actualWidth": 37.8897,
+      "actualProgress": 100,
+      "rag": "blue",
+      "status": "1. Up to prod. oleh IT (done)​2. Go live skala kecil untuk integrasi (Jun ‘26)​",
+      "pic": "",
+      "category": "",
+      "priority": "",
+      "notes": "",
+      "links": [],
+      "milestones": [
+        {
+          "label": "UAT",
+          "left": 54.6321,
+          "top": 43.5377
+        },
+        {
+          "label": "Go Live",
+          "left": 64.3012,
+          "top": 44.2721
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Enhancement BOC+ Web",
+      "planLeft": 45.3109,
+      "planWidth": 33.1528,
+      "planTarget": 100,
+      "actualLeft": 62.2302,
+      "actualWidth": 31.1751,
+      "actualProgress": 25,
+      "rag": "red",
+      "status": "1. Workflow dan mockup (done).​2. Telah dilakukan alignment requirement awal.​",
+      "pic": "",
+      "category": "",
+      "priority": "",
+      "notes": "",
+      "links": [],
+      "milestones": [
+        {
+          "label": "Review Mockup",
+          "left": 65.8356,
+          "top": 35.069
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Enhancement e-BVL",
+      "planLeft": 52.7951,
+      "planWidth": 34.1552,
+      "planTarget": 100,
+      "actualLeft": 62.5174,
+      "actualWidth": 32.1586,
+      "actualProgress": 25,
+      "rag": "red",
+      "status": "1. Workflow dan mockup (done).​2. Menunggu execution plan dari IT.​",
+      "pic": "Adnan",
+      "category": "",
+      "priority": "",
+      "notes": "",
+      "links": [],
+      "milestones": [
+        {
+          "label": "Review Mockup",
+          "left": 67.895,
+          "top": 29.272
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Readiness",
+      "planLeft": 41.6035,
+      "planWidth": 8.01733,
+      "planTarget": 100,
+      "actualLeft": 41.4951,
+      "actualWidth": 29.5181,
+      "actualProgress": 80,
+      "rag": "yellow",
+      "status": "Revisi kajian dan tambahan proof of concept dari form pasca FGD (in-process). Prognosa selesai​",
+      "pic": "Senna Septiawan",
+      "category": "Kajian",
+      "priority": "Medium",
+      "notes": "Rencana FGD diundur ke W3 Apr. 2026.",
+      "links": [],
+      "milestones": [
+        {
+          "label": "FGD Hasil Kajian",
+          "left": 51.3516,
+          "top": 38.2721
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "name": "Penelitian Inspection Tools",
+      "planLeft": 25.1101,
+      "planWidth": 14.3172,
+      "planTarget": 100,
+      "actualLeft": 24.8899,
+      "actualWidth": 46.1274,
+      "actualProgress": 50,
+      "rag": "red",
+      "status": "1) Eksperimen awal tidak sesuai dan memerlukan perubahan lingkup. Penjajakan re-proposal dan kontrak baru untuk mengakomodir perubahan.\n2) Proses tagihan dengan kerja kurang.\n3) Pengadaan thermal camera dan humidity sensor menunggu pembayaran termin SPK awal.",
+      "pic": "Senna Septiawan",
+      "category": "Penelitian",
+      "priority": "High",
+      "notes": "SPK Tahap 1\n- Proses tanda tangan berita acara pelaporan termin ke-1.\n- Proses penerbitan RO untuk PR 300117818 (OA 4600001138).\n- Menunggu pengajuan perhitungan dan berita acara kerja kurang oleh ITS untuk termin ke-2.\n\nSPK Tahap 2\n- Proses rekalkulasi berdasarkan hasil kesepakatan nilai tagihan SPK tahap 1.\n\nProgres Lapangan\n- 3 unit mini plant telah dapat dioperasikan.\n- Menunggu pengadaan sensor thermal camera dan sensor humidity.",
+      "links": [],
+      "milestones": []
+    },
+    {
+      "id": 13,
+      "name": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+      "planLeft": 52.6544,
+      "planWidth": 21.9449,
+      "planTarget": 100,
+      "actualLeft": 52.7627,
+      "actualWidth": 18.3305,
+      "actualProgress": 70,
+      "rag": "red",
+      "status": "1. Site survey tahap 1 dan 2 (done).​\n2. Interim report dan FGD tahap 2 (done).​\n3. Revisi draft URS DWH dan TDS OT IT pasca FGD.",
+      "pic": "Senna Septiawan",
+      "category": "",
+      "priority": "",
+      "notes": "",
+      "links": [],
+      "milestones": []
+    },
+    {
+      "id": 14,
+      "name": "Development IRKAP 2.0",
+      "planLeft": 51.6797,
+      "planWidth": 43.6317,
+      "planTarget": 100,
+      "actualLeft": 51.6793,
+      "actualWidth": 19.3632,
+      "actualProgress": 25,
+      "rag": "red",
+      "status": "1. Workflow dan mockup (done).​\n2. Menunggu execution plan dari IT.​",
+      "pic": "Reza Rizky",
+      "category": "",
+      "priority": "",
+      "notes": "",
+      "links": [],
+      "milestones": []
+    },
+    {
+      "id": 15,
+      "name": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+      "planLeft": 51.7876,
+      "planWidth": 39.5009,
+      "planTarget": 100,
+      "actualLeft": 58.9497,
+      "actualWidth": 12.0482,
+      "actualProgress": 20,
+      "rag": "red",
+      "status": "1. Workflow dan mockup (done review internal).​\n2. Meeting Inisiasi awal workflow dan mockup dengan IT (W2 JUni 2026)",
+      "pic": "Bang Adnan",
+      "category": "",
+      "priority": "",
+      "notes": "",
+      "links": [],
+      "milestones": [
+        {
+          "label": "Review Flow Rev-2",
+          "left": 68.3134,
+          "top": 51.0277
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "name": "Enhancement LCMS",
+      "planLeft": 50.2183,
+      "planWidth": 32.824,
+      "planTarget": 100,
+      "actualLeft": 49.8908,
+      "actualWidth": 3.82096,
+      "actualProgress": 10,
+      "rag": "red",
+      "status": "1. Alignment dengan IT C&T dan ex-KPI untuk kebutuhan ex-KPI kedalam LCM (done).​2. Enhancement dilaksanakan oleh IT 1.​",
+      "pic": "Reza Rizky",
+      "category": "",
+      "priority": "",
+      "notes": "",
+      "links": [],
+      "milestones": []
+    },
+    {
+      "id": 17,
+      "name": "Service MySAP",
+      "planLeft": 0,
+      "planWidth": 0,
+      "planTarget": 0,
+      "actualLeft": 0,
+      "actualWidth": 0,
+      "actualProgress": 0,
+      "rag": "grey",
+      "status": "",
+      "pic": "",
+      "category": "",
+      "priority": "",
+      "notes": "",
+      "links": [],
+      "milestones": []
+    },
+    {
+      "id": 18,
+      "name": "Extract data dari SIDE ke RAISE",
+      "planLeft": 0,
+      "planWidth": 0,
+      "planTarget": 0,
+      "actualLeft": 0,
+      "actualWidth": 0,
+      "actualProgress": 0,
+      "rag": "grey",
+      "status": "Tarik atau integrasi data spec. sheet.Nota dinas permintaan integrasi API. -> Target W5 April",
+      "pic": "",
+      "category": "",
+      "priority": "",
+      "notes": "",
+      "links": [],
+      "milestones": []
+    }
+  ],
+  "history": [
+    {
+      "ts": 1780460016281,
+      "d": "3 Jun 2026, 11.13",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 75,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 50,
+          "a": 61,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 75,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 50,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 80,
+          "r": "yellow"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 60,
+          "a": 70,
+          "r": "green"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 30,
+          "a": 25,
+          "r": "yellow"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 40,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 50,
+          "a": 10,
+          "r": "red"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1780459887554,
+      "d": "3 Jun 2026, 11.11",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 75,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 50,
+          "a": 61,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 75,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 50,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 80,
+          "r": "yellow"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 60,
+          "a": 70,
+          "r": "green"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 30,
+          "a": 25,
+          "r": "yellow"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 40,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 50,
+          "a": 10,
+          "r": "red"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1780459872033,
+      "d": "3 Jun 2026, 11.11",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 75,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 50,
+          "a": 61,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 75,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 50,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 80,
+          "r": "yellow"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 60,
+          "a": 70,
+          "r": "green"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 30,
+          "a": 25,
+          "r": "yellow"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 40,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 50,
+          "a": 10,
+          "r": "red"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1780459830750,
+      "d": "3 Jun 2026, 11.10",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 75,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 50,
+          "a": 61,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 75,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 50,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 80,
+          "r": "yellow"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 60,
+          "a": 70,
+          "r": "green"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 30,
+          "a": 25,
+          "r": "yellow"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 40,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 50,
+          "a": 10,
+          "r": "red"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1780455988923,
+      "d": "3 Jun 2026, 10.06",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 75,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 50,
+          "a": 61,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 75,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 50,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 10,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 60,
+          "a": 40,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 30,
+          "a": 25,
+          "r": "yellow"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 40,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 50,
+          "a": 10,
+          "r": "red"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1780455987952,
+      "d": "3 Jun 2026, 10.06",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 75,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 50,
+          "a": 61,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 75,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 50,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 10,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 60,
+          "a": 40,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 30,
+          "a": 25,
+          "r": "yellow"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 40,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 50,
+          "a": 10,
+          "r": "red"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1780455324357,
+      "d": "3 Jun 2026, 09.55",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 90,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 50,
+          "a": 61,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 60,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 50,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 10,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 60,
+          "a": 40,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 30,
+          "a": 25,
+          "r": "yellow"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 40,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 50,
+          "a": 10,
+          "r": "red"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1780455314200,
+      "d": "3 Jun 2026, 09.55",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 90,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 50,
+          "a": 61,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 60,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 50,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 10,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 60,
+          "a": 40,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 30,
+          "a": 25,
+          "r": "yellow"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 40,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 50,
+          "a": 10,
+          "r": "red"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1780455312111,
+      "d": "3 Jun 2026, 09.55",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 90,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 50,
+          "a": 61,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 60,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 50,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 10,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 60,
+          "a": 40,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 30,
+          "a": 25,
+          "r": "yellow"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 40,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 50,
+          "a": 10,
+          "r": "red"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1780455311160,
+      "d": "3 Jun 2026, 09.55",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 90,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 50,
+          "a": 61,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 60,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 50,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 10,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 60,
+          "a": 40,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 30,
+          "a": 25,
+          "r": "yellow"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 40,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 50,
+          "a": 10,
+          "r": "red"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1780453873365,
+      "d": "3 Jun 2026, 09.31",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 90,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 100,
+          "a": 80,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 100,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 100,
+          "a": 25,
+          "r": "red"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 80,
+          "a": 10,
+          "r": "red"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1780453208925,
+      "d": "3 Jun 2026, 09.20",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1777342088821,
+      "d": "28 Apr 2026, 09.08",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1777342085951,
+      "d": "28 Apr 2026, 09.08",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1777342046143,
+      "d": "28 Apr 2026, 09.07",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1777342037830,
+      "d": "28 Apr 2026, 09.07",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1777341592052,
+      "d": "28 Apr 2026, 08.59",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1777341393070,
+      "d": "28 Apr 2026, 08.56",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1777341339196,
+      "d": "28 Apr 2026, 08.55",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1777341303775,
+      "d": "28 Apr 2026, 08.55",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1777340896111,
+      "d": "28 Apr 2026, 08.48",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1777339741170,
+      "d": "28 Apr 2026, 08.29",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1776070282893,
+      "d": "13 Apr 2026, 15.51",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1776070190233,
+      "d": "13 Apr 2026, 15.49",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1776069984315,
+      "d": "13 Apr 2026, 15.46",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1776069677572,
+      "d": "13 Apr 2026, 15.41",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1776069656830,
+      "d": "13 Apr 2026, 15.40",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1776068965392,
+      "d": "13 Apr 2026, 15.29",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Aplikasi Eqp Health Score",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1776068960370,
+      "d": "13 Apr 2026, 15.29",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Aplikasi Eqp Health Score",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1776062508005,
+      "d": "13 Apr 2026, 13.41",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Aplikasi Eqp Health Score",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1775710143451,
+      "d": "9 Apr 2026, 11.49",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Aplikasi Eqp Health Score",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1775708238942,
+      "d": "9 Apr 2026, 11.17",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Aplikasi Eqp Health Score",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1775703260458,
+      "d": "9 Apr 2026, 09.54",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Aplikasi Eqp Health Score",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1775702520470,
+      "d": "9 Apr 2026, 09.42",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Aplikasi Eqp Health Score",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1775702426349,
+      "d": "9 Apr 2026, 09.40",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Aplikasi Eqp Health Score",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1775702421198,
+      "d": "9 Apr 2026, 09.40",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Aplikasi Eqp Health Score",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1775701544011,
+      "d": "9 Apr 2026, 09.25",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Aplikasi Eqp Health Score",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1775700204113,
+      "d": "9 Apr 2026, 09.03",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Aplikasi Eqp Health Score",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1775700096597,
+      "d": "9 Apr 2026, 09.01",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Aplikasi Eqp Health Score",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1775700090024,
+      "d": "9 Apr 2026, 09.01",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 Asset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Aplikasi Eqp Health Score",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    },
+    {
+      "ts": 1775697838356,
+      "d": "9 Apr 2026, 08.23",
+      "projects": [
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 1 & 2",
+          "p": 0,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Development RAISE :  TA Excellent Tahap 3",
+          "p": 100,
+          "a": 15,
+          "r": "red"
+        },
+        {
+          "n": "Development RAISE :  Master Plan & OH Ex Condmon & Inspeksi",
+          "p": 100,
+          "a": 90,
+          "r": "yellow"
+        },
+        {
+          "n": "Implementasi AI di RAISE",
+          "p": 60,
+          "a": 50,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement Excellent :  Key in Data Dashboard",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement e-Workshop",
+          "p": 100,
+          "a": 100,
+          "r": "blue"
+        },
+        {
+          "n": "Enhancement MOCi",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Mobile",
+          "p": 100,
+          "a": 95,
+          "r": "yellow"
+        },
+        {
+          "n": "Enhancement BOC+ Web",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement e-BVL",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Kajian Digitalisasi Reliability Dengan LGU Tahap 2 ASset Rea",
+          "p": 100,
+          "a": 5,
+          "r": "red"
+        },
+        {
+          "n": "Penelitian Inspection Tools",
+          "p": 100,
+          "a": 50,
+          "r": "red"
+        },
+        {
+          "n": "Pekerjaan kajian Data warehouse dan TDS OT/IT",
+          "p": 25,
+          "a": 20,
+          "r": "yellow"
+        },
+        {
+          "n": "Development IRKAP 2.0",
+          "p": 10,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Development Aplikasi RBI, ECA/ FSCA FMEA, dan EMS/GMS",
+          "p": 0,
+          "a": 20,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement BOC+ website",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Enhancement LCMS",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Enhancement e-BVL 2026",
+          "p": 0,
+          "a": 10,
+          "r": "green"
+        },
+        {
+          "n": "Aplikasi Eqp Health Score",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Service MySAP",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        },
+        {
+          "n": "Extract data dari SIDE ke RAISE",
+          "p": 0,
+          "a": 0,
+          "r": "grey"
+        }
+      ]
+    }
+  ],
+  "masterData": {
+    "pics": [
+      "Reza Rizky",
+      "Reza",
+      "Adnan",
+      "Bang Adnan",
+      "Adnan Nasution",
+      "Gandhi Nugroho",
+      "Ulin Salsabila",
+      "Senna Septiawan"
+    ],
+    "blockerCategories": [
+      "Menunggu IT",
+      "Pengadaan/Kontrak",
+      "Perubahan Lingkup",
+      "Revisi FGD",
+      "Ketergantungan Vendor",
+      "Anggaran",
+      "Resource/SDM"
+    ],
+    "categories": [
+      "Digitalisasi",
+      "Enhancement",
+      "Development",
+      "Penelitian",
+      "Kajian"
+    ],
+    "priorities": [
+      "High",
+      "Medium",
+      "Low"
+    ]
+  }
+}
