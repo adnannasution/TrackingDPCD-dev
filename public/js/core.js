@@ -1317,22 +1317,33 @@ function updateProgress(bar) {
 function initInteract(el) {
     // Milestones still use old logic; bars now use initSingleBar
     if (!el.classList.contains('milestone')) { initSingleBar(el); return; }
-    const handle = el.querySelector('.resize-handle');
     const startDrag=(e)=>{
         const rowEl=el.closest('.gantt-row'); if(rowEl && rowEl.dataset.dragEnabled!=='true')return;
-        if(e.target===handle)return;
-        const clientX=e.touches?e.touches[0].clientX:e.clientX; const clientY=e.touches?e.touches[0].clientY:e.clientY;
-        let shiftX=clientX-el.getBoundingClientRect().left; let shiftY=clientY-el.getBoundingClientRect().top;
-        const parentRect=el.parentElement.getBoundingClientRect(); const parentWidth=el.parentElement.offsetWidth; const parentHeight=el.parentElement.offsetHeight;
-        const moveAt=(cx,cy)=>{
-            let nl=cx-shiftX-parentRect.left; if(nl<0)nl=0; if(nl+el.offsetWidth>parentWidth)nl=parentWidth-el.offsetWidth;
-            el.style.left=(nl/parentWidth*100)+'%';
-            let nt=cy-shiftY-parentRect.top;if(nt<2)nt=2;if(nt+el.offsetHeight>parentHeight-5)nt=parentHeight-el.offsetHeight-5;el.style.top=nt+'px';
+        if(e.target.classList.contains('item-del')) return;
+        e.preventDefault(); e.stopPropagation();
+        const clientX=e.touches?e.touches[0].clientX:e.clientX;
+        const parentWidth=el.parentElement.offsetWidth;
+        const left0=parseFloat(el.style.left)||0;
+        const cx0=clientX;
+        const syncMonth=()=>{
+            const cfg=getTimelineConfig();
+            const winStart=cfg.startY*12+cfg.startM;
+            const idx=Math.round(parseFloat(el.style.left)/100*cfg.duration);
+            el.dataset.month=absValueFromIndex(winStart+Math.max(0,Math.min(cfg.duration-1,idx)));
         };
-        const onMove=(em)=>moveAt(em.touches?em.touches[0].clientX:em.clientX,em.touches?em.touches[0].clientY:em.clientY);
-        const onEnd=()=>{document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onEnd);document.removeEventListener('touchmove',onMove);document.removeEventListener('touchend',onEnd);};
+        const onMove=(em)=>{
+            const cx=em.touches?em.touches[0].clientX:em.clientX;
+            const dx=(cx-cx0)/parentWidth*100;
+            el.style.left=Math.max(0,Math.min(100,left0+dx))+'%';
+            syncMonth();
+        };
+        const onEnd=()=>{
+            syncMonth();
+            document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onEnd);
+            document.removeEventListener('touchmove',onMove);document.removeEventListener('touchend',onEnd);
+        };
         document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onEnd);
-        document.addEventListener('touchmove',onMove);document.addEventListener('touchend',onEnd);
+        document.addEventListener('touchmove',onMove,{passive:false});document.addEventListener('touchend',onEnd);
     };
     el.addEventListener('mousedown',startDrag); el.addEventListener('touchstart',startDrag,{passive:false});
 }
