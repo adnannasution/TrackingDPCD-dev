@@ -685,6 +685,113 @@ app.get('/api/state/revisions', authRequired, async (req, res) => {
   }
 });
 
+// ─── Project Assignments ─────────────────────────────────────────────────────
+
+// Member progress update — patches a single project inside dashboard_state JSONB
+app.patch('/api/state/project/:projectId', authRequired, async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { actual_progress, status, rag, notes, blockers } = req.body;
+    const userId = req.user.id;
+
+    // Admin/manager can patch directly. Members must be assigned.
+    if (req.user.role === 'member') {
+      const { rows: aRows } = await pool.query(
+        'SELECT 1 FROM project_assignments WHERE project_id=$1 AND user_id=$2',
+        [projectId, userId]
+      );
+      if (!aRows.length) return res.status(403).json({ error: 'Tidak memiliki akses ke proyek ini' });
+    }
+
+    // Load current state
+    const { rows } = await pool.query('SELECT data FROM dashboard_state WHERE id=1');
+    if (!rows.length) return res.status(404).json({ error: 'Dashboard state not found' });
+
+    const state = rows[0].data;
+    const projects = (state.projects || []);
+    const idx = projects.findIndex(p => String(p.id) === String(projectId));
+    if (idx === -1) return res.status(404).json({ error: 'Project not found' });
+
+    // Apply updates
+    if (actual_progress !== undefined) projects[idx].actualProgress = actual_progress;
+    if (status !== undefined) projects[idx].status = status;
+    if (rag !== undefined) projects[idx].rag = rag;
+    if (notes !== undefined) projects[idx].notes = notes;
+    if (blockers !== undefined) projects[idx].blockers = blockers;
+
+    state.projects = projects;
+
+    await pool.query(
+      `UPDATE dashboard_state SET data=$1, updated_at=NOW(), updated_by=$2 WHERE id=1`,
+      [JSON.stringify(state), req.user.full_name]
+    );
+
+    await logActivity(req.user.id, 'update_project_progress', 'project', projectId, projects[idx].name, {
+      actual_progress, status
+    });
+
+    res.json({ message: 'Progress updated', project: projects[idx] });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get assignments for current user
+app.get('/api/my-assignments', authRequired, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT project_id FROM project_assignments WHERE user_id=$1',
+      [req.user.id]
+    );
+    res.json(rows.map(r => r.project_id));
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get all assignments (admin/manager)
+app.get('/api/assignments', authRequired, requireRole('admin', 'manager'), async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT pa.*, u.full_name, u.username FROM project_assignments pa JOIN users u ON u.id = pa.user_id ORDER BY pa.project_id`
+    );
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Assign user to project
+app.post('/api/assignments', authRequired, requireRole('admin', 'manager'), async (req, res) => {
+  try {
+    const { project_id, user_id } = req.body;
+    if (!project_id || !user_id) return res.status(400).json({ error: 'project_id and user_id required' });
+    await pool.query(
+      'INSERT INTO project_assignments (project_id, user_id) VALUES ($1,$2) ON CONFLICT DO NOTHING',
+      [String(project_id), user_id]
+    );
+    const { rows: uRows } = await pool.query('SELECT full_name FROM users WHERE id=$1', [user_id]);
+    await createNotification(user_id, 'assigned', 'Di-assign ke Proyek',
+      `Anda di-assign ke proyek ID: ${project_id}`, '/');
+    await logActivity(req.user.id, 'assign_member', 'project', project_id, String(project_id), { assigned_user: uRows[0]?.full_name });
+    res.status(201).json({ message: 'Assigned' });
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Remove assignment
+app.delete('/api/assignments/:projectId/:userId', authRequired, requireRole('admin', 'manager'), async (req, res) => {
+  try {
+    await pool.query('DELETE FROM project_assignments WHERE project_id=$1 AND user_id=$2',
+      [req.params.projectId, req.params.userId]);
+    res.json({ message: 'Assignment removed' });
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // ─── Health ───────────────────────────────────────────────────────────────────
 
 app.get('/api/health', async (req, res) => {

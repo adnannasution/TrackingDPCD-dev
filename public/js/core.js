@@ -18,6 +18,8 @@ let currentPage = 1;
 const rowsPerPage = 6;
 let activeFilter = 'all';
 let _weeklyViewKey = null; // null = Live; berisi weekKey saat melihat kondisi minggu lampau (read-only)
+let _myAssignments = []; // project IDs assigned to current user
+let _currentUserRole = null;
 let currentView = 'gantt';
 let _detailCurrentRow = null;
 let _currentFileHandle = null;
@@ -898,14 +900,28 @@ function createRowFromData(proj) {
     });
     const ragClass = 'bg-grey';
     const statusHTML = escapeHTML(proj.status || '').replace(/\n/g, '<br>');
-    row.innerHTML = `
+    const _role = (_currentUserRole || (Auth.getUser() && Auth.getUser().role) || 'member');
+    const _projId = String(proj.id || '');
+    const _isAssigned = _myAssignments.includes(_projId);
+    const _canEdit = (_role === 'admin' || _role === 'manager');
+    const _canUpdateProgress = _canEdit || (_role === 'member' && _isAssigned);
+
+    const actionColHTML = _canEdit ? `
         <div class="action-col">
             <button class="icon-btn btn-p" onclick="addItemToRow(this,'plan')" title="Edit data Plan">&#128197;</button>
             <button class="icon-btn btn-a" onclick="addItemToRow(this,'actual')" title="Edit data Actual">&#9889;</button>
             <button class="icon-btn btn-m" onclick="addItemToRow(this,'milestone')" title="Tambah Milestone">&#9670;</button>
             <button class="icon-btn btn-d" onclick="deleteRow(this)" title="Hapus baris"><svg class="btn-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 15H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
-        </div>
-        <div class="editable-cell activity-cell" data-placeholder="Nama Projek..." style="position:relative;"><div class="activity-name-text" contenteditable="true" data-placeholder="Nama Projek...">${escapeHTML(proj.name)}</div></div>
+        </div>` : _canUpdateProgress ? `
+        <div class="action-col">
+            <button class="icon-btn btn-a" onclick="openMemberProgressModal(this)" title="Update Progress" style="background:#e8f5e9;color:#2e7d32">✏️</button>
+        </div>` : `
+        <div class="action-col" title="Read-only">
+            <span style="font-size:11px;color:#aaa;padding:4px">👁️</span>
+        </div>`;
+
+    row.innerHTML = actionColHTML +
+        `<div class="editable-cell activity-cell" data-placeholder="Nama Projek..." style="position:relative;"><div class="activity-name-text" contenteditable="true" data-placeholder="Nama Projek...">${escapeHTML(proj.name)}</div></div>
         <div class="timeline-grid">${combinedBarHTML}${msHTML}</div>
         <div class="rag-col"><div class="traffic-light ${ragClass}"></div></div>
         <div class="editable-cell" contenteditable="true" data-placeholder="Update Status...">${statusHTML}</div>`;
@@ -916,6 +932,19 @@ function createRowFromData(proj) {
         else if (el.classList.contains('bar-actual')) el.ondblclick = function(e){ e.stopPropagation(); updateProgress(this); };
         else if (el.classList.contains('bar-plan')) el.ondblclick = function(e){ e.stopPropagation(); updatePlanTarget(this); };
     });
+    // Lock editing for members on non-assigned projects
+    if (!_canEdit && !_canUpdateProgress) {
+        row.querySelectorAll('[contenteditable]').forEach(el => {
+            el.removeAttribute('contenteditable');
+            el.style.cursor = 'default';
+        });
+    } else if (_role === 'member' && _canUpdateProgress) {
+        // member can only update via modal, not inline edit
+        row.querySelectorAll('[contenteditable]').forEach(el => {
+            el.removeAttribute('contenteditable');
+            el.style.cursor = 'default';
+        });
+    }
     return row;
 }
 
@@ -1417,8 +1446,104 @@ async function loadFromJSON(){ return reloadFromDatabase(); }
 async function reloadFromStorage(){ return reloadFromDatabase(); }
 async function saveHandleToStorage(){ showToast('Data sudah tersambung ke database'); }
 
+function openMemberProgressModal(btn) {
+    const row = btn.closest('.gantt-row');
+    if (!row) return;
+    // Get current values from row
+    const nameEl = row.querySelector('.activity-name-text');
+    const statusEl = row.querySelector('.editable-cell:not(.activity-cell)');
+    const tlEl = row.querySelector('.traffic-light');
+    const currentProgress = parseInt(row.getAttribute('data-actual-progress') || '0');
+    const currentStatus = statusEl ? statusEl.innerText.trim() : '';
+    const currentRag = tlEl ? (tlEl.className.replace('traffic-light','').trim() || 'bg-grey') : 'bg-grey';
+    const projName = nameEl ? nameEl.innerText.trim() : 'Project';
+
+    // Find project id from serialized state
+    const state = serializeCurrentState();
+    const idx = state.projects ? state.projects.findIndex(p => p.name === projName) : -1;
+    const projId = idx >= 0 ? String(state.projects[idx].id) : null;
+    if (!projId) { showToast('Tidak dapat menemukan ID proyek'); return; }
+
+    const overlay = document.createElement('div');
+    overlay.id = 'member-progress-overlay';
+    overlay.className = 'milestone-form-overlay';
+    overlay.innerHTML = `
+        <div class="milestone-form-modal" role="dialog" style="max-width:420px">
+            <div class="milestone-form-header">
+                <div><h3>Update Progress</h3><p class="bar-form-subtitle">${escapeHTML(projName)}</p></div>
+                <button type="button" class="save-auth-x" onclick="document.getElementById('member-progress-overlay').remove()">×</button>
+            </div>
+            <div class="milestone-form-body">
+                <label style="display:block;margin-bottom:14px">
+                    <span style="font-size:13px;font-weight:600;color:#1a2332;display:block;margin-bottom:6px">Progress Aktual (%)</span>
+                    <input type="range" id="mpm-progress" min="0" max="100" value="${currentProgress}" style="width:100%;accent-color:#00a99d" oninput="document.getElementById('mpm-pval').textContent=this.value+'%'">
+                    <span id="mpm-pval" style="font-size:14px;font-weight:700;color:#00a99d">${currentProgress}%</span>
+                </label>
+                <label style="display:block;margin-bottom:14px">
+                    <span style="font-size:13px;font-weight:600;color:#1a2332;display:block;margin-bottom:6px">Status TLM</span>
+                    <select id="mpm-rag" style="width:100%;padding:8px 12px;border:1.5px solid #dde3ec;border-radius:8px;font-size:14px">
+                        <option value="bg-blue" ${currentRag==='bg-blue'?'selected':''}>🔵 Done</option>
+                        <option value="bg-green" ${currentRag==='bg-green'?'selected':''}>🟢 On Track</option>
+                        <option value="bg-yellow" ${currentRag==='bg-yellow'?'selected':''}>🟡 Slightly Delay</option>
+                        <option value="bg-red" ${currentRag==='bg-red'?'selected':''}>🔴 Delay</option>
+                        <option value="bg-grey" ${currentRag==='bg-grey'?'selected':''}>⚪ Belum Mulai</option>
+                    </select>
+                </label>
+                <label style="display:block">
+                    <span style="font-size:13px;font-weight:600;color:#1a2332;display:block;margin-bottom:6px">Catatan / Kendala</span>
+                    <textarea id="mpm-notes" rows="3" style="width:100%;padding:8px 12px;border:1.5px solid #dde3ec;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical" placeholder="Update status, kendala, rencana...">${escapeHTML(currentStatus)}</textarea>
+                </label>
+            </div>
+            <div class="milestone-form-footer" style="gap:10px">
+                <button type="button" class="milestone-btn-secondary" onclick="document.getElementById('member-progress-overlay').remove()">Batal</button>
+                <button type="button" class="milestone-btn-primary" onclick="submitMemberProgress('${escapeAttr(projId)}')">Simpan Progress</button>
+            </div>
+        </div>`;
+    document.body.appendChild(overlay);
+}
+
+async function submitMemberProgress(projId) {
+    const progress = parseInt(document.getElementById('mpm-progress').value);
+    const rag = document.getElementById('mpm-rag').value;
+    const notes = document.getElementById('mpm-notes').value.trim();
+
+    const btn = document.querySelector('#member-progress-overlay .milestone-btn-primary');
+    if (btn) { btn.disabled = true; btn.textContent = 'Menyimpan...'; }
+
+    try {
+        const res = await Auth.apiFetch('/api/state/project/' + projId, {
+            method: 'PATCH',
+            body: JSON.stringify({ actual_progress: progress, rag, notes })
+        });
+        if (!res || !res.ok) {
+            const err = await res?.json();
+            throw new Error(err?.error || 'Gagal menyimpan');
+        }
+        document.getElementById('member-progress-overlay').remove();
+        showToast('Progress berhasil diperbarui');
+        await reloadFromDatabase();
+    } catch (e) {
+        alert('Error: ' + e.message);
+        if (btn) { btn.disabled = false; btn.textContent = 'Simpan Progress'; }
+    }
+}
+
+async function loadMyAssignments() {
+    try {
+        const res = await Auth.apiFetch('/api/my-assignments');
+        if (res && res.ok) {
+            _myAssignments = await res.json();
+        }
+    } catch (e) { /* ignore */ }
+    const user = Auth.getUser();
+    _currentUserRole = user ? user.role : 'member';
+}
+
 window.onload=async function(){
-    try{ await reloadFromDatabase(); }
+    try{
+        await loadMyAssignments();
+        await reloadFromDatabase();
+    }
     catch(e){ updateSummaryCards(); updatePagination(); }
     syncFrozenColumns();
 };
