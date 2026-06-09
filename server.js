@@ -627,17 +627,28 @@ app.get('/api/stats', authRequired, async (req, res) => {
 app.get('/api/state', authRequired, async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM dashboard_state WHERE id=1');
+    let state;
     if (!rows.length) {
-      // Load from seed file if DB empty
       try {
         const fs = require('fs');
-        const seed = JSON.parse(fs.readFileSync(path.join(__dirname, 'data_projects_dpcd.json'), 'utf8'));
-        return res.json(seed);
+        state = JSON.parse(fs.readFileSync(path.join(__dirname, 'data_projects_dpcd.json'), 'utf8'));
       } catch {
         return res.json(null);
       }
+    } else {
+      state = rows[0].data;
     }
-    res.json(rows[0].data);
+
+    // Backend role filter: manager/member only see their dept's projects
+    const { role, dept_name } = req.user;
+    if ((role === 'manager' || role === 'member') && dept_name && state && Array.isArray(state.projects)) {
+      state = {
+        ...state,
+        projects: state.projects.filter(p => (p.department || '') === dept_name)
+      };
+    }
+
+    res.json(state);
   } catch (e) {
     res.status(500).json({ error: 'Server error' });
   }

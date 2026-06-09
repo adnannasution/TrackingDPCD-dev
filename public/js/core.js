@@ -1537,6 +1537,22 @@ async function loadMyAssignments() {
     } catch (e) { /* ignore */ }
     const user = Auth.getUser();
     _currentUserRole = user ? user.role : 'member';
+    // Auto-lock dept filter for manager/member based on their dept
+    if (user && (user.role === 'manager' || user.role === 'member') && user.dept_name) {
+        _deptFilter = user.dept_name;
+        const sel = document.getElementById('dept-filter');
+        if (sel) {
+            let found = false;
+            for (const opt of sel.options) {
+                if (opt.value === user.dept_name) { sel.value = user.dept_name; found = true; break; }
+            }
+            if (!found) {
+                const opt = document.createElement('option');
+                opt.value = user.dept_name; opt.textContent = user.dept_name;
+                sel.appendChild(opt); sel.value = user.dept_name;
+            }
+        }
+    }
 }
 
 window.onload=async function(){
