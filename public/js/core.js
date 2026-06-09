@@ -1992,6 +1992,16 @@ function bpopApply() {
 // ===================================================================
 // UTILITIES
 // ===================================================================
+// Remove any stuck overlay elements (escape hatch for zombie modals)
+function clearStuckOverlays() {
+    ['detail-overlay','history-overlay','weekly-reminder','exec-overlay','milestone-form-overlay','bar-form-overlay','row-focus-ov','member-progress-overlay','member-add-project-overlay'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.remove();
+    });
+    closeBarPopover();
+}
+// Expose globally — Escape key clears stuck overlays
+document.addEventListener('keydown', e => { if (e.key === 'Escape') clearStuckOverlays(); });
+
 function escapeHTML(str){ if(!str)return''; const div=document.createElement('div'); div.appendChild(document.createTextNode(str)); return div.innerHTML; }
 function getCutoffDate(){ const cv=(document.getElementById('cfg-cutoff')||{}).value; const d=cv?new Date(cv):new Date(); d.setHours(0,0,0,0); return d; }
 function isOverdue(dueStr, ragKey){ if(!dueStr)return false; if(ragKey==='blue'||ragKey==='bg-blue')return false; const d=new Date(dueStr); if(isNaN(d))return false; d.setHours(0,0,0,0); return d < getCutoffDate(); }
