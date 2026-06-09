@@ -68,8 +68,8 @@
                 Prognosa
             </button>
         </div>
-        <select id="dept-filter" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.1);color:white;font-size:13px;cursor:pointer;display:none" onchange="onDeptFilterChange(this.value)">
-            <option value="">Semua Bagian</option>
+        <select id="dept-filter" style="padding:6px 10px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.35);background:#1a3a5c;color:white;font-size:13px;cursor:pointer;display:none;outline:none" onchange="onDeptFilterChange(this.value)">
+            <option value="" style="background:#1a3a5c;color:white">Semua Bagian</option>
         </select>
         <button class="config-toggle" id="config-toggle" onclick="toggleConfig()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 6.8 19l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 5 12.6H4.9a2 2 0 1 1 0-4H5a1.6 1.6 0 0 0 1.1-2.7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 12 3.9V4a2 2 0 1 1 4 0v.1A1.6 1.6 0 0 0 19 5.2"></path></svg>
@@ -264,6 +264,9 @@
 <script src="/js/exports.js"></script>
 <script src="/js/calendar.js"></script>
 <script>
+  // Pre-load system users for PIC checklist in project detail modal
+  if (typeof loadSystemUsers === 'function') loadSystemUsers();
+
   // Init auth UI & role-based access
   const _u = Auth.getUser();
   if (_u) {
@@ -294,13 +297,18 @@
         const opt = document.createElement('option');
         opt.value = d.name;
         opt.textContent = d.name;
+        opt.style.background = '#1a3a5c';
+        opt.style.color = 'white';
         sel.appendChild(opt);
       });
       sel.style.display = 'block';
-      // If manager, pre-select their department
-      if (_u && _u.role === 'manager' && _u.dept_name) {
+
+      // Manager & member: auto-filter to their dept, lock the dropdown
+      if (_u && (_u.role === 'manager' || _u.role === 'member') && _u.dept_name) {
         sel.value = _u.dept_name;
-        // trigger filter after dashboard loads
+        sel.disabled = true;
+        sel.style.opacity = '0.85';
+        sel.style.cursor = 'not-allowed';
         setTimeout(() => { if(sel.value) onDeptFilterChange(sel.value); }, 800);
       }
     } catch(e) { /* silently ignore */ }

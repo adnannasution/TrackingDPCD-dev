@@ -257,7 +257,9 @@ function openProjectDetail(row){
     const catOpts=catList.map(o=>'<option value="'+escapeAttr(o)+'"'+(o===category?' selected':'')+'>'+(o||'-- Pilih Kategori --')+'</option>').join('');
     const priOpts=priList.map(o=>'<option value="'+escapeAttr(o)+'"'+(o===priority?' selected':'')+'>'+(o||'-- Pilih Prioritas --')+'</option>').join('');
     const buildChecklist=(opts,selected)=>{const sel=selected.slice();selected.forEach(s=>{if(opts.indexOf(s)<0)opts=opts.concat(s);});return opts.length?opts.map(o=>'<label class="md-chk"><input type="checkbox" value="'+escapeAttr(o)+'"'+(sel.indexOf(o)>=0?' checked':'')+'><span>'+escapeHTML(o)+'</span></label>').join(''):'<span class="md-chk-empty">Belum ada data master.</span>';};
-    const picChecklist=buildChecklist(md.pics.slice(),picSel);
+    // Use system users as PIC options, fallback to md.pics for legacy data
+    const picOpts = _systemUsers.length ? _systemUsers.filter(u=>u.is_active).map(u=>u.full_name) : (md.pics||[]);
+    const picChecklist=buildChecklist(picOpts.slice(),picSel);
     const blockerChecklist=buildChecklist(md.blockerCategories.slice(),blockerSel);
     const linksHTML=links.length?links.map(l=>'<div class="detail-link-row"><input type="text" class="detail-link-input" value="'+escapeHTML(l)+'" placeholder="https://..."><button class="detail-link-remove" onclick="this.parentElement.remove()">x</button></div>').join(''):'';
     const statusCell=row.children[row.children.length-1];const statusText=statusCell?statusCell.innerText.trim():'';
@@ -300,11 +302,18 @@ function closeProjectDetail(){
 // MASTER DATA MODAL (admin) - kelola PIC, Blocker, Kategori, Prioritas
 // ===================================================================
 const MASTER_DATA_SECTIONS=[
-    {key:'pics',title:'PIC / Owner',placeholder:'Nama PIC...'},
     {key:'blockerCategories',title:'Blocker Category',placeholder:'Kategori blocker...'},
     {key:'categories',title:'Kategori Project',placeholder:'Nama kategori...'},
     {key:'priorities',title:'Prioritas',placeholder:'Nama prioritas...'}
 ];
+// Cache system users for PIC checklist
+let _systemUsers = [];
+async function loadSystemUsers() {
+    try {
+        const res = await Auth.apiFetch('/api/users');
+        if (res && res.ok) _systemUsers = await res.json();
+    } catch(e) { /* ignore */ }
+}
 function masterItemRowHTML(value,placeholder){
     return '<div class="detail-link-row"><input type="text" class="detail-link-input md-item-input" value="'+escapeAttr(value||'')+'" placeholder="'+escapeAttr(placeholder)+'"><button class="detail-link-remove" onclick="this.parentElement.remove()">x</button></div>';
 }
@@ -365,8 +374,8 @@ function openMasterData(){
                             <option value="manager">Manager</option>
                             <option value="admin">Admin</option>
                         </select>
-                        <select id="md-new-user-dept" style="padding:8px 12px;border:1.5px solid #dde3ec;border-radius:8px;font-size:13px;grid-column:1/-1">
-                            <option value="">— Pilih Bagian (opsional) —</option>
+                        <select id="md-new-user-dept" style="padding:8px 12px;border:1.5px solid #dde3ec;border-radius:8px;font-size:13px;grid-column:1/-1" onchange="mdUpdateDeptRequired(this)">
+                            <option value="">— Pilih Bagian (wajib untuk Manager & Member) —</option>
                         </select>
                     </div>
                     <button class="btn-add-link" onclick="mdAddUser()">+ Buat User</button>
@@ -420,6 +429,13 @@ function openMasterData(){
         mdLoadDepts();
         mdLoadUsers();
     }
+    // Pre-load system users for PIC checklist
+    if (!_systemUsers.length) loadSystemUsers();
+}
+
+function mdUpdateDeptRequired(sel) {
+    const role = document.getElementById('md-new-user-role')?.value;
+    sel.style.borderColor = ((role === 'manager' || role === 'member') && !sel.value) ? '#e63946' : '#dde3ec';
 }
 function addMasterItem(key,placeholder){
     const list=document.getElementById('md-list-'+key); if(!list)return;
@@ -508,7 +524,7 @@ async function mdLoadDepts() {
         // Also update dept select in user form
         const deptSel = document.getElementById('md-new-user-dept');
         if (deptSel) {
-            deptSel.innerHTML = '<option value="">— Pilih Bagian (opsional) —</option>' +
+            deptSel.innerHTML = '<option value="">— Pilih Bagian (wajib untuk Manager & Member) —</option>' +
                 depts.map(d => `<option value="${d.id}">${escapeHTML(d.name)}</option>`).join('');
         }
     } catch(e) { if(list) list.innerHTML = '<span style="color:#e63946;font-size:13px">Error: '+escapeHTML(e.message)+'</span>'; }
@@ -572,6 +588,7 @@ async function mdAddUser() {
     const role = document.getElementById('md-new-user-role')?.value || 'member';
     const deptId = document.getElementById('md-new-user-dept')?.value || null;
     if (!fullName || !username || !password) { alert('Nama, username, dan password wajib diisi'); return; }
+    if ((role === 'manager' || role === 'member') && !deptId) { alert('Bagian wajib diisi untuk role Manager dan Member'); document.getElementById('md-new-user-dept')?.focus(); return; }
     try {
         const res = await Auth.apiFetch('/api/users', {
             method: 'POST',
