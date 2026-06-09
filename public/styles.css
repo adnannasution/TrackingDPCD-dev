@@ -341,12 +341,18 @@ h1,h2,h3,h4 { font-family:var(--font-display); }
 .gantt-row:hover > div:nth-child(1), .gantt-row:hover > div:nth-child(2) { background:var(--surface-2); }
 .gantt-header > div:nth-child(1) { background:var(--surface-2); z-index:106; }
 .gantt-header > div:nth-child(2) { background:var(--surface-2); z-index:104; }
-.action-col { display:grid; grid-template-columns:repeat(2,36px); gap:6px; padding:7px; align-content:center; justify-content:center; justify-items:center; overflow:hidden; }
-.icon-btn { width:36px; height:36px; border:1px solid var(--line); border-radius:7px; cursor:pointer; color:var(--ink-2); font-size:0.95rem; display:flex; align-items:center; justify-content:center; background:var(--surface); transition:all 0.12s; }
+.action-col { display:grid; grid-template-columns:repeat(3,30px); gap:4px; padding:6px; align-content:center; justify-content:center; justify-items:center; overflow:hidden; }
+.icon-btn { width:30px; height:30px; border:1px solid var(--line); border-radius:7px; cursor:pointer; color:var(--ink-2); font-size:0.85rem; display:flex; align-items:center; justify-content:center; background:var(--surface); transition:all 0.12s; }
 .icon-btn:hover { background:var(--navy-800); color:#fff; border-color:var(--navy-800); }
-.icon-btn .btn-svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-.btn-m { font-size:0.95rem; }
+.icon-btn .btn-svg { width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.btn-m { font-size:0.88rem; }
 .btn-d:hover { background:var(--crit) !important; border-color:var(--crit) !important; color:#fff !important; }
+/* Lock button — spans full width on top row */
+.row-lock-btn { grid-column:1/-1; width:100%; height:26px; font-size:0.75rem; border-radius:6px; background:#f1f5f9; border-color:#cbd5e1; color:#475569; }
+.row-lock-btn.active { background:#e0f2fe; border-color:#38bdf8; color:#0369a1; }
+.row-lock-btn:hover { background:var(--navy-800) !important; color:#fff !important; }
+/* Edit buttons disabled (locked state) */
+.icon-btn.row-edit-btn:disabled { opacity:0.32; cursor:not-allowed; pointer-events:none; }
 /* Two independent bars: Plan (top lane) and Actual (bottom lane) */
 .bar { position:absolute; height:20px; border-radius:999px; z-index:10; display:flex; align-items:center; cursor:grab; font-size:0.67rem; font-weight:700; overflow:hidden; min-width:28px; }
 .bar:active { cursor:grabbing; }

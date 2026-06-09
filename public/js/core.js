@@ -978,13 +978,15 @@ function createRowFromData(proj) {
     const _canUpdateProgress = _canEdit || (_role === 'member' && _isAssigned);
 
     const zoomBtn = `<button class="icon-btn btn-zoom" onclick="openRowFocus(this)" title="Fokus & Edit Timeline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>`;
+    const lockRowBtn = `<button class="icon-btn row-lock-btn" onclick="toggleRowLock(this)" title="Buka kunci untuk edit timeline (Plan/Actual/Milestone)">🔒</button>`;
     const actionColHTML = _canEdit ? `
         <div class="action-col">
-            <button class="icon-btn btn-p" onclick="addItemToRow(this,'plan')" title="Edit data Plan">&#128197;</button>
-            <button class="icon-btn btn-a" onclick="addItemToRow(this,'actual')" title="Edit data Actual">&#9889;</button>
-            <button class="icon-btn btn-m" onclick="addItemToRow(this,'milestone')" title="Tambah Milestone">&#9670;</button>
+            ${lockRowBtn}
+            <button class="icon-btn btn-p row-edit-btn" onclick="addItemToRow(this,'plan')" title="Buat/Edit bar Plan (buka kunci dulu)" disabled>&#128197;</button>
+            <button class="icon-btn btn-a row-edit-btn" onclick="addItemToRow(this,'actual')" title="Buat/Edit bar Actual (buka kunci dulu)" disabled>&#9889;</button>
+            <button class="icon-btn btn-m row-edit-btn" onclick="addItemToRow(this,'milestone')" title="Tambah Milestone (buka kunci dulu)" disabled>&#9670;</button>
             ${zoomBtn}
-            <button class="icon-btn btn-d" onclick="deleteRow(this)" title="Hapus baris"><svg class="btn-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 15H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
+            <button class="icon-btn btn-d row-edit-btn" onclick="deleteRow(this)" title="Hapus baris (buka kunci dulu)" disabled><svg class="btn-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 15H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
         </div>` : _canUpdateProgress ? `
         <div class="action-col">
             <button class="icon-btn btn-a" onclick="openMemberProgressModal(this)" title="Update Progress" style="background:#e8f5e9;color:#2e7d32">✏️</button>
@@ -2157,6 +2159,21 @@ function setWeeklyReadOnly(on, label){
 // ===================================================================
 // DETAIL buttons
 // ===================================================================
+function toggleRowLock(btn) {
+    const row = btn.closest('.gantt-row');
+    if (!row) return;
+    const on = row.dataset.dragEnabled === 'true';
+    row.dataset.dragEnabled = on ? 'false' : 'true';
+    btn.textContent = on ? '🔒' : '🔓';
+    btn.title = on ? 'Buka kunci untuk edit timeline' : 'Kunci timeline';
+    btn.classList.toggle('active', !on);
+    // Enable/disable all edit buttons in the same action-col
+    row.querySelectorAll('.row-edit-btn').forEach(b => {
+        b.disabled = on;
+        b.style.opacity = on ? '' : '1';
+    });
+}
+
 function initDetailButtons(){
     document.querySelectorAll('.gantt-row').forEach(row=>{
         // Wire drag-to-create on timeline grid
@@ -2174,24 +2191,6 @@ function initDetailButtons(){
         btn.onmousedown=function(e){e.preventDefault();e.stopPropagation();};
         btn.onclick=function(e){e.preventDefault();e.stopPropagation();openProjectDetail(row);};
         nameCell.appendChild(btn);
-        const lockBtn=document.createElement('button');
-        lockBtn.type='button';
-        lockBtn.className='drag-lock-btn';
-        lockBtn.setAttribute('contenteditable','false');
-        lockBtn.contentEditable='false';
-        lockBtn.tabIndex=-1;
-        lockBtn.textContent='🔒';
-        lockBtn.title='Aktifkan geser Gantt';
-        lockBtn.onmousedown=function(e){e.preventDefault();e.stopPropagation();};
-        lockBtn.onclick=function(e){
-            e.preventDefault();e.stopPropagation();
-            const on=row.dataset.dragEnabled==='true';
-            row.dataset.dragEnabled=on?'false':'true';
-            lockBtn.classList.toggle('active',!on);
-            lockBtn.textContent=on?'🔒':'🔓';
-            lockBtn.title=on?'Aktifkan geser Gantt':'Kunci geser Gantt';
-        };
-        nameCell.appendChild(lockBtn);
     });
 }
 
