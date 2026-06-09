@@ -17,6 +17,12 @@ function formatMonthYearShort(dStr){
 let currentPage = 1;
 const rowsPerPage = 6;
 let activeFilter = 'all';
+let _autoSaveTimer = null;
+function scheduleAutoSave() {
+    if (typeof Auth === 'undefined' || !Auth.canManage()) return;
+    clearTimeout(_autoSaveTimer);
+    _autoSaveTimer = setTimeout(() => saveToDatabase(true), 1500);
+}
 let _weeklyViewKey = null; // null = Live; berisi weekKey saat melihat kondisi minggu lampau (read-only)
 let _myAssignments = []; // project IDs assigned to current user
 let _currentUserRole = null;
@@ -732,33 +738,31 @@ async function reloadFromDatabase(){
     }
 }
 
-async function saveToDatabase(){
-    if(_weeklyViewKey){ showToast('Mode lihat riwayat — keluar ke Terkini untuk mengedit'); return; }
+async function saveToDatabase(silent){
+    if(_weeklyViewKey){ if(!silent) showToast('Mode lihat riwayat — keluar ke Terkini untuk mengedit'); return; }
 
     const user = Auth.getUser();
-    if(!user){ showToast('Silakan login ulang'); Auth.logout(); return; }
-    if(!Auth.canManage()){
-        showToast('Hanya Admin atau Manager yang bisa menyimpan perubahan');
-        return;
-    }
+    if(!user){ if(!silent) showToast('Silakan login ulang'); Auth.logout(); return; }
+    if(!Auth.canManage()){ return; }
 
     try{
         captureSnapshot();
         const data = serializeCurrentState();
-        setDsStatus('idle','Menyimpan ke database...');
+        if(!silent) setDsStatus('idle','Menyimpan ke database...');
         const result = await writeStateToApi(data);
 
         if(result.unauthorized){ showToast('Sesi habis, silakan login ulang'); Auth.logout(); return; }
-        if(result.forbidden){ showToast('Anda tidak memiliki akses untuk menyimpan'); return; }
+        if(result.forbidden){ return; }
 
         _appData = result.data || data;
         setOptionalText('ds-path-display', 'PostgreSQL Railway');
         setDsStatus('connected', result.updatedAt ? ('Tersimpan - ' + new Date(result.updatedAt).toLocaleString('id-ID')) : 'Tersimpan ke database');
-        showToast('Data berhasil disimpan oleh ' + (result.updatedBy || user.full_name));
+        if(silent){ showToast('✓ Tersimpan otomatis'); }
+        else { showToast('Data berhasil disimpan oleh ' + (result.updatedBy || user.full_name)); }
         populateWeeklyFilter();
     }catch(err){
         setDsStatus('disconnected','Gagal menyimpan database');
-        alert('Gagal menyimpan: ' + err.message);
+        if(!silent) alert('Gagal menyimpan: ' + err.message);
     }
 }
 
@@ -1353,6 +1357,7 @@ function initInteract(el) {
         };
         const onEnd=()=>{
             syncMonth();
+            scheduleAutoSave();
             document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onEnd);
             document.removeEventListener('touchmove',onMove);document.removeEventListener('touchend',onEnd);
         };
@@ -1387,6 +1392,7 @@ function initSingleBar(el, rowOverride) {
             if (lbl) lbl.textContent = 'Act: ' + (c.actualProgress||0) + '%';
         }
         refreshTrafficLight(row);
+        scheduleAutoSave();
         // sync popover footer inputs if row-focus is open
         const rfRow = document.getElementById('rf-grid') && document.getElementById('rf-grid')._sourceRow;
         if (rfRow === row) {
@@ -1942,6 +1948,7 @@ function bpopApply() {
     setRowCanonical(row, existing);
     redrawGanttPillFromDates(row);
     closeBarPopover();
+    scheduleAutoSave();
 }
 
 // ===================================================================
