@@ -1331,6 +1331,189 @@ function initInteract(el) {
 }
 
 // ===================================================================
+// ROW FOCUS — fullscreen single-row Gantt editor
+// ===================================================================
+function openRowFocus(btn) {
+    const row = btn.closest('.gantt-row');
+    const name = (row.querySelector('.activity-name-text') || {}).innerText || '(Tanpa Nama)';
+    const canEdit = row.dataset.dragEnabled !== undefined;
+    const cfg = getTimelineConfig();
+    const c = getRowCanonical(row) || {};
+
+    // Build month header labels
+    let monthLabels = '';
+    let cm = cfg.startM, cy = cfg.startY;
+    const mNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    for (let i = 0; i < cfg.duration; i++) {
+        const isYear = (i === 0 || cm === 0);
+        monthLabels += `<div class="rf-mcell${isYear?' rf-year-start':''}">${isYear?cy+' · ':''}<span>${mNames[cm]}</span></div>`;
+        cm++; if (cm > 11) { cm = 0; cy++; }
+    }
+
+    const ov = document.createElement('div');
+    ov.id = 'row-focus-ov';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(10,34,64,0.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px);animation:dtFadeIn 0.2s ease';
+    ov.addEventListener('click', e => { if (e.target === ov) closeRowFocus(); });
+
+    ov.innerHTML = `
+    <div style="background:white;border-radius:16px;width:100%;max-width:1100px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(10,34,64,0.3)">
+        <div style="background:#0a2240;padding:16px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0">
+            <div style="flex:1;min-width:0">
+                <div style="font-size:15px;font-weight:700;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHTML(name)}</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:2px">Drag area atas → Plan &nbsp;|&nbsp; Drag area bawah → Actual &nbsp;|&nbsp; Drag bar untuk geser &nbsp;|&nbsp; Klik bar → Edit tanggal</div>
+            </div>
+            <div style="display:flex;gap:8px;flex-shrink:0">
+                <button onclick="rfUnlockToggle()" id="rf-lock-btn" style="padding:7px 14px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;border-radius:8px;font-size:12px;cursor:pointer;font-weight:500">🔓 Aktif</button>
+                <button onclick="closeRowFocus()" style="background:rgba(255,255,255,0.1);border:none;color:white;width:32px;height:32px;border-radius:8px;font-size:18px;cursor:pointer">&times;</button>
+            </div>
+        </div>
+        <!-- Month header -->
+        <div style="overflow-x:auto;flex-shrink:0;border-bottom:1px solid #e8edf5">
+            <div id="rf-header" style="display:grid;grid-template-columns:repeat(${cfg.duration},1fr);min-width:800px;background:#f8fafc"></div>
+        </div>
+        <!-- Big timeline area -->
+        <div style="overflow-x:auto;flex:1;min-height:200px">
+            <div id="rf-grid" style="position:relative;min-width:800px;height:100%;min-height:200px;background-image:linear-gradient(to right,#e8edf5 1px,transparent 1px);background-size:calc(100%/${cfg.duration}) 100%;cursor:crosshair"></div>
+        </div>
+        <!-- Footer controls -->
+        <div style="padding:14px 20px;background:#f8fafc;border-top:1px solid #e8edf5;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap">
+            <span style="font-size:12px;color:#6b7a8d;font-weight:500">Quick set:</span>
+            <div style="display:flex;gap:6px;align-items:center">
+                <label style="font-size:12px;color:#6b7a8d">Plan</label>
+                <input type="month" id="rf-plan-start" value="${c.planStart||''}" style="padding:5px 8px;border:1.5px solid #dde3ec;border-radius:7px;font-size:12px;outline:none" oninput="rfApplyDates()">
+                <span style="color:#9ca3af;font-size:11px">→</span>
+                <input type="month" id="rf-plan-end" value="${c.planEnd||''}" style="padding:5px 8px;border:1.5px solid #dde3ec;border-radius:7px;font-size:12px;outline:none" oninput="rfApplyDates()">
+            </div>
+            <div style="display:flex;gap:6px;align-items:center">
+                <label style="font-size:12px;color:#6b7a8d">Actual</label>
+                <input type="month" id="rf-act-start" value="${c.actualStart||''}" style="padding:5px 8px;border:1.5px solid #dde3ec;border-radius:7px;font-size:12px;outline:none" oninput="rfApplyDates()">
+                <span style="color:#9ca3af;font-size:11px">→</span>
+                <input type="month" id="rf-act-end" value="${c.actualEnd||''}" style="padding:5px 8px;border:1.5px solid #dde3ec;border-radius:7px;font-size:12px;outline:none" oninput="rfApplyDates()">
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;margin-left:auto">
+                <label style="font-size:12px;color:#6b7a8d">Actual %</label>
+                <input type="range" id="rf-progress" min="0" max="100" value="${c.actualProgress||0}" style="width:100px" oninput="document.getElementById('rf-pval').textContent=this.value+'%';rfApplyDates()">
+                <span id="rf-pval" style="font-size:12px;font-weight:600;color:#0e7c86;min-width:34px">${c.actualProgress||0}%</span>
+            </div>
+        </div>
+    </div>`;
+
+    document.body.appendChild(ov);
+
+    // Fill header
+    document.getElementById('rf-header').innerHTML = monthLabels;
+
+    // Clone row's timeline content into big grid
+    const rfGrid = document.getElementById('rf-grid');
+    rfGrid._sourceRow = row;
+    rfGrid.dataset.dragEnabled = 'true';
+
+    // Re-render bars inside rfGrid using a synthetic row-like element
+    const synth = document.createElement('div');
+    synth.className = 'gantt-row';
+    synth.style.cssText = 'position:absolute;inset:0;pointer-events:none';
+    synth.dataset.dragEnabled = 'true';
+    Object.assign(synth.dataset, {
+        planStart: c.planStart||'', planEnd: c.planEnd||'',
+        actualStart: c.actualStart||'', actualEnd: c.actualEnd||'',
+        actualProgress: String(c.actualProgress||0)
+    });
+    const innerGrid = document.createElement('div');
+    innerGrid.className = 'timeline-grid';
+    innerGrid.style.cssText = `position:absolute;inset:0;display:grid;grid-template-columns:repeat(${cfg.duration},1fr);`;
+    synth.appendChild(innerGrid);
+    rfGrid.appendChild(synth);
+
+    // Draw bars
+    rfRedraw();
+}
+
+function rfRedraw() {
+    const ov = document.getElementById('row-focus-ov');
+    if (!ov) return;
+    const rfGrid = document.getElementById('rf-grid');
+    const sourceRow = rfGrid._sourceRow;
+    const c = getRowCanonical(sourceRow) || {};
+    const synth = rfGrid.querySelector('.gantt-row');
+    if (!synth) return;
+    Object.assign(synth.dataset, {
+        planStart: c.planStart||'', planEnd: c.planEnd||'',
+        actualStart: c.actualStart||'', actualEnd: c.actualEnd||'',
+        actualProgress: String(c.actualProgress||0)
+    });
+    const grid = synth.querySelector('.timeline-grid');
+    grid.querySelectorAll('.bar').forEach(el => el.remove());
+    const html = buildGanttPillHTML(c);
+    if (html) {
+        grid.insertAdjacentHTML('afterbegin', html);
+        const bar = grid.querySelector('.bar-combo');
+        if (bar) {
+            synth.style.pointerEvents = 'auto';
+            initInteract(bar);
+            bar.ondblclick = e => { e.stopPropagation(); };
+            bar.addEventListener('click', e => {
+                if (e.detail > 1) return;
+                const rect = bar.getBoundingClientRect();
+                const type = (e.clientY - rect.top) / rect.height > 0.5 ? 'actual' : 'plan';
+                openBarPopover(bar, type, sourceRow);
+            });
+            // After drag ends, sync back to source row and update footer inputs
+            const origOnEnd = bar.onmouseup;
+            const patchSync = () => {
+                syncRowDatesFromBar(bar);
+                const c2 = getRowCanonical(sourceRow) || {};
+                const s = id => document.getElementById(id);
+                if(s('rf-plan-start')) s('rf-plan-start').value = c2.planStart||'';
+                if(s('rf-plan-end'))   s('rf-plan-end').value   = c2.planEnd||'';
+                if(s('rf-act-start'))  s('rf-act-start').value  = c2.actualStart||'';
+                if(s('rf-act-end'))    s('rf-act-end').value    = c2.actualEnd||'';
+            };
+            document.addEventListener('mouseup', patchSync, { once: false });
+            rfGrid._patchSync = patchSync;
+        }
+    }
+    // Wire drag-to-create on synth
+    grid.dataset.drawInit = '';
+    initGridDraw(synth);
+}
+
+function rfApplyDates() {
+    const rfGrid = document.getElementById('rf-grid');
+    if (!rfGrid) return;
+    const sourceRow = rfGrid._sourceRow;
+    const get = id => (document.getElementById(id)||{}).value||'';
+    const existing = getRowCanonical(sourceRow) || {};
+    if (get('rf-plan-start')) existing.planStart = get('rf-plan-start');
+    if (get('rf-plan-end'))   existing.planEnd   = get('rf-plan-end');
+    if (get('rf-act-start'))  existing.actualStart = get('rf-act-start');
+    if (get('rf-act-end'))    existing.actualEnd   = get('rf-act-end');
+    const prog = document.getElementById('rf-progress');
+    if (prog) existing.actualProgress = parseInt(prog.value)||0;
+    setRowCanonical(sourceRow, existing);
+    redrawGanttPillFromDates(sourceRow);
+    rfRedraw();
+}
+
+function rfUnlockToggle() {
+    const rfGrid = document.getElementById('rf-grid');
+    const synth = rfGrid && rfGrid.querySelector('.gantt-row');
+    if (!synth) return;
+    const on = synth.dataset.dragEnabled === 'true';
+    synth.dataset.dragEnabled = on ? 'false' : 'true';
+    const btn = document.getElementById('rf-lock-btn');
+    if (btn) { btn.textContent = on ? '🔒 Kunci' : '🔓 Aktif'; }
+}
+
+function closeRowFocus() {
+    const ov = document.getElementById('row-focus-ov');
+    if (!ov) return;
+    const rfGrid = document.getElementById('rf-grid');
+    if (rfGrid && rfGrid._patchSync) document.removeEventListener('mouseup', rfGrid._patchSync);
+    closeBarPopover();
+    ov.remove();
+}
+
+// ===================================================================
 // DRAG-TO-CREATE: draw Plan/Actual bar by dragging on empty timeline grid
 // Top half of grid → Plan, Bottom half → Actual. Click → Milestone.
 // Click existing bar → open quick-edit popover.
