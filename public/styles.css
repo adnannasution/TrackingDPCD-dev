@@ -392,6 +392,15 @@ h1,h2,h3,h4 { font-family:var(--font-display); }
 .drag-lock-btn.active { background:#1f9d63; border-color:#1f9d63; }
 .gantt-row:not([data-drag-enabled="true"]) .bar { cursor:default; }
 
+/* Zoom / focus button */
+.btn-zoom { background:rgba(0,169,157,0.08) !important; color:#0a7c86 !important; border:1px solid rgba(0,169,157,0.25) !important; }
+.btn-zoom:hover { background:rgba(0,169,157,0.18) !important; }
+
+/* Row Focus fullscreen month header */
+.rf-mcell { font-size:10px; color:#6b7a8d; text-align:center; padding:5px 2px; border-right:1px solid #e8edf5; white-space:nowrap; overflow:hidden; }
+.rf-mcell span { display:block; }
+.rf-year-start { color:#0a2240; font-weight:600; }
+
 /* Drag-to-create cursor hints */
 .gantt-row[data-drag-enabled="true"] .timeline-grid { cursor:crosshair; }
 .gantt-row[data-drag-enabled="true"] .timeline-grid:hover::before {
