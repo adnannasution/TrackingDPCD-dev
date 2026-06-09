@@ -34,8 +34,8 @@
           <button id="notifBtn" onclick="toggleNotifPanel()" style="background:none;border:none;cursor:pointer;font-size:20px;position:relative;padding:4px">
             🔔<span id="notifCount" style="display:none;position:absolute;top:0;right:0;background:#e63946;color:white;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:700;align-items:center;justify-content:center"></span>
           </button>
-          <a href="/admin.html" id="adminLink" style="font-size:13px;color:rgba(255,255,255,0.8);text-decoration:none">⚙️ Admin</a>
-          <span id="topUserName" style="font-size:13px;color:rgba(255,255,255,0.9);font-weight:600"></span>
+          <a href="/admin.html" id="adminLink" style="display:none;font-size:13px;color:rgba(255,255,255,0.8);text-decoration:none">⚙️ Admin</a>
+          <span id="topUserName" style="font-size:13px;color:rgba(255,255,255,0.9);font-weight:600;cursor:pointer" onclick="openChangePasswordModal()" title="Klik untuk ganti password"></span>
           <button onclick="Auth.logout()" style="background:rgba(255,255,255,0.15);border:none;color:white;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer">Keluar</button>
         </div>
     </header>
@@ -256,6 +256,30 @@
 <!-- ===== PRINT REPORT (hidden on screen) ===== -->
 <div id="print-report"></div>
 
+<!-- ===== CHANGE PASSWORD MODAL ===== -->
+<div id="changePwModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;padding:28px;width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.2)">
+    <h3 style="margin:0 0 20px;font-size:16px;color:#1a1a2e">🔑 Ganti Password</h3>
+    <div style="margin-bottom:14px">
+      <label style="display:block;font-size:12px;color:#666;margin-bottom:4px">Password Lama</label>
+      <input type="password" id="cpOld" placeholder="Password saat ini" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:14px">
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="display:block;font-size:12px;color:#666;margin-bottom:4px">Password Baru</label>
+      <input type="password" id="cpNew" placeholder="Minimal 6 karakter" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:14px">
+    </div>
+    <div style="margin-bottom:20px">
+      <label style="display:block;font-size:12px;color:#666;margin-bottom:4px">Konfirmasi Password Baru</label>
+      <input type="password" id="cpConfirm" placeholder="Ulangi password baru" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:14px">
+    </div>
+    <div id="cpError" style="display:none;background:#fef2f2;color:#dc2626;padding:8px 10px;border-radius:6px;font-size:13px;margin-bottom:14px"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button onclick="closeChangePasswordModal()" style="padding:8px 16px;border:1px solid #ddd;background:#fff;border-radius:6px;font-size:13px;cursor:pointer">Batal</button>
+      <button onclick="submitChangePassword()" style="padding:8px 16px;background:#1a5276;color:white;border:none;border-radius:6px;font-size:13px;cursor:pointer;font-weight:600">Simpan</button>
+    </div>
+  </div>
+</div>
+
 <!-- Source version: assets are served normally by Express. -->
 
 
@@ -396,6 +420,69 @@
     if (panel && btn && !panel.contains(e.target) && !btn.contains(e.target)) {
       panel.style.display = 'none';
     }
+  });
+
+  function openChangePasswordModal() {
+    document.getElementById('cpOld').value = '';
+    document.getElementById('cpNew').value = '';
+    document.getElementById('cpConfirm').value = '';
+    document.getElementById('cpError').style.display = 'none';
+    const modal = document.getElementById('changePwModal');
+    modal.style.display = 'flex';
+    setTimeout(() => document.getElementById('cpOld').focus(), 50);
+  }
+
+  function closeChangePasswordModal() {
+    document.getElementById('changePwModal').style.display = 'none';
+  }
+
+  async function submitChangePassword() {
+    const old_password = document.getElementById('cpOld').value.trim();
+    const new_password = document.getElementById('cpNew').value;
+    const confirm = document.getElementById('cpConfirm').value;
+    const errEl = document.getElementById('cpError');
+
+    errEl.style.display = 'none';
+
+    if (!old_password || !new_password) {
+      errEl.textContent = 'Semua field harus diisi.';
+      errEl.style.display = 'block';
+      return;
+    }
+    if (new_password.length < 6) {
+      errEl.textContent = 'Password baru minimal 6 karakter.';
+      errEl.style.display = 'block';
+      return;
+    }
+    if (new_password !== confirm) {
+      errEl.textContent = 'Konfirmasi password tidak cocok.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    try {
+      const res = await Auth.apiFetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ old_password, new_password })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        errEl.textContent = data.error || 'Gagal mengganti password.';
+        errEl.style.display = 'block';
+        return;
+      }
+      closeChangePasswordModal();
+      if (typeof showToast === 'function') showToast('✓ Password berhasil diubah');
+    } catch(e) {
+      errEl.textContent = 'Terjadi kesalahan. Coba lagi.';
+      errEl.style.display = 'block';
+    }
+  }
+
+  // Close modal on backdrop click
+  document.getElementById('changePwModal').addEventListener('click', function(e) {
+    if (e.target === this) closeChangePasswordModal();
   });
 </script>
 
