@@ -123,7 +123,7 @@ function aggregateBlockers(projects){
 // Kumpulkan ringkasan project (untuk aggregateBlockers) langsung dari baris gantt aktif.
 function collectBlockerProjects(){
     const out = [];
-    document.querySelectorAll('.gantt-row').forEach(row=>{
+    getVisibleRows().forEach(row=>{
         const name = (typeof getActivityNameFromRow==='function') ? getActivityNameFromRow(row) : '';
         if(!name) return;
         const planPct = (typeof getPlanTargetFromRow==='function') ? getPlanTargetFromRow(row) : 0;
@@ -1010,11 +1010,15 @@ function generateTimeline(isLoad=false) {
 // ===================================================================
 // PAGINATION & FILTER
 // ===================================================================
+// Returns all rows visible for current dept filter (used by ALL views)
+function getVisibleRows() {
+    const all = Array.from(document.querySelectorAll('.gantt-row'));
+    if (!_deptFilter) return all;
+    return all.filter(row => (row.dataset.dept || '') === _deptFilter);
+}
+
 function getFilteredRows() {
-    let all = Array.from(document.querySelectorAll('.gantt-row'));
-    if (_deptFilter) {
-        all = all.filter(row => (row.dataset.dept || '') === _deptFilter);
-    }
+    let all = getVisibleRows();
     if (activeFilter==='all') return all;
     return all.filter(row => { const tl=row.querySelector('.traffic-light'); return tl && tl.classList.contains(activeFilter); });
 }
@@ -1129,7 +1133,7 @@ function refreshTrafficLight(row) {
 }
 
 function updateSummaryCards() {
-    const rows=document.querySelectorAll('.gantt-row');
+    const rows = getVisibleRows();
     let total=0,done=0,ontrack=0,warning=0,critical=0;
     rows.forEach(row=>{
         const tl=row.querySelector('.traffic-light'); if(!tl||tl.classList.contains('bg-grey')) return;

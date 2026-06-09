@@ -28,7 +28,7 @@ function renderSCurve(){
     // project. Bulan sebelum window tetap dihitung sbg baseline kumulatif, sehingga
     // saat window digeser ke depan, kurva tetap mencerminkan progres sesungguhnya.
     const winStart=startY*12+startM;
-    const rows=document.querySelectorAll('.gantt-row'); let projectCount=0;
+    const rows=(typeof getVisibleRows==='function')?getVisibleRows():Array.from(document.querySelectorAll('.gantt-row')); let projectCount=0;
     const planByAbs={}, actByAbs={};
     rows.forEach(row=>{
         const c=(typeof getRowCanonical==='function')?getRowCanonical(row):{};
@@ -109,7 +109,7 @@ function buildBoardCardHTML(s, color, statusKey){
 function renderBoard(){
     const container = document.getElementById('board-scroll');
     if(!container) return;
-    const rows = Array.from(document.querySelectorAll('.gantt-row'));
+    const rows = (typeof getVisibleRows==='function') ? getVisibleRows() : Array.from(document.querySelectorAll('.gantt-row'));
     // honour active filter (but still show all columns; just dim none)
     const visibleRows = activeFilter==='all' ? rows : rows.filter(r=>{const tl=r.querySelector('.traffic-light');return tl&&tl.classList.contains(activeFilter);});
     container.innerHTML = '';
@@ -157,7 +157,7 @@ function renderBlocker(){
     if(!body) return;
     // Petakan nama project → baris (untuk drill-down ke detail).
     const rowByName = {};
-    document.querySelectorAll('.gantt-row').forEach(row=>{
+    ((typeof getVisibleRows==='function') ? getVisibleRows() : Array.from(document.querySelectorAll('.gantt-row'))).forEach(row=>{
         const n = (typeof getActivityNameFromRow==='function') ? getActivityNameFromRow(row) : '';
         if(n && !rowByName[n]) rowByName[n] = row;
     });
@@ -255,7 +255,7 @@ const PIC_NO_OWNER = 'Belum ada PIC';
 function renderPic(){
     const body = document.getElementById('pic-body');
     if(!body) return;
-    const rows = Array.from(document.querySelectorAll('.gantt-row'));
+    const rows = (typeof getVisibleRows==='function') ? getVisibleRows() : Array.from(document.querySelectorAll('.gantt-row'));
     // Agregasi per PIC. Proyek multi-PIC dihitung ke tiap nama. Status grey diabaikan.
     const map = {};
     const ensure = name => (map[name] || (map[name] = { name, total:0, red:0, yellow:0, green:0, blue:0, rows:{ red:[], yellow:[], green:[], blue:[] } }));
@@ -410,7 +410,7 @@ function renderPrognosa(){
     const cutoff = getCutoffDate();
     const rowByName = {};
     const projects = [];
-    document.querySelectorAll('.gantt-row').forEach(row=>{
+    ((typeof getVisibleRows==='function') ? getVisibleRows() : Array.from(document.querySelectorAll('.gantt-row'))).forEach(row=>{
         const name = getActivityNameFromRow(row);
         if(!name) return;
         if(!rowByName[name]) rowByName[name] = row;
