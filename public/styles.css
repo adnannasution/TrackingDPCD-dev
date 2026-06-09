@@ -350,8 +350,8 @@ h1,h2,h3,h4 { font-family:var(--font-display); }
 /* Two independent bars: Plan (top lane) and Actual (bottom lane) */
 .bar { position:absolute; height:20px; border-radius:999px; z-index:10; display:flex; align-items:center; cursor:grab; font-size:0.67rem; font-weight:700; overflow:hidden; min-width:28px; }
 .bar:active { cursor:grabbing; }
-.bar-plan   { top:6px; background:#c8dff0; border:1.5px solid #7baed4; color:#0a3d5e; z-index:10; box-shadow:0 1px 4px rgba(10,62,120,0.12); }
-.bar-actual { bottom:6px; background:linear-gradient(90deg,#13909b,#0e7c86); border:1px solid rgba(14,124,134,0.4); color:#fff; z-index:11; box-shadow:0 1px 5px rgba(14,124,134,0.28), inset 0 1px 0 rgba(255,255,255,0.12); }
+.bar-plan   { top:calc(50% - 22px); background:#c8dff0; border:1.5px solid #7baed4; color:#0a3d5e; z-index:10; box-shadow:0 1px 4px rgba(10,62,120,0.12); }
+.bar-actual { top:calc(50% + 2px);  background:linear-gradient(90deg,#13909b,#0e7c86); border:1px solid rgba(14,124,134,0.4); color:#fff; z-index:11; box-shadow:0 1px 5px rgba(14,124,134,0.28), inset 0 1px 0 rgba(255,255,255,0.12); }
 .bar-fill { position:absolute; top:0; left:0; bottom:0; background:rgba(255,255,255,0.2); width:0%; z-index:1; border-radius:999px; }
 .bar-label { position:relative; z-index:2; white-space:nowrap; line-height:1; pointer-events:none; }
 .plan-label   { padding-left:9px; padding-right:7px; color:#0a3d5e; }
