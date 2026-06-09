@@ -264,8 +264,9 @@
 <script src="/js/exports.js"></script>
 <script src="/js/calendar.js"></script>
 <script>
-  // Pre-load system users for PIC checklist in project detail modal
+  // Pre-load system users and departments for project detail modal
   if (typeof loadSystemUsers === 'function') loadSystemUsers();
+  if (typeof loadCachedDepts === 'function') loadCachedDepts();
 
   // Init auth UI & role-based access
   const _u = Auth.getUser();

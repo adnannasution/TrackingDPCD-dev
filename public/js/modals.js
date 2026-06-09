@@ -247,25 +247,29 @@ function openProjectDetail(row){
     const rag=getRowRag(row);
     const picSel=parsePicValue(row.getAttribute('data-pic')); const blockerSel=parseBlockers(row.getAttribute('data-blockers'));
     const category=row.getAttribute('data-category')||''; const priority=row.getAttribute('data-priority')||''; const notes=row.getAttribute('data-notes')||'';
+    const dept=row.getAttribute('data-dept')||'';
     const links=(row.getAttribute('data-links')||'').split('|||').filter(Boolean);
     const nextAction=row.getAttribute('data-next-action')||''; const dueDate=row.getAttribute('data-due')||'';
     const prognosa=row.getAttribute('data-prognosa')||'';
     const md=getMasterData();
-    // Pertahankan nilai tersimpan walau sudah tidak ada di master data (hindari kehilangan data)
     const catList=[''].concat(md.categories); if(category && md.categories.indexOf(category)<0) catList.push(category);
     const priList=[''].concat(md.priorities); if(priority && md.priorities.indexOf(priority)<0) priList.push(priority);
     const catOpts=catList.map(o=>'<option value="'+escapeAttr(o)+'"'+(o===category?' selected':'')+'>'+(o||'-- Pilih Kategori --')+'</option>').join('');
     const priOpts=priList.map(o=>'<option value="'+escapeAttr(o)+'"'+(o===priority?' selected':'')+'>'+(o||'-- Pilih Prioritas --')+'</option>').join('');
     const buildChecklist=(opts,selected)=>{const sel=selected.slice();selected.forEach(s=>{if(opts.indexOf(s)<0)opts=opts.concat(s);});return opts.length?opts.map(o=>'<label class="md-chk"><input type="checkbox" value="'+escapeAttr(o)+'"'+(sel.indexOf(o)>=0?' checked':'')+'><span>'+escapeHTML(o)+'</span></label>').join(''):'<span class="md-chk-empty">Belum ada data master.</span>';};
-    // Use system users as PIC options, fallback to md.pics for legacy data
     const picOpts = _systemUsers.length ? _systemUsers.filter(u=>u.is_active).map(u=>u.full_name) : (md.pics||[]);
     const picChecklist=buildChecklist(picOpts.slice(),picSel);
     const blockerChecklist=buildChecklist(md.blockerCategories.slice(),blockerSel);
     const linksHTML=links.length?links.map(l=>'<div class="detail-link-row"><input type="text" class="detail-link-input" value="'+escapeHTML(l)+'" placeholder="https://..."><button class="detail-link-remove" onclick="this.parentElement.remove()">x</button></div>').join(''):'';
     const statusCell=row.children[row.children.length-1];const statusText=statusCell?statusCell.innerText.trim():'';
+
+    // Build dept options from cached departments
+    const deptOptsHTML = '<option value="">-- Pilih Bagian --</option>' +
+        (_cachedDepts||[]).map(d=>'<option value="'+escapeAttr(d.name)+'"'+(d.name===dept?' selected':'')+'>'+escapeHTML(d.name)+'</option>').join('');
+
     const overlay=document.createElement('div'); overlay.className='detail-overlay'; overlay.id='detail-overlay';
     overlay.addEventListener('click',function(e){if(e.target===overlay)closeProjectDetail();});
-    overlay.innerHTML='<div class="detail-modal"><div class="detail-header"><div class="detail-header-left"><h2>'+(escapeHTML(projectName)||'(Tanpa Nama)')+'</h2><div class="detail-status-badge"><div class="detail-status-dot" style="background:'+rag.color+';"></div>'+rag.label+'</div></div><button class="detail-close" onclick="closeProjectDetail()">&times;</button></div><div class="detail-body"><div class="detail-progress-section"><div class="detail-progress-row"><div class="detail-progress-label">Plan</div><div class="detail-progress-bar-track"><div class="detail-progress-bar-fill dt-plan-fill" style="width:'+planPct+'%;">'+planPct+'%</div></div></div><div class="detail-progress-row"><div class="detail-progress-label">Actual</div><div class="detail-progress-bar-track"><div class="detail-progress-bar-fill dt-actual-fill" style="width:'+actPct+'%;">'+actPct+'%</div></div></div>'+timelineViewHTML+diffHTML+'</div><div class="detail-section"><div class="detail-section-title">Informasi Project</div><div class="detail-field" style="grid-template-columns:1fr;"><label>PIC / Owner</label><div class="detail-checklist" id="detail-pic-list">'+picChecklist+'</div></div><div class="detail-field"><label>Kategori</label><select id="detail-category">'+catOpts+'</select></div><div class="detail-field"><label>Prioritas</label><select id="detail-priority">'+priOpts+'</select></div></div><div class="detail-section"><div class="detail-section-title">Kendala / Blocker</div><div class="detail-field" style="grid-template-columns:1fr;"><label>Kategori Blocker</label><div class="detail-checklist" id="detail-blocker-list">'+blockerChecklist+'</div></div></div><div class="detail-section"><div class="detail-section-title">Tindak Lanjut</div><div class="detail-field" style="grid-template-columns:1fr;"><label>Next Action</label><input type="text" id="detail-next-action" value="'+escapeHTML(nextAction)+'" placeholder="Aksi berikutnya..."></div><div class="detail-field"><label>Due Date</label><input type="date" id="detail-due" value="'+escapeHTML(dueDate)+'"></div><div class="detail-field"><label>Prognosa Selesai <span style="font-weight:400;color:var(--ink-3);">(estimasi selesai utk status delay)</span></label><input type="date" id="detail-prognosa" value="'+escapeHTML(prognosa)+'"></div></div><div class="detail-section"><div class="detail-section-title">Links / Referensi</div><div class="detail-links-list" id="detail-links-list">'+linksHTML+'</div><button class="btn-add-link" onclick="addDetailLink()">+ Tambah Link</button></div><div class="detail-section"><div class="detail-section-title">Catatan / Minutes Meeting</div><div class="detail-field" style="grid-template-columns:1fr;"><textarea id="detail-notes" placeholder="Tulis catatan, minutes meeting, atau informasi tambahan...">'+escapeHTML(notes)+'</textarea></div></div>'+(statusText?'<div class="detail-section"><div class="detail-section-title">Status & Kendala</div><div class="detail-status-display">'+escapeHTML(statusText)+'</div></div>':'')+'</div><div class="detail-footer"><button class="detail-btn-close" onclick="closeProjectDetail()">Tutup</button><button class="detail-btn-save" onclick="saveProjectDetail()">Simpan Detail</button></div></div>';
+    overlay.innerHTML='<div class="detail-modal"><div class="detail-header"><div class="detail-header-left"><h2>'+(escapeHTML(projectName)||'(Tanpa Nama)')+'</h2><div class="detail-status-badge"><div class="detail-status-dot" style="background:'+rag.color+';"></div>'+rag.label+'</div></div><button class="detail-close" onclick="closeProjectDetail()">&times;</button></div><div class="detail-body"><div class="detail-progress-section"><div class="detail-progress-row"><div class="detail-progress-label">Plan</div><div class="detail-progress-bar-track"><div class="detail-progress-bar-fill dt-plan-fill" style="width:'+planPct+'%;">'+planPct+'%</div></div></div><div class="detail-progress-row"><div class="detail-progress-label">Actual</div><div class="detail-progress-bar-track"><div class="detail-progress-bar-fill dt-actual-fill" style="width:'+actPct+'%;">'+actPct+'%</div></div></div>'+timelineViewHTML+diffHTML+'</div><div class="detail-section"><div class="detail-section-title">Informasi Project</div><div class="detail-field"><label>Bagian</label><select id="detail-dept" style="padding:8px 12px;border:1.5px solid #dde3ec;border-radius:8px;font-size:14px;font-family:inherit;background:#f8fafc">'+deptOptsHTML+'</select></div><div class="detail-field" style="grid-template-columns:1fr;"><label>PIC / Owner</label><div class="detail-checklist" id="detail-pic-list">'+picChecklist+'</div></div><div class="detail-field"><label>Kategori</label><select id="detail-category">'+catOpts+'</select></div><div class="detail-field"><label>Prioritas</label><select id="detail-priority">'+priOpts+'</select></div></div><div class="detail-section"><div class="detail-section-title">Kendala / Blocker</div><div class="detail-field" style="grid-template-columns:1fr;"><label>Kategori Blocker</label><div class="detail-checklist" id="detail-blocker-list">'+blockerChecklist+'</div></div></div><div class="detail-section"><div class="detail-section-title">Tindak Lanjut</div><div class="detail-field" style="grid-template-columns:1fr;"><label>Next Action</label><input type="text" id="detail-next-action" value="'+escapeHTML(nextAction)+'" placeholder="Aksi berikutnya..."></div><div class="detail-field"><label>Due Date</label><input type="date" id="detail-due" value="'+escapeHTML(dueDate)+'"></div><div class="detail-field"><label>Prognosa Selesai <span style="font-weight:400;color:var(--ink-3);">(estimasi selesai utk status delay)</span></label><input type="date" id="detail-prognosa" value="'+escapeHTML(prognosa)+'"></div></div><div class="detail-section"><div class="detail-section-title">Links / Referensi</div><div class="detail-links-list" id="detail-links-list">'+linksHTML+'</div><button class="btn-add-link" onclick="addDetailLink()">+ Tambah Link</button></div><div class="detail-section"><div class="detail-section-title">Catatan / Minutes Meeting</div><div class="detail-field" style="grid-template-columns:1fr;"><textarea id="detail-notes" placeholder="Tulis catatan, minutes meeting, atau informasi tambahan...">'+escapeHTML(notes)+'</textarea></div></div>'+(statusText?'<div class="detail-section"><div class="detail-section-title">Status & Kendala</div><div class="detail-status-display">'+escapeHTML(statusText)+'</div></div>':'')+'</div><div class="detail-footer"><button class="detail-btn-close" onclick="closeProjectDetail()">Tutup</button><button class="detail-btn-save" onclick="saveProjectDetail()">Simpan Detail</button></div></div>';
     document.body.appendChild(overlay);
 }
 function addDetailLink(){
@@ -279,6 +283,9 @@ function saveProjectDetail(){
     _detailCurrentRow.setAttribute('data-pic',picSel.join('|||'));
     const blkSel=[...document.querySelectorAll('#detail-blocker-list input:checked')].map(c=>c.value);
     _detailCurrentRow.setAttribute('data-blockers',blkSel.join('|||'));
+    const deptSel=(document.getElementById('detail-dept')||{value:''}).value;
+    if(deptSel) _detailCurrentRow.setAttribute('data-dept', deptSel);
+    else _detailCurrentRow.removeAttribute('data-dept');
     _detailCurrentRow.setAttribute('data-category',document.getElementById('detail-category').value);
     _detailCurrentRow.setAttribute('data-priority',document.getElementById('detail-priority').value);
     _detailCurrentRow.setAttribute('data-notes',document.getElementById('detail-notes').value.trim());
@@ -312,6 +319,15 @@ async function loadSystemUsers() {
     try {
         const res = await Auth.apiFetch('/api/users');
         if (res && res.ok) _systemUsers = await res.json();
+    } catch(e) { /* ignore */ }
+}
+
+// Cache departments for project detail modal
+let _cachedDepts = [];
+async function loadCachedDepts() {
+    try {
+        const res = await Auth.apiFetch('/api/departments');
+        if (res && res.ok) _cachedDepts = await res.json();
     } catch(e) { /* ignore */ }
 }
 function masterItemRowHTML(value,placeholder){
