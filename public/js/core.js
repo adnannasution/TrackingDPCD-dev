@@ -646,31 +646,23 @@ function syncFrozenColumns() {
 // ===================================================================
 // DATABASE API - LOAD / SAVE STATE
 // ===================================================================
-const EDITOR_NAME_KEY = 'dpcd_editor_name';
 
 async function readStateFromApi(){
-    const res = await fetch('/api/state', { cache: 'no-store' });
-    if(!res.ok){
-        const err = await readApiError(res);
-        throw new Error(err || ('HTTP ' + res.status));
+    const res = await Auth.apiFetch('/api/state', { cache: 'no-store' });
+    if(!res || !res.ok){
+        const err = res ? await readApiError(res) : 'Sesi tidak valid';
+        throw new Error(err || ('HTTP ' + (res ? res.status : 401)));
     }
     return res.json();
 }
 
-async function writeStateToApi(data, token, editorName){
-    const headers = { 'Content-Type': 'application/json' };
-    if(token) {
-        headers['x-admin-token'] = token;
-        headers.Authorization = 'Bearer ' + token;
-    }
-    if(editorName) headers['x-editor-name'] = editorName;
-    const res = await fetch('/api/state', {
+async function writeStateToApi(data){
+    const res = await Auth.apiFetch('/api/state', {
         method: 'PUT',
-        headers,
-        credentials: 'same-origin',
         body: JSON.stringify(data)
     });
-    if(res.status === 401) return { unauthorized: true };
+    if(!res) return { unauthorized: true };
+    if(res.status === 403) return { forbidden: true };
     if(!res.ok){
         const err = await readApiError(res);
         throw new Error(err || ('HTTP ' + res.status));
@@ -689,10 +681,13 @@ async function reloadFromDatabase(){
     try{
         setDsStatus('idle','Memuat data dari database...');
         const result = await readStateFromApi();
-        _appData = result.data;
+        // handle both {data, updatedAt} shape and raw state shape
+        const stateData = result && result.data !== undefined ? result.data : result;
+        _appData = stateData;
         renderDashboardFromData(_appData);
         setOptionalText('ds-path-display', 'PostgreSQL Railway');
-        setDsStatus('connected', result.updatedAt ? ('Terhubung - ' + new Date(result.updatedAt).toLocaleString('id-ID')) : 'Terhubung ke database');
+        const ts = result && result.updatedAt ? new Date(result.updatedAt).toLocaleString('id-ID') : null;
+        setDsStatus('connected', ts ? ('Terhubung - ' + ts) : 'Terhubung ke database');
         showOptionalElement('btn-save-json-ds');
         showOptionalElement('btn-reload-ds');
         showToast('Data terbaru dimuat dari database');
@@ -705,88 +700,32 @@ async function reloadFromDatabase(){
 
 async function saveToDatabase(){
     if(_weeklyViewKey){ showToast('Mode lihat riwayat — keluar ke Terkini untuk mengedit'); return; }
+
+    const user = Auth.getUser();
+    if(!user){ showToast('Silakan login ulang'); Auth.logout(); return; }
+    if(!Auth.canManage()){
+        showToast('Hanya Admin atau Manager yang bisa menyimpan perubahan');
+        return;
+    }
+
     try{
-        let data = null;
-        let errorText = '';
-        while(true){
-            const credentials = await requestSaveCredentials(errorText);
-            if(!credentials){ setDsStatus('idle','Simpan dibatalkan'); return; }
-            if(!data){
-                captureSnapshot();
-                data = serializeCurrentState();
-            }
-            setDsStatus('idle','Menyimpan ke database...');
-            const result = await writeStateToApi(data, credentials.token, credentials.name);
-            if(result.unauthorized){
-                errorText = 'Token tidak valid. Periksa ADMIN_TOKEN di Railway lalu coba lagi.';
-                continue;
-            }
-            _appData = result.data || data;
-            setOptionalText('ds-path-display', 'PostgreSQL Railway');
-            setDsStatus('connected', result.updatedAt ? ('Tersimpan - ' + new Date(result.updatedAt).toLocaleString('id-ID')) : 'Tersimpan ke database');
-            showToast('Data berhasil disimpan ke database' + (credentials.name ? ' oleh ' + credentials.name : ''));
-            populateWeeklyFilter();
-            return;
-        }
+        captureSnapshot();
+        const data = serializeCurrentState();
+        setDsStatus('idle','Menyimpan ke database...');
+        const result = await writeStateToApi(data);
+
+        if(result.unauthorized){ showToast('Sesi habis, silakan login ulang'); Auth.logout(); return; }
+        if(result.forbidden){ showToast('Anda tidak memiliki akses untuk menyimpan'); return; }
+
+        _appData = result.data || data;
+        setOptionalText('ds-path-display', 'PostgreSQL Railway');
+        setDsStatus('connected', result.updatedAt ? ('Tersimpan - ' + new Date(result.updatedAt).toLocaleString('id-ID')) : 'Tersimpan ke database');
+        showToast('Data berhasil disimpan oleh ' + (result.updatedBy || user.full_name));
+        populateWeeklyFilter();
     }catch(err){
         setDsStatus('disconnected','Gagal menyimpan database');
         alert('Gagal menyimpan: ' + err.message);
     }
-}
-
-function requestSaveCredentials(errorText){
-    return new Promise((resolve)=>{
-        const existing=document.getElementById('save-auth-overlay');
-        if(existing) existing.remove();
-        const overlay=document.createElement('div');
-        overlay.id='save-auth-overlay';
-        overlay.className='milestone-form-overlay';
-        const savedName=localStorage.getItem(EDITOR_NAME_KEY)||'';
-        overlay.innerHTML=`
-            <div class="milestone-form-modal save-auth-modal" role="dialog" aria-modal="true" aria-labelledby="save-auth-title">
-                <div class="milestone-form-header">
-                    <div>
-                        <h3 id="save-auth-title">Simpan Perubahan</h3>
-                        <p class="bar-form-subtitle">Masukkan nama dan token admin untuk menyimpan ke database.</p>
-                    </div>
-                    <button type="button" class="save-auth-x" aria-label="Tutup">×</button>
-                </div>
-                <div class="milestone-form-body">
-                    ${errorText?`<div class="save-auth-error">${escapeHTML(errorText)}</div>`:''}
-                    <label>Nama
-                        <input type="text" id="save-auth-name" autocomplete="name" placeholder="Nama penyimpan" value="${escapeAttr(savedName)}">
-                    </label>
-                    <label>Token
-                        <input type="password" id="save-auth-token" autocomplete="current-password" placeholder="ADMIN_TOKEN">
-                    </label>
-                </div>
-                <div class="milestone-form-footer save-auth-footer">
-                    <button type="button" class="milestone-btn-secondary" id="save-auth-cancel">Batal</button>
-                    <button type="button" class="milestone-btn-primary" id="save-auth-submit">Simpan</button>
-                </div>
-            </div>`;
-        document.body.appendChild(overlay);
-
-        const close=(value)=>{ overlay.remove(); resolve(value); };
-        const nameInput=overlay.querySelector('#save-auth-name');
-        const tokenInput=overlay.querySelector('#save-auth-token');
-        const submit=()=>{
-            const name=(nameInput.value||'').trim();
-            const token=(tokenInput.value||'').trim().replace(/^["']|["']$/g,'');
-            if(!name){ nameInput.focus(); return; }
-            if(!token){ tokenInput.focus(); return; }
-            localStorage.setItem(EDITOR_NAME_KEY,name);
-            close({name,token});
-        };
-        overlay.querySelector('#save-auth-cancel').onclick=()=>close(null);
-        overlay.querySelector('.save-auth-x').onclick=()=>close(null);
-        overlay.querySelector('#save-auth-submit').onclick=submit;
-        overlay.addEventListener('keydown',(e)=>{
-            if(e.key==='Escape') close(null);
-            if(e.key==='Enter') submit();
-        });
-        setTimeout(()=>{ (savedName?tokenInput:nameInput).focus(); },0);
-    });
 }
 
 async function reloadJSON(){ return reloadFromDatabase(); }
@@ -1040,7 +979,17 @@ function generateTimeline(isLoad=false) {
 // PAGINATION & FILTER
 // ===================================================================
 function getFilteredRows() {
-    const all = Array.from(document.querySelectorAll('.gantt-row'));
+    let all = Array.from(document.querySelectorAll('.gantt-row'));
+    if (_deptFilter) {
+        all = all.filter(row => {
+            const picEl = row.querySelector('.pic-cell');
+            const nameEl = row.querySelector('.activity-name-text');
+            const text = (picEl ? picEl.textContent : '') + (nameEl ? nameEl.textContent : '');
+            // filter by dept tag if present, else show all (fallback)
+            const deptTag = row.dataset.dept || '';
+            return deptTag === _deptFilter || (!deptTag);
+        });
+    }
     if (activeFilter==='all') return all;
     return all.filter(row => { const tl=row.querySelector('.traffic-light'); return tl && tl.classList.contains(activeFilter); });
 }
@@ -1072,6 +1021,21 @@ function filterByCard(filter) {
     if(activeFilter!=='all'){document.getElementById('filter-banner-text').textContent='Filter aktif: '+(filterLabels[activeFilter]||activeFilter)+' ('+getFilteredRows().length+' project)';banner.classList.add('show');}
     else banner.classList.remove('show');
     currentPage=1; updatePagination(); refreshActiveView();
+}
+
+let _deptFilter = '';
+function filterByDept(deptName) {
+    _deptFilter = deptName || '';
+    activeFilter = 'all';
+    document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('card-active'));
+    const banner = document.getElementById('filter-banner');
+    if(_deptFilter) {
+        document.getElementById('filter-banner-text').textContent = 'Bagian: ' + _deptFilter;
+        banner.classList.add('show');
+    } else {
+        banner.classList.remove('show');
+    }
+    currentPage = 1; updatePagination(); refreshActiveView();
 }
 
 // ===================================================================
