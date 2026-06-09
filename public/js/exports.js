@@ -5,7 +5,7 @@
 // Collect all project rows into plain objects for reports.
 function collectProjects(){
     const out=[];
-    document.querySelectorAll('.gantt-row').forEach(row=>{
+    ((typeof getVisibleRows==='function')?getVisibleRows():Array.from(document.querySelectorAll('.gantt-row'))).forEach(row=>{
         const s=readRowStats(row);
         if(!s.name) return;
         const statusCell=row.children[row.children.length-1];

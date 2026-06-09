@@ -34,7 +34,7 @@ function showVersionHistory(){
 // WEEKLY REMINDER
 // ===================================================================
 function showWeeklyReminder(){
-    const rows=document.querySelectorAll('.gantt-row'); const redItems=[]; const yellowItems=[];
+    const rows=(typeof getVisibleRows==='function')?getVisibleRows():Array.from(document.querySelectorAll('.gantt-row')); const redItems=[]; const yellowItems=[];
     const dateStr=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
     rows.forEach(row=>{
         const tl=row.querySelector('.traffic-light'); if(!tl)return;
@@ -149,7 +149,7 @@ function truncateText(text,max){
     return text.length>max?text.slice(0,max-1)+'...':text;
 }
 function showExecutiveSummary(){
-    const rows=Array.from(document.querySelectorAll('.gantt-row'));
+    const rows=(typeof getVisibleRows==='function')?getVisibleRows():Array.from(document.querySelectorAll('.gantt-row'));
     const projects=[];
     rows.forEach(row=>{
         const name=getRowProjectName(row);
