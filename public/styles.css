@@ -392,6 +392,15 @@ h1,h2,h3,h4 { font-family:var(--font-display); }
 .drag-lock-btn.active { background:#1f9d63; border-color:#1f9d63; }
 .gantt-row:not([data-drag-enabled="true"]) .bar { cursor:default; }
 
+/* Drag-to-create cursor hints */
+.gantt-row[data-drag-enabled="true"] .timeline-grid { cursor:crosshair; }
+.gantt-row[data-drag-enabled="true"] .timeline-grid:hover::after {
+    content: 'Drag → Plan  |  Shift+Drag → Actual  |  Klik → Milestone';
+    position:absolute; bottom:2px; right:6px; font-size:9.5px; color:rgba(10,34,64,0.38);
+    pointer-events:none; white-space:nowrap; letter-spacing:0.1px;
+}
+.draw-ghost { transition:none !important; }
+
 
 .milestone-form-modal { background:var(--surface); border-radius:12px; width:min(420px,100%); box-shadow:var(--shadow-lg); overflow:hidden; animation:dtSlideUp 0.24s ease; }
 .milestone-form-header { background:linear-gradient(120deg,var(--navy-900),var(--navy-700)); color:#fff; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
