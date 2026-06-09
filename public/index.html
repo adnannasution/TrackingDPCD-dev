@@ -9,6 +9,13 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="/styles.css">
 </head>
+<script src="/js/auth.js"></script>
+<script>
+  // Auth guard - must run first
+  if (!localStorage.getItem('dpcd_token')) {
+    window.location.href = '/login.html';
+  }
+</script>
 <body>
 <div class="app">
 
@@ -22,6 +29,14 @@
         <div class="appbar-org">
             <div class="org-main">PERTAMINA PATRA NIAGA</div>
             <div class="org-sub">Refinery Reliability &amp; Engineering</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-left:auto">
+          <button id="notifBtn" onclick="toggleNotifPanel()" style="background:none;border:none;cursor:pointer;font-size:20px;position:relative;padding:4px">
+            🔔<span id="notifCount" style="display:none;position:absolute;top:0;right:0;background:#e63946;color:white;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:700;align-items:center;justify-content:center"></span>
+          </button>
+          <a href="/admin.html" id="adminLink" style="font-size:13px;color:rgba(255,255,255,0.8);text-decoration:none">⚙️ Admin</a>
+          <span id="topUserName" style="font-size:13px;color:rgba(255,255,255,0.9);font-weight:600"></span>
+          <button onclick="Auth.logout()" style="background:rgba(255,255,255,0.15);border:none;color:white;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer">Keluar</button>
         </div>
     </header>
 
@@ -245,6 +260,82 @@
 <script src="/js/modals.js"></script>
 <script src="/js/exports.js"></script>
 <script src="/js/calendar.js"></script>
+<script>
+  // Init auth UI
+  const _u = Auth.getUser();
+  if (_u) {
+    document.getElementById('topUserName').textContent = _u.full_name;
+    if (!Auth.canManage()) document.getElementById('adminLink').style.display = 'none';
+  }
 
+  // Notification polling
+  async function loadNotifications() {
+    const res = await Auth.apiFetch('/api/notifications');
+    if (!res) return;
+    const notifs = await res.json();
+    const unread = notifs.filter(n => !n.is_read);
+    const countEl = document.getElementById('notifCount');
+    if (unread.length > 0) {
+      countEl.textContent = unread.length;
+      countEl.style.display = 'flex';
+    } else {
+      countEl.style.display = 'none';
+    }
+    window._notifications = notifs;
+  }
+
+  function toggleNotifPanel() {
+    let panel = document.getElementById('notifPanel');
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.id = 'notifPanel';
+      panel.style.cssText = 'position:fixed;top:60px;right:20px;width:320px;background:white;border-radius:12px;box-shadow:0 8px 32px rgba(10,34,64,0.2);z-index:9999;max-height:400px;overflow-y:auto;border:1px solid #eef2f7';
+      document.body.appendChild(panel);
+    }
+    const isVisible = panel.style.display !== 'none' && panel.style.display !== '';
+    if (isVisible) { panel.style.display = 'none'; return; }
+
+    const notifs = window._notifications || [];
+    panel.innerHTML = `
+      <div style="padding:16px;border-bottom:1px solid #eef2f7;display:flex;justify-content:space-between;align-items:center">
+        <strong style="font-size:14px;color:#0a2240">Notifikasi</strong>
+        <button onclick="markAllRead()" style="font-size:12px;color:#00a99d;background:none;border:none;cursor:pointer">Tandai semua dibaca</button>
+      </div>
+      ${notifs.length === 0 ? '<p style="padding:20px;text-align:center;color:#6b7a8d;font-size:13px">Tidak ada notifikasi</p>' :
+        notifs.map(n => `
+          <div onclick="readNotif(${n.id})" style="padding:14px 16px;border-bottom:1px solid #f0f4f8;cursor:pointer;background:${n.is_read ? 'white' : '#f0f9ff'};transition:background 0.2s" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='${n.is_read ? 'white' : '#f0f9ff'}'">
+            <div style="font-size:13px;font-weight:600;color:#0a2240">${n.title}</div>
+            <div style="font-size:12px;color:#6b7a8d;margin-top:2px">${n.message || ''}</div>
+            <div style="font-size:11px;color:#9ca3af;margin-top:4px">${new Date(n.created_at).toLocaleString('id-ID')}</div>
+          </div>
+        `).join('')}
+    `;
+    panel.style.display = 'block';
+  }
+
+  async function markAllRead() {
+    await Auth.apiFetch('/api/notifications/read-all', { method: 'PUT' });
+    await loadNotifications();
+    document.getElementById('notifPanel').style.display = 'none';
+  }
+
+  async function readNotif(id) {
+    await Auth.apiFetch(`/api/notifications/${id}/read`, { method: 'PUT' });
+    await loadNotifications();
+  }
+
+  // Load notifs on start and every 30s
+  loadNotifications();
+  setInterval(loadNotifications, 30000);
+
+  // Close notif panel on outside click
+  document.addEventListener('click', e => {
+    const panel = document.getElementById('notifPanel');
+    const btn = document.getElementById('notifBtn');
+    if (panel && btn && !panel.contains(e.target) && !btn.contains(e.target)) {
+      panel.style.display = 'none';
+    }
+  });
+</script>
 
 </body></html>
