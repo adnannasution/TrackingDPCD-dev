@@ -698,6 +698,45 @@ app.get('/api/state/revisions', authRequired, async (req, res) => {
 
 // ─── Project Assignments ─────────────────────────────────────────────────────
 
+// Member create project — appends project to JSONB and auto-assigns to self
+app.post('/api/state/project', authRequired, async (req, res) => {
+  try {
+    const { project } = req.body;
+    if (!project || !project.name) return res.status(400).json({ error: 'Project name required' });
+
+    // Force dept to user's own dept for member/manager
+    if (req.user.role === 'member' || req.user.role === 'manager') {
+      project.department = req.user.dept_name || project.department || '';
+    }
+
+    const projId = project.id || ('proj_' + Date.now());
+    project.id = projId;
+
+    const { rows } = await pool.query('SELECT data FROM dashboard_state WHERE id=1');
+    const state = rows.length ? rows[0].data : { projects: [] };
+    if (!state.projects) state.projects = [];
+    state.projects.push(project);
+
+    await pool.query(
+      `INSERT INTO dashboard_state (id, data, updated_at, updated_by) VALUES (1, $1, NOW(), $2)
+       ON CONFLICT (id) DO UPDATE SET data=$1, updated_at=NOW(), updated_by=$2`,
+      [JSON.stringify(state), req.user.full_name]
+    );
+
+    // Auto-assign to creator
+    await pool.query(
+      `INSERT INTO project_assignments (project_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+      [projId, req.user.id]
+    );
+
+    await logActivity(req.user.id, 'create_project', 'project', projId, project.name);
+    res.json({ project, projectId: projId });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Member progress update — patches a single project inside dashboard_state JSONB
 app.patch('/api/state/project/:projectId', authRequired, async (req, res) => {
   try {

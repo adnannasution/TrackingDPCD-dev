@@ -1121,6 +1121,79 @@ function deleteRow(btn) {
     if(confirm('Hapus baris ini?')){ btn.closest('.gantt-row').remove(); updatePagination(); updateSummaryCards(); refreshActiveView(); }
 }
 
+// ── Member: add own project ───────────────────────────────────────────────────
+function openMemberAddProject() {
+    const user = Auth.getUser();
+    if (!user) return;
+    const ov = document.createElement('div');
+    ov.className = 'detail-overlay'; ov.id = 'member-add-ov';
+    ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+    ov.innerHTML = `
+    <div class="detail-modal" style="max-width:480px;border-radius:16px;overflow:hidden;padding:0">
+        <div style="background:#0a2240;padding:20px 24px;display:flex;align-items:center;justify-content:space-between">
+            <div>
+                <div style="font-size:16px;font-weight:700;color:white">Tambah Project</div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:2px">Project akan otomatis di-assign ke ${escapeHTML(user.full_name||user.username)}</div>
+            </div>
+            <button onclick="document.getElementById('member-add-ov').remove()" style="background:rgba(255,255,255,0.1);border:none;color:white;width:30px;height:30px;border-radius:8px;font-size:18px;cursor:pointer">&times;</button>
+        </div>
+        <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px">
+            <div class="mdr-field">
+                <label>Nama Project <span class="req">*</span></label>
+                <input type="text" id="map-name" placeholder="Masukkan nama project…" style="padding:10px 12px;border:1.5px solid #dde3ec;border-radius:8px;font-size:14px;outline:none" onfocus="this.style.borderColor='#00a99d'" onblur="this.style.borderColor='#dde3ec'">
+            </div>
+            <div class="mdr-field">
+                <label>Deskripsi / Scope</label>
+                <input type="text" id="map-desc" placeholder="Ringkasan project (opsional)…" style="padding:10px 12px;border:1.5px solid #dde3ec;border-radius:8px;font-size:14px;outline:none" onfocus="this.style.borderColor='#00a99d'" onblur="this.style.borderColor='#dde3ec'">
+            </div>
+        </div>
+        <div style="padding:14px 24px;background:#f8fafc;border-top:1px solid #e8edf5;display:flex;justify-content:flex-end;gap:10px">
+            <button onclick="document.getElementById('member-add-ov').remove()" style="padding:9px 18px;border:1.5px solid #dde3ec;background:white;border-radius:8px;font-size:13px;cursor:pointer">Batal</button>
+            <button onclick="submitMemberAddProject()" style="padding:9px 20px;background:linear-gradient(135deg,#00a99d,#0a7c86);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Buat Project</button>
+        </div>
+    </div>`;
+    document.body.appendChild(ov);
+    setTimeout(() => document.getElementById('map-name')?.focus(), 50);
+}
+
+async function submitMemberAddProject() {
+    const name = (document.getElementById('map-name')?.value || '').trim();
+    if (!name) { alert('Nama project wajib diisi.'); return; }
+    const user = Auth.getUser();
+    if (!user) return;
+
+    // Build a minimal project object
+    const projId = 'proj_' + Date.now();
+    const proj = {
+        id: projId,
+        name,
+        department: user.dept_name || '',
+        pics: [user.full_name || user.username],
+        category: '', priority: 'Medium',
+        actualProgress: 0, planProgress: 0,
+        notes: document.getElementById('map-desc')?.value?.trim() || ''
+    };
+
+    try {
+        const res = await Auth.apiFetch('/api/state/project', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project: proj })
+        });
+        if (!res || !res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || 'Gagal');
+        }
+        const data = await res.json();
+        document.getElementById('member-add-ov')?.remove();
+        _myAssignments.push(data.projectId || projId);
+        await reloadFromDatabase();
+        showToast('Project berhasil dibuat dan di-assign ke ' + (user.full_name || user.username) + '!');
+    } catch(e) {
+        alert('Gagal membuat project: ' + e.message);
+    }
+}
+
 // ===================================================================
 // TRAFFIC LIGHT & SUMMARY
 // ===================================================================

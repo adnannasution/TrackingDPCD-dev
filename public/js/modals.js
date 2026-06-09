@@ -331,15 +331,33 @@ async function loadCachedDepts() {
     } catch(e) { /* ignore */ }
 }
 function masterItemRowHTML(value,placeholder){
-    return '<div class="detail-link-row"><input type="text" class="detail-link-input md-item-input" value="'+escapeAttr(value||'')+'" placeholder="'+escapeAttr(placeholder)+'"><button class="detail-link-remove" onclick="this.parentElement.remove()">x</button></div>';
+    return `<div class="mds-item-row">
+        <input type="text" class="mds-item-input md-item-input" value="${escapeAttr(value||'')}" placeholder="${escapeAttr(placeholder)}">
+        <button class="mds-item-del" onclick="this.parentElement.remove()" title="Hapus">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+    </div>`;
 }
-// Baris kategori blocker yang diperluas: nama kategori + owner + rekomendasi aksi (decision support).
 function blockerItemRowHTML(cat,owner,action){
-    return '<div class="md-blocker-row">'
-        + '<input type="text" class="detail-link-input md-item-input" value="'+escapeAttr(cat||'')+'" placeholder="Kategori blocker...">'
-        + '<input type="text" class="detail-link-input md-blk-owner" value="'+escapeAttr(owner||'')+'" placeholder="Owner / penanggung jawab...">'
-        + '<input type="text" class="detail-link-input md-blk-action" value="'+escapeAttr(action||'')+'" placeholder="Rekomendasi aksi...">'
-        + '<button class="detail-link-remove" onclick="this.parentElement.remove()">x</button></div>';
+    return `<div class="mds-blocker-card md-blocker-row">
+        <div class="mds-blocker-fields">
+            <div class="mds-bf">
+                <label>Kategori</label>
+                <input type="text" class="mds-item-input md-item-input" value="${escapeAttr(cat||'')}" placeholder="Nama kategori blocker…">
+            </div>
+            <div class="mds-bf">
+                <label>Owner / PIC</label>
+                <input type="text" class="mds-item-input md-blk-owner" value="${escapeAttr(owner||'')}" placeholder="Penanggung jawab…">
+            </div>
+            <div class="mds-bf mds-bf-wide">
+                <label>Rekomendasi Aksi</label>
+                <input type="text" class="mds-item-input md-blk-action" value="${escapeAttr(action||'')}" placeholder="Langkah penyelesaian yang disarankan…">
+            </div>
+        </div>
+        <button class="mds-item-del" onclick="this.parentElement.remove()" title="Hapus">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+    </div>`;
 }
 function openMasterData(){
     const md=getMasterData();
@@ -350,10 +368,23 @@ function openMasterData(){
     const sectionsHTML=MASTER_DATA_SECTIONS.map(sec=>{
         if(sec.key==='blockerCategories'){
             const items=(md.blockerCategories||[]).map(c=>{ const m=meta[c]||{}; return blockerItemRowHTML(c,m.owner,m.action); }).join('');
-            return '<div class="detail-section"><div class="detail-section-title">'+escapeHTML(sec.title)+' <span class="md-hint-inline">(kategori · owner · rekomendasi aksi)</span></div><div class="detail-links-list" id="md-list-'+sec.key+'">'+items+'</div><button class="btn-add-link" onclick="addBlockerItem()">+ Tambah</button></div>';
+            return `<div class="mds-section">
+                <div class="mds-section-header">
+                    <div class="mds-section-title">${escapeHTML(sec.title)}</div>
+                    <span class="mds-section-hint">kategori · owner · rekomendasi aksi</span>
+                </div>
+                <div class="mds-blocker-list" id="md-list-${sec.key}">${items||'<div class="mds-empty">Belum ada kategori.</div>'}</div>
+                <button class="mds-btn-add" onclick="addBlockerItem()">+ Tambah Kategori</button>
+            </div>`;
         }
         const items=(md[sec.key]||[]).map(v=>masterItemRowHTML(v,sec.placeholder)).join('');
-        return '<div class="detail-section"><div class="detail-section-title">'+escapeHTML(sec.title)+'</div><div class="detail-links-list" id="md-list-'+sec.key+'">'+items+'</div><button class="btn-add-link" onclick="addMasterItem(\''+sec.key+'\',\''+escapeAttr(sec.placeholder)+'\')">+ Tambah</button></div>';
+        return `<div class="mds-section">
+            <div class="mds-section-header">
+                <div class="mds-section-title">${escapeHTML(sec.title)}</div>
+            </div>
+            <div class="mds-items-list" id="md-list-${sec.key}">${items||'<div class="mds-empty">Belum ada item.</div>'}</div>
+            <button class="mds-btn-add" onclick="addMasterItem('${sec.key}','${escapeAttr(sec.placeholder)}')">+ Tambah</button>
+        </div>`;
     }).join('');
 
     const roleBadge = user ? `<span class="mdr-badge mdr-badge-${user.role}">${user.role.toUpperCase()}</span>` : '';
@@ -513,6 +544,26 @@ function openMasterData(){
 .mdr-btn-add:hover{background:#1a3a5c}
 .req{color:#e63946}
 .md-tab-content{display:none}.md-tab-content[style*="display:block"]{display:block!important}
+.mds-section{margin-bottom:22px;background:white;border:1px solid #e8edf5;border-radius:12px;padding:16px}
+.mds-section-header{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.mds-section-title{font-size:13px;font-weight:700;color:#0a2240;text-transform:uppercase;letter-spacing:0.5px}
+.mds-section-hint{font-size:11px;color:#9ca3af;font-style:italic}
+.mds-items-list,.mds-blocker-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.mds-empty{font-size:12px;color:#c4c9d4;text-align:center;padding:10px 0;font-style:italic}
+.mds-item-row{display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid #e8edf5;border-radius:8px;padding:6px 10px;transition:border-color 0.15s}
+.mds-item-row:hover{border-color:#c8d5e8}
+.mds-item-input{flex:1;border:none;background:transparent;font-size:13px;color:#0a2240;outline:none;padding:2px 0}
+.mds-item-input::placeholder{color:#c4c9d4}
+.mds-item-del{background:none;border:none;cursor:pointer;color:#cbd5e1;display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:4px;flex-shrink:0;transition:color 0.15s,background 0.15s;padding:0}
+.mds-item-del:hover{color:#e63946;background:#fee2e2}
+.mds-blocker-card{display:flex;align-items:flex-start;gap:10px;background:#f8fafc;border:1px solid #e8edf5;border-radius:10px;padding:10px 12px;transition:border-color 0.15s}
+.mds-blocker-card:hover{border-color:#c8d5e8}
+.mds-blocker-fields{flex:1;display:grid;grid-template-columns:1fr 1fr 2fr;gap:8px}
+.mds-bf{display:flex;flex-direction:column;gap:3px}
+.mds-bf-wide{grid-column:span 1}
+.mds-bf label{font-size:10px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.4px}
+.mds-btn-add{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#f0f4f8;color:#0a2240;border:1.5px dashed #c8d5e8;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s}
+.mds-btn-add:hover{background:#e8f4fd;border-color:#00a99d;color:#00a99d}
 `;
         document.head.appendChild(s);
     }
