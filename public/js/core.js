@@ -438,6 +438,45 @@ function buildMilestoneHTML(ms){
 function bindMilestone(ms){
     ms.ondblclick=function(e){e.preventDefault();e.stopPropagation();openMilestoneForm(ms.closest('.gantt-row'),ms);};
 }
+function bindMilestoneDraggable(ms, container, sourceRow) {
+    ms.style.cursor = 'grab';
+    ms.addEventListener('mousedown', startDrag);
+    ms.addEventListener('touchstart', startDrag, { passive: false });
+
+    function startDrag(e) {
+        if (container.dataset.dragEnabled !== 'true') return;
+        if (e.target.classList.contains('item-del')) return;
+        e.preventDefault(); e.stopPropagation();
+        const cx0 = e.touches ? e.touches[0].clientX : e.clientX;
+        const left0 = parseFloat(ms.style.left) || 0;
+        const pw = container.offsetWidth;
+
+        const onMove = (em) => {
+            const cx = em.touches ? em.touches[0].clientX : em.clientX;
+            const dx = (cx - cx0) / pw * 100;
+            const nl = Math.max(0, Math.min(100, left0 + dx));
+            ms.style.left = nl + '%';
+            const cfg = getTimelineConfig();
+            const winStart = cfg.startY * 12 + cfg.startM;
+            const idx = Math.round(nl / 100 * cfg.duration);
+            ms.dataset.month = absValueFromIndex(winStart + Math.min(idx, cfg.duration - 1));
+        };
+        const onEnd = () => {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onEnd);
+            document.removeEventListener('touchmove', onMove);
+            document.removeEventListener('touchend', onEnd);
+            // Sync back to sourceRow milestone
+            const idx = [...container.querySelectorAll('.milestone')].indexOf(ms);
+            const srcMs = sourceRow.querySelectorAll('.milestone')[idx];
+            if (srcMs) { srcMs.style.left = ms.style.left; srcMs.dataset.month = ms.dataset.month; }
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onEnd);
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend', onEnd);
+    }
+}
 function closeMilestoneForm(){
     const ov=document.getElementById('milestone-form-overlay');
     if(ov)ov.remove();
@@ -552,7 +591,7 @@ function buildGanttPillHTML(proj){
         const clipR = planClip&&planClip.clipRight ? ' bar-clip-right':'';
         html += `<div class="bar bar-plan${clipL}${clipR}" data-bar-type="plan"
             data-plan-start="${escapeAttr(proj.planStart||'')}" data-plan-end="${escapeAttr(proj.planEnd||'')}"
-            style="position:absolute;top:6%;height:38%;left:${pLeft}%;width:${pWidth}%">
+            style="left:${pLeft}%;width:${pWidth}%">
             <span class="bar-label plan-label">Plan</span>
             <div class="resize-handle"></div>
         </div>`;
@@ -562,7 +601,7 @@ function buildGanttPillHTML(proj){
         const clipR = actualClip&&actualClip.clipRight ? ' bar-clip-right':'';
         html += `<div class="bar bar-actual${clipL}${clipR}" data-bar-type="actual"
             data-actual-start="${escapeAttr(proj.actualStart||'')}" data-actual-end="${escapeAttr(proj.actualEnd||'')}"
-            style="position:absolute;top:56%;height:38%;left:${aLeft}%;width:${aWidth}%">
+            style="left:${aLeft}%;width:${aWidth}%">
             <div class="bar-fill" style="width:${aProgress}%"></div>
             <span class="bar-label actual-label" ondblclick="event.stopPropagation();updateProgress(this.closest('.bar'))">Act: ${aProgress}%</span>
             <div class="resize-handle"></div>
@@ -1298,12 +1337,12 @@ function initInteract(el) {
     el.addEventListener('mousedown',startDrag); el.addEventListener('touchstart',startDrag,{passive:false});
 }
 
-function initSingleBar(el) {
+function initSingleBar(el, rowOverride) {
     const handle = el.querySelector('.resize-handle');
     const isClipped = () => el.classList.contains('bar-clip-left') || el.classList.contains('bar-clip-right');
 
     const syncDates = () => {
-        const row = el.closest('.gantt-row'); if (!row) return;
+        const row = rowOverride || el.closest('.gantt-row'); if (!row) return;
         const left = parseFloat(el.style.left) || 0;
         const width = parseFloat(el.style.width) || 0;
         if (width <= 0) return;
@@ -1334,7 +1373,7 @@ function initSingleBar(el) {
 
     // Drag (move whole bar)
     const startDrag = (e) => {
-        const rowEl = el.closest('.gantt-row'); if (!rowEl || rowEl.dataset.dragEnabled !== 'true') return;
+        const rowEl = rowOverride || el.closest('.gantt-row'); if (!rowEl || rowEl.dataset.dragEnabled !== 'true') return;
         if (isClipped()) return;
         if (e.target === handle) return;
         e.preventDefault(); e.stopPropagation();
@@ -1356,7 +1395,7 @@ function initSingleBar(el) {
     // Resize (right edge)
     if (handle) {
         const startResize = (e) => {
-            const rowEl = el.closest('.gantt-row'); if (!rowEl || rowEl.dataset.dragEnabled !== 'true') return;
+            const rowEl = rowOverride || el.closest('.gantt-row'); if (!rowEl || rowEl.dataset.dragEnabled !== 'true') return;
             if (isClipped()) return;
             e.preventDefault(); e.stopPropagation();
             const cx0 = e.touches ? e.touches[0].clientX : e.clientX;
@@ -1453,70 +1492,61 @@ function openRowFocus(btn) {
     const rfGrid = document.getElementById('rf-grid');
     rfGrid._sourceRow = row;
     rfGrid.dataset.dragEnabled = 'true';
+    // rfGrid acts as both the gantt-row and timeline-grid for focus mode
+    rfGrid.dataset.planStart = c.planStart||'';
+    rfGrid.dataset.planEnd   = c.planEnd||'';
+    rfGrid.dataset.actualStart = c.actualStart||'';
+    rfGrid.dataset.actualEnd   = c.actualEnd||'';
+    rfGrid.dataset.actualProgress = String(c.actualProgress||0);
 
-    // Re-render bars inside rfGrid using a synthetic row-like element
-    const synth = document.createElement('div');
-    synth.className = 'gantt-row';
-    synth.style.cssText = 'position:absolute;inset:0;pointer-events:none';
-    synth.dataset.dragEnabled = 'true';
-    Object.assign(synth.dataset, {
-        planStart: c.planStart||'', planEnd: c.planEnd||'',
-        actualStart: c.actualStart||'', actualEnd: c.actualEnd||'',
-        actualProgress: String(c.actualProgress||0)
-    });
-    const innerGrid = document.createElement('div');
-    innerGrid.className = 'timeline-grid';
-    innerGrid.style.cssText = `position:absolute;inset:0;display:grid;grid-template-columns:repeat(${cfg.duration},1fr);`;
-    synth.appendChild(innerGrid);
-    rfGrid.appendChild(synth);
-
-    // Draw bars
     rfRedraw();
 }
 
 function rfRedraw() {
-    const ov = document.getElementById('row-focus-ov');
-    if (!ov) return;
     const rfGrid = document.getElementById('rf-grid');
+    if (!rfGrid) return;
     const sourceRow = rfGrid._sourceRow;
     const c = getRowCanonical(sourceRow) || {};
-    const synth = rfGrid.querySelector('.gantt-row');
-    if (!synth) return;
-    Object.assign(synth.dataset, {
-        planStart: c.planStart||'', planEnd: c.planEnd||'',
-        actualStart: c.actualStart||'', actualEnd: c.actualEnd||'',
-        actualProgress: String(c.actualProgress||0)
-    });
-    const grid = synth.querySelector('.timeline-grid');
-    grid.querySelectorAll('.bar').forEach(el => el.remove());
+
+    // Remove old bars/milestones (keep grid structure)
+    rfGrid.querySelectorAll('.bar, .milestone').forEach(el => el.remove());
+
     const html = buildGanttPillHTML(c);
     if (html) {
-        grid.insertAdjacentHTML('afterbegin', html);
-        synth.style.pointerEvents = 'auto';
-        grid.querySelectorAll('.bar-plan, .bar-actual').forEach(bar => {
-            initSingleBar(bar);
+        rfGrid.insertAdjacentHTML('afterbegin', html);
+        rfGrid.querySelectorAll('.bar-plan, .bar-actual').forEach(bar => {
+            initSingleBar(bar, rfGrid);
             bar.addEventListener('click', e => {
                 if (e.detail > 1) return;
                 openBarPopover(bar, bar.dataset.barType, sourceRow);
             });
         });
-        if (grid.querySelector('.bar-plan, .bar-actual')) {
-            const bar = grid.querySelector('.bar-plan') || grid.querySelector('.bar-actual');
-            const patchSync = () => {
-                const c2 = getRowCanonical(sourceRow) || {};
-                const s = id => document.getElementById(id);
-                if(s('rf-plan-start')) s('rf-plan-start').value = c2.planStart||'';
-                if(s('rf-plan-end'))   s('rf-plan-end').value   = c2.planEnd||'';
-                if(s('rf-act-start'))  s('rf-act-start').value  = c2.actualStart||'';
-                if(s('rf-act-end'))    s('rf-act-end').value    = c2.actualEnd||'';
-            };
-            document.addEventListener('mouseup', patchSync, { once: false });
-            rfGrid._patchSync = patchSync;
-        }
     }
-    // Wire drag-to-create on synth
-    grid.dataset.drawInit = '';
-    initGridDraw(synth);
+
+    // Also clone milestones from source row — make them draggable in focus modal
+    sourceRow.querySelectorAll('.milestone').forEach(ms => {
+        const clone = ms.cloneNode(true);
+        clone.style.position = 'absolute';
+        rfGrid.appendChild(clone);
+        bindMilestoneDraggable(clone, rfGrid, sourceRow);
+    });
+
+    // Drag-to-create directly on rfGrid
+    rfGrid.dataset.drawInit = '';
+    initGridDrawDirect(rfGrid, sourceRow);
+
+    // Patch sync on mouseup to update footer inputs
+    const patchSync = () => {
+        const c2 = getRowCanonical(sourceRow) || {};
+        const s = id => document.getElementById(id);
+        if(s('rf-plan-start')) s('rf-plan-start').value = c2.planStart||'';
+        if(s('rf-plan-end'))   s('rf-plan-end').value   = c2.planEnd||'';
+        if(s('rf-act-start'))  s('rf-act-start').value  = c2.actualStart||'';
+        if(s('rf-act-end'))    s('rf-act-end').value    = c2.actualEnd||'';
+    };
+    if (rfGrid._patchSync) document.removeEventListener('mouseup', rfGrid._patchSync);
+    document.addEventListener('mouseup', patchSync);
+    rfGrid._patchSync = patchSync;
 }
 
 function rfApplyDates() {
@@ -1538,12 +1568,12 @@ function rfApplyDates() {
 
 function rfUnlockToggle() {
     const rfGrid = document.getElementById('rf-grid');
-    const synth = rfGrid && rfGrid.querySelector('.gantt-row');
-    if (!synth) return;
-    const on = synth.dataset.dragEnabled === 'true';
-    synth.dataset.dragEnabled = on ? 'false' : 'true';
+    if (!rfGrid) return;
+    const on = rfGrid.dataset.dragEnabled === 'true';
+    rfGrid.dataset.dragEnabled = on ? 'false' : 'true';
     const btn = document.getElementById('rf-lock-btn');
     if (btn) { btn.textContent = on ? '🔒 Kunci' : '🔓 Aktif'; }
+    rfRedraw();
 }
 
 function closeRowFocus() {
@@ -1553,6 +1583,100 @@ function closeRowFocus() {
     if (rfGrid && rfGrid._patchSync) document.removeEventListener('mouseup', rfGrid._patchSync);
     closeBarPopover();
     ov.remove();
+}
+
+// Variant of initGridDraw for rfGrid (focus modal) — grid IS the row container.
+function initGridDrawDirect(rfGrid, sourceRow) {
+    if (rfGrid.dataset.drawInit === '1') return;
+    rfGrid.dataset.drawInit = '1';
+
+    let ghost = null, startPct = 0, drawType = 'plan', clickOnly = true;
+
+    const pctFromEvent = (e) => {
+        const cx = e.touches ? e.touches[0].clientX : e.clientX;
+        const rect = rfGrid.getBoundingClientRect();
+        return Math.max(0, Math.min(100, (cx - rect.left) / rect.width * 100));
+    };
+
+    const zoneFromEvent = (e) => {
+        const cy = e.touches ? e.touches[0].clientY : e.clientY;
+        const rect = rfGrid.getBoundingClientRect();
+        return (cy - rect.top) / rect.height < 0.5 ? 'plan' : 'actual';
+    };
+
+    const pctToAbsDate = (pct) => {
+        const cfg = getTimelineConfig();
+        const idx = Math.round(pct / 100 * cfg.duration);
+        const clamped = Math.max(0, Math.min(cfg.duration - 1, idx));
+        const winStart = cfg.startY * 12 + cfg.startM;
+        return absValueFromIndex(winStart + clamped);
+    };
+
+    const onDown = (e) => {
+        if (rfGrid.dataset.dragEnabled !== 'true') return;
+        if (e.target !== rfGrid && e.target.closest('.bar, .milestone')) return;
+        e.preventDefault();
+        clickOnly = true;
+        drawType = zoneFromEvent(e);
+        startPct = pctFromEvent(e);
+
+        ghost = document.createElement('div');
+        ghost.className = 'draw-ghost draw-ghost-' + drawType;
+        const isActual = drawType === 'actual';
+        ghost.style.cssText = `position:absolute;top:${isActual?'58%':'8%'};height:30%;left:${startPct}%;width:0.5%;pointer-events:none;border-radius:6px;opacity:0.75;z-index:5;background:${isActual?'#0e7c86':'#7ba7c9'};box-shadow:0 2px 6px rgba(0,0,0,0.15);`;
+        rfGrid.appendChild(ghost);
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend', onUp);
+    };
+
+    const onMove = (e) => {
+        if (!ghost) return;
+        clickOnly = false;
+        const cur = pctFromEvent(e);
+        const left = Math.min(startPct, cur);
+        const width = Math.abs(cur - startPct);
+        ghost.style.left = left + '%';
+        ghost.style.width = Math.max(width, 0.5) + '%';
+    };
+
+    const onUp = (e) => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onUp);
+        if (!ghost) return;
+        ghost.remove(); ghost = null;
+
+        const endPct = pctFromEvent(e);
+        if (clickOnly || Math.abs(endPct - startPct) < 1) return;
+
+        const leftPct = Math.min(startPct, endPct);
+        const rightPct = Math.max(startPct, endPct);
+        const startDate = pctToAbsDate(leftPct);
+        const endDate = pctToAbsDate(rightPct);
+
+        const existing = getRowCanonical(sourceRow) || {};
+        if (drawType === 'plan') {
+            existing.planStart = startDate;
+            existing.planEnd = endDate;
+        } else {
+            existing.actualStart = startDate;
+            existing.actualEnd = endDate;
+        }
+        setRowCanonical(sourceRow, existing);
+        redrawGanttPillFromDates(sourceRow);
+        rfRedraw();
+        // Open popover for fine-tuning
+        const barSel = drawType === 'actual' ? '.bar-actual' : '.bar-plan';
+        const bar = rfGrid.querySelector(barSel);
+        if (bar) openBarPopover(bar, drawType, sourceRow);
+    };
+
+    rfGrid.addEventListener('mousedown', onDown);
+    rfGrid.addEventListener('touchstart', onDown, { passive: false });
 }
 
 // ===================================================================
