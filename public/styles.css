@@ -319,7 +319,7 @@ h1,h2,h3,h4 { font-family:var(--font-display); }
 .timeline-grid { background-image:linear-gradient(to right,var(--line-2) 1px,transparent 1px); background-size:calc(100% / var(--total-columns)) 100%; height:100%; }
 .month-cell { grid-row:2; display:flex; align-items:center; justify-content:center; border-right:1px solid var(--line-2); padding:0 6px; font-size:0.68rem; background:var(--surface-2); overflow:hidden; color:var(--ink-3); font-weight:700; letter-spacing:0.2px; min-width:0; }
 .year-cell { grid-row:1; display:flex; align-items:center; justify-content:center; background:var(--surface); border-bottom:1px solid var(--line-2); font-size:0.74rem; padding:0 4px; border-right:1px solid var(--line-2); color:var(--navy-700); font-weight:800; }
-.gantt-row { border-bottom:1px solid var(--line-2); min-height:78px; transition:background 0.12s; }
+.gantt-row { border-bottom:1px solid var(--line-2); min-height:58px; transition:background 0.12s; }
 .gantt-row:hover { background:var(--surface-2); }
 .editable-cell { padding:9px 10px; border-right:1px solid var(--line-2); background:transparent; outline:none; cursor:text; font-size:0.78rem; display:block; white-space:pre-wrap; overflow-wrap:break-word; word-break:break-word; color:var(--ink); line-height:1.5; min-width:0; }
 .gantt-row > .editable-cell:nth-child(2) { font-weight:600; padding-right:40px; }
@@ -350,8 +350,8 @@ h1,h2,h3,h4 { font-family:var(--font-display); }
 /* Two independent bars: Plan (top lane) and Actual (bottom lane) */
 .bar { position:absolute; height:20px; border-radius:999px; z-index:10; display:flex; align-items:center; cursor:grab; font-size:0.67rem; font-weight:700; overflow:hidden; min-width:28px; }
 .bar:active { cursor:grabbing; }
-.bar-plan   { top:10px; background:#c8dff0; border:1.5px solid #7baed4; color:#0a3d5e; z-index:10; box-shadow:0 1px 4px rgba(10,62,120,0.12); }
-.bar-actual { bottom:10px; background:linear-gradient(90deg,#13909b,#0e7c86); border:1px solid rgba(14,124,134,0.4); color:#fff; z-index:11; box-shadow:0 1px 5px rgba(14,124,134,0.28), inset 0 1px 0 rgba(255,255,255,0.12); }
+.bar-plan   { top:6px; background:#c8dff0; border:1.5px solid #7baed4; color:#0a3d5e; z-index:10; box-shadow:0 1px 4px rgba(10,62,120,0.12); }
+.bar-actual { bottom:6px; background:linear-gradient(90deg,#13909b,#0e7c86); border:1px solid rgba(14,124,134,0.4); color:#fff; z-index:11; box-shadow:0 1px 5px rgba(14,124,134,0.28), inset 0 1px 0 rgba(255,255,255,0.12); }
 .bar-fill { position:absolute; top:0; left:0; bottom:0; background:rgba(255,255,255,0.2); width:0%; z-index:1; border-radius:999px; }
 .bar-label { position:relative; z-index:2; white-space:nowrap; line-height:1; pointer-events:none; }
 .plan-label   { padding-left:9px; padding-right:7px; color:#0a3d5e; }
