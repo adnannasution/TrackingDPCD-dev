@@ -1114,6 +1114,7 @@ function addNewRow() {
     if (currentView === 'gantt') { const total=document.querySelectorAll('.gantt-row').length; currentPage=Math.ceil(total/rowsPerPage); }
     updatePagination();
     initDetailButtons();
+    initGridDraw(rowDiv);
     refreshActiveView();
     setTimeout(()=>focusEditableCell(rowDiv.children[1]),0);
 }
@@ -1314,6 +1315,109 @@ function initInteract(el) {
 }
 
 // ===================================================================
+// DRAG-TO-CREATE: draw Plan/Actual bar by dragging on empty timeline grid
+// Hold Shift while dragging → creates Actual. Single click → Milestone.
+// ===================================================================
+function initGridDraw(row) {
+    const grid = row.querySelector('.timeline-grid');
+    if (!grid || grid.dataset.drawInit === '1') return;
+    grid.dataset.drawInit = '1';
+
+    let ghost = null, startPct = 0, drawType = 'plan', clickOnly = true;
+
+    const pctFromEvent = (e) => {
+        const cx = e.touches ? e.touches[0].clientX : e.clientX;
+        const rect = grid.getBoundingClientRect();
+        return Math.max(0, Math.min(100, (cx - rect.left) / rect.width * 100));
+    };
+
+    const pctToAbsDate = (pct) => {
+        const cfg = getTimelineConfig();
+        const idx = Math.round(pct / 100 * cfg.duration);
+        const clamped = Math.max(0, Math.min(cfg.duration - 1, idx));
+        const winStart = cfg.startY * 12 + cfg.startM;
+        return absValueFromIndex(winStart + clamped);
+    };
+
+    const onDown = (e) => {
+        if (row.dataset.dragEnabled !== 'true') return;
+        // Only trigger on empty grid background (not on existing bars)
+        if (e.target !== grid && e.target.closest('.bar, .milestone')) return;
+        e.preventDefault();
+        clickOnly = true;
+        drawType = e.shiftKey ? 'actual' : 'plan';
+        startPct = pctFromEvent(e);
+
+        ghost = document.createElement('div');
+        ghost.className = 'draw-ghost draw-ghost-' + drawType;
+        ghost.style.cssText = `position:absolute;top:${drawType==='actual'?'60%':'10%'};height:${drawType==='actual'?'32%':'32%'};left:${startPct}%;width:0.5%;pointer-events:none;border-radius:6px;opacity:0.7;z-index:5;`;
+        ghost.style.background = drawType === 'actual' ? '#0e7c86' : '#7ba7c9';
+        grid.appendChild(ghost);
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend', onUp);
+    };
+
+    const onMove = (e) => {
+        if (!ghost) return;
+        clickOnly = false;
+        const cur = pctFromEvent(e);
+        const left = Math.min(startPct, cur);
+        const width = Math.abs(cur - startPct);
+        ghost.style.left = left + '%';
+        ghost.style.width = Math.max(width, 0.5) + '%';
+    };
+
+    const onUp = (e) => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onUp);
+        if (!ghost) return;
+        ghost.remove(); ghost = null;
+
+        const endPct = pctFromEvent(e);
+
+        if (clickOnly || Math.abs(endPct - startPct) < 1) {
+            // Single click → place milestone
+            const absDate = pctToAbsDate(startPct);
+            const cfg = getTimelineConfig();
+            const winStart = cfg.startY * 12 + cfg.startM;
+            const idx = Math.round(startPct / 100 * cfg.duration);
+            const left = (idx / cfg.duration) * 100;
+            openMilestoneForm(row, null, absDate, left);
+            return;
+        }
+
+        const leftPct = Math.min(startPct, endPct);
+        const rightPct = Math.max(startPct, endPct);
+        const startDate = pctToAbsDate(leftPct);
+        const endDate = pctToAbsDate(rightPct);
+
+        // Read existing bar data then update only the drawn type
+        const existing = getRowCanonical(row) || {};
+        if (drawType === 'plan') {
+            existing.planStart = startDate;
+            existing.planEnd = endDate;
+        } else {
+            existing.actualStart = startDate;
+            existing.actualEnd = endDate;
+        }
+        setRowCanonical(row, existing);
+        redrawGanttPillFromDates(row);
+        showToast((drawType === 'plan' ? 'Plan' : 'Actual') + ' bar dibuat: ' + startDate + ' → ' + endDate);
+    };
+
+    grid.addEventListener('mousedown', onDown);
+    grid.addEventListener('touchstart', onDown, { passive: false });
+}
+
+// Patch openMilestoneForm to accept optional pre-filled date and left position
+const _origOpenMilestoneForm = typeof openMilestoneForm === 'function' ? openMilestoneForm : null;
+
+// ===================================================================
 // UTILITIES
 // ===================================================================
 function escapeHTML(str){ if(!str)return''; const div=document.createElement('div'); div.appendChild(document.createTextNode(str)); return div.innerHTML; }
@@ -1467,6 +1571,8 @@ function setWeeklyReadOnly(on, label){
 // ===================================================================
 function initDetailButtons(){
     document.querySelectorAll('.gantt-row').forEach(row=>{
+        // Wire drag-to-create on timeline grid
+        initGridDraw(row);
         const nameCell=row.children[1];if(!nameCell||nameCell.querySelector('.detail-icon-btn'))return;
         nameCell.style.position='relative';
         const btn=document.createElement('button');
