@@ -394,10 +394,15 @@ h1,h2,h3,h4 { font-family:var(--font-display); }
 
 /* Drag-to-create cursor hints */
 .gantt-row[data-drag-enabled="true"] .timeline-grid { cursor:crosshair; }
+.gantt-row[data-drag-enabled="true"] .timeline-grid:hover::before {
+    content:'';position:absolute;top:50%;left:0;right:0;height:1px;
+    background:repeating-linear-gradient(90deg,rgba(10,34,64,0.08) 0,rgba(10,34,64,0.08) 4px,transparent 4px,transparent 8px);
+    pointer-events:none;z-index:1;
+}
 .gantt-row[data-drag-enabled="true"] .timeline-grid:hover::after {
-    content: 'Drag → Plan  |  Shift+Drag → Actual  |  Klik → Milestone';
-    position:absolute; bottom:2px; right:6px; font-size:9.5px; color:rgba(10,34,64,0.38);
-    pointer-events:none; white-space:nowrap; letter-spacing:0.1px;
+    content: '↑ Plan  |  ↓ Actual  |  Klik → Milestone  |  Klik bar → Edit';
+    position:absolute; bottom:1px; right:6px; font-size:9px; color:rgba(10,34,64,0.35);
+    pointer-events:none; white-space:nowrap; letter-spacing:0.1px; z-index:2;
 }
 .draw-ghost { transition:none !important; }
 
