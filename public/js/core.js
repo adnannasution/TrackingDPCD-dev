@@ -1828,7 +1828,7 @@ function openBarPopover(bar, barType, row) {
 
     const pop = document.createElement('div');
     pop.id = 'bar-popover';
-    pop.style.cssText = `position:fixed;z-index:9999;background:white;border-radius:12px;box-shadow:0 8px 32px rgba(10,34,64,0.18);padding:0;width:300px;animation:dtFadeIn 0.15s ease;`;
+    pop.style.cssText = `position:fixed;z-index:9999;background:white;border-radius:12px;box-shadow:0 8px 32px rgba(10,34,64,0.18);padding:0;width:400px;animation:dtFadeIn 0.15s ease;`;
 
     pop.innerHTML = `
     <div style="background:${isActual?'linear-gradient(135deg,#0e7c86,#0a5f6a)':'linear-gradient(135deg,#1a5f8a,#0a2240)'};padding:12px 16px;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between">
@@ -1869,8 +1869,8 @@ function openBarPopover(bar, barType, row) {
     const popH = pop.offsetHeight;
     let top = barRect.bottom + 6;
     if (top + popH > window.innerHeight - 10) top = barRect.top - popH - 6;
-    let left = barRect.left + barRect.width / 2 - 150;
-    left = Math.max(8, Math.min(left, window.innerWidth - 308));
+    let left = barRect.left + barRect.width / 2 - 200;
+    left = Math.max(8, Math.min(left, window.innerWidth - 408));
     pop.style.top = top + 'px';
     pop.style.left = left + 'px';
 

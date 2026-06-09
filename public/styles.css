@@ -975,8 +975,15 @@ h1,h2,h3,h4 { font-family:var(--font-display); }
 .detail-field { display:grid; grid-template-columns:110px 1fr; gap:10px; align-items:start; margin-bottom:12px; }
 .detail-field label { font-size:0.78rem; font-weight:600; color:var(--ink-2); padding-top:9px; }
 .detail-field input[type="text"],.detail-field select,.detail-field textarea { padding:9px 13px; border:1px solid var(--line); border-radius:8px; font:inherit; font-size:0.84rem; transition:border-color 0.15s,box-shadow 0.15s; width:100%; background:var(--surface); color:var(--ink); }
+.detail-field input[type="date"] { padding:9px 13px; border:1.5px solid var(--line); border-radius:10px; font:inherit; font-size:0.84rem; transition:border-color 0.15s,box-shadow 0.15s; width:100%; background:var(--surface); color:var(--ink); cursor:pointer; box-sizing:border-box; }
+.detail-field input[type="date"]:hover { border-color:var(--navy-accent); }
 .detail-field input:focus,.detail-field select:focus,.detail-field textarea:focus { border-color:var(--navy-accent); box-shadow:0 0 0 3px rgba(47,111,237,0.12); outline:none; }
+.detail-field input[type="date"]:focus { border-color:var(--navy-accent); box-shadow:0 0 0 3px rgba(47,111,237,0.12); outline:none; }
 .detail-field textarea { resize:vertical; min-height:90px; line-height:1.6; }
+/* Due Date / Prognosa wrapper — ikon kalender + tanggal berdampingan */
+.det-date-wrap { position:relative; display:flex; align-items:center; }
+.det-date-wrap svg { position:absolute; left:11px; pointer-events:none; color:var(--ink-3); z-index:1; }
+.det-date-wrap input[type="date"] { padding-left:34px !important; }
 .detail-links-list { display:flex; flex-direction:column; gap:6px; }
 .detail-link-row { display:flex; gap:6px; align-items:center; }
 .detail-link-row input { flex:1; }
