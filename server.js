@@ -540,8 +540,15 @@ app.get('/api/projects/:id/updates', authRequired, async (req, res) => {
 
 // ─── Notifications ─────────────────────────────────────────────────────────────
 
+// Throttle: only run generateReminders once per hour across all requests
+let _lastReminderCheck = 0;
 app.get('/api/notifications', authRequired, async (req, res) => {
   try {
+    const now = Date.now();
+    if (now - _lastReminderCheck > 60 * 60 * 1000) {
+      _lastReminderCheck = now;
+      generateReminders().catch(e => console.error('reminder bg error:', e.message));
+    }
     const { rows } = await pool.query(
       'SELECT * FROM notifications WHERE user_id=$1 ORDER BY created_at DESC LIMIT 30',
       [req.user.id]
@@ -882,6 +889,123 @@ async function createNotification(userId, type, title, message, link) {
   }
 }
 
+// Dedup check: avoid sending same reminder twice on same day
+async function reminderAlreadySent(userId, type, refKey) {
+  const { rows } = await pool.query(
+    `SELECT 1 FROM notifications WHERE user_id=$1 AND type=$2 AND title LIKE $3
+     AND created_at >= CURRENT_DATE AND created_at < CURRENT_DATE + INTERVAL '1 day' LIMIT 1`,
+    [userId, type, '%' + refKey + '%']
+  );
+  return rows.length > 0;
+}
+
+// Generate H-1 reminders for calendar events and project deadlines
+async function generateReminders() {
+  try {
+    // Tomorrow's date in WIB (UTC+7), stored as YYYY-MM-DD
+    const tomorrow = new Date();
+    tomorrow.setUTCHours(tomorrow.getUTCHours() + 7); // shift to WIB
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+
+    // --- 1. Calendar Event H-1 ---
+    const stateRes = await pool.query('SELECT data FROM dashboard_state WHERE id=1');
+    if (stateRes.rows.length > 0) {
+      const state = stateRes.rows[0].data;
+      const events = (state.meta && Array.isArray(state.meta.events)) ? state.meta.events : [];
+
+      // Get all active users with their roles and departments
+      const { rows: users } = await pool.query(
+        `SELECT u.id, u.full_name, u.role, d.name as dept_name
+         FROM users u LEFT JOIN departments d ON u.department_id = d.id
+         WHERE u.is_active = true`
+      );
+
+      for (const ev of events) {
+        const evStart = ev.startDate || ev.date;
+        if (!evStart || evStart !== tomorrowStr) continue;
+
+        const evName = ev.name || 'Kegiatan';
+        const evPic = (ev.pic || '').toLowerCase().trim();
+        const timeLabel = ev.startTime ? ` pukul ${ev.startTime}` : '';
+        const title = `⏰ Pengingat: ${evName}`;
+        const message = `Kegiatan "${evName}" akan berlangsung besok${timeLabel}. PIC: ${ev.pic || '-'}`;
+
+        for (const user of users) {
+          const isPic = evPic && user.full_name.toLowerCase().includes(evPic);
+          const isAdmin = user.role === 'admin';
+          // Manager: gets reminders for events in their dept (dept matches event pic dept)
+          const isManager = user.role === 'manager';
+          // Member: only if they are the PIC
+          const isMember = user.role === 'member';
+
+          let shouldNotify = false;
+          if (isAdmin) shouldNotify = true;
+          else if (isPic) shouldNotify = true;
+          else if (isManager) shouldNotify = true; // managers see all calendar reminders
+          // members only if they are PIC
+
+          if (!shouldNotify) continue;
+
+          const refKey = `${evName}_${tomorrowStr}`;
+          const alreadySent = await reminderAlreadySent(user.id, 'calendar_reminder', refKey);
+          if (!alreadySent) {
+            await createNotification(user.id, 'calendar_reminder', title, message, null);
+          }
+        }
+      }
+    }
+
+    // --- 2. Project Deadline H-1 ---
+    // Check projects stored in dashboard_state projects array
+    const stateRes2 = await pool.query('SELECT data FROM dashboard_state WHERE id=1');
+    if (stateRes2.rows.length > 0) {
+      const state = stateRes2.rows[0].data;
+      const projects = Array.isArray(state.projects) ? state.projects : [];
+
+      const { rows: users } = await pool.query(
+        `SELECT u.id, u.full_name, u.role, d.name as dept_name
+         FROM users u LEFT JOIN departments d ON u.department_id = d.id
+         WHERE u.is_active = true`
+      );
+
+      // Also get DB projects with members
+      const { rows: dbProjects } = await pool.query(
+        `SELECT p.id, p.name, p.plan_end, p.department_id, d.name as dept_name,
+                array_agg(pm.user_id) FILTER (WHERE pm.user_id IS NOT NULL) as member_ids
+         FROM projects p
+         LEFT JOIN departments d ON p.department_id = d.id
+         LEFT JOIN project_members pm ON pm.project_id = p.id
+         WHERE p.plan_end::date = $1
+         GROUP BY p.id, p.name, p.plan_end, p.department_id, d.name`,
+        [tomorrowStr]
+      );
+
+      for (const proj of dbProjects) {
+        const title = `📅 Deadline Besok: ${proj.name}`;
+        const message = `Proyek "${proj.name}" memiliki deadline rencana pada besok (${tomorrowStr}). Departemen: ${proj.dept_name || '-'}`;
+        const memberIds = proj.member_ids || [];
+
+        for (const user of users) {
+          const isAdmin = user.role === 'admin';
+          const isManagerSameDept = user.role === 'manager' && user.dept_name === proj.dept_name;
+          const isMemberAssigned = memberIds.includes(user.id);
+
+          if (!isAdmin && !isManagerSameDept && !isMemberAssigned) continue;
+
+          const refKey = `${proj.name}_${tomorrowStr}`;
+          const alreadySent = await reminderAlreadySent(user.id, 'deadline_reminder', refKey);
+          if (!alreadySent) {
+            await createNotification(user.id, 'deadline_reminder', title, message, null);
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.error('generateReminders error:', e.message);
+  }
+}
+
 // ─── Start ────────────────────────────────────────────────────────────────────
 
 const PORT = process.env.PORT || 3000;
@@ -889,7 +1013,11 @@ const PORT = process.env.PORT || 3000;
 pool.connect()
   .then(() => initDB())
   .then(() => {
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      // Run first reminder check 5s after boot
+      setTimeout(() => generateReminders().catch(e => console.error('boot reminder error:', e.message)), 5000);
+    });
   })
   .catch(err => {
     console.error('Failed to connect to database:', err.message);
