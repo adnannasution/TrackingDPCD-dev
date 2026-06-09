@@ -298,7 +298,6 @@ function saveProjectDetail(){
     if(btn){const o=btn.innerHTML;btn.innerHTML='✅ Tersimpan!';setTimeout(()=>{btn.innerHTML=o;},1500);}
     if(typeof applyTrafficLight==='function') applyTrafficLight(_detailCurrentRow);
     refreshActiveView();
-    if(typeof scheduleAutoSave==='function') scheduleAutoSave();
 }
 function closeProjectDetail(){
     const ov=document.getElementById('detail-overlay');
