@@ -1299,7 +1299,21 @@ function updateDateLine() {
 function addItemToRow(btn, type) {
     const row=btn.closest('.gantt-row');
     if(type==='milestone'){
-        openMilestoneForm(row,null);
+        // Spawn milestone at center of timeline, ready to drag immediately
+        const grid=row.querySelector('.timeline-grid'); if(!grid)return;
+        const cfg=getTimelineConfig();
+        const midIdx=Math.floor(cfg.duration/2);
+        const winStart=cfg.startY*12+cfg.startM;
+        const month=absValueFromIndex(winStart+midIdx);
+        const left=milestoneLeftFromMonth(month);
+        const ms=document.createElement('div');
+        ms.className='milestone';
+        ms.dataset.month=month;
+        ms.dataset.lane='1';
+        ms.style.left=(left!==null?left:50)+'%';
+        ms.innerHTML=`<div class="milestone-label">Milestone</div><div class="item-del" onclick="this.parentElement.remove()">x</div>`;
+        grid.appendChild(ms);
+        initInteract(ms);
         return;
     }
     if(type==='plan') editPlanData(row); else editActualData(row);

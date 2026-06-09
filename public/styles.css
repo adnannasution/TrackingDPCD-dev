@@ -358,8 +358,10 @@ h1,h2,h3,h4 { font-family:var(--font-display); }
 .actual-label { padding-left:7px; padding-right:7px; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.22); cursor:pointer; pointer-events:auto; }
 /* Label bulan ujung pill — disembunyikan total di desktop; muncul hanya di portrait/HP. */
 .bar-edge { display:none; }
-.milestone { position:absolute; width:13px; height:13px; background:#0f766e; transform:rotate(45deg); top:44px; cursor:pointer; z-index:50; border:2px solid #fff; box-shadow:0 2px 5px rgba(15,118,110,0.4); }
-.milestone-label { position:absolute; transform:rotate(-45deg); top:-24px; left:-34px; width:80px; text-align:center; font-size:0.58rem; font-weight:700; color:#0f766e; background:rgba(255,255,255,0.92); border-radius:4px; cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.milestone { position:absolute; width:22px; height:22px; background:#0f766e; transform:rotate(45deg); top:calc(50% - 11px); cursor:grab; z-index:50; border:2.5px solid #fff; box-shadow:0 2px 8px rgba(15,118,110,0.45); transition:box-shadow 0.15s; }
+.milestone:hover { box-shadow:0 4px 14px rgba(15,118,110,0.6); }
+.milestone:active { cursor:grabbing; }
+.milestone-label { position:absolute; transform:rotate(-45deg); top:-28px; left:-29px; width:80px; text-align:center; font-size:0.6rem; font-weight:700; color:#0f766e; background:rgba(255,255,255,0.95); border-radius:4px; cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:1px 4px; box-shadow:0 1px 3px rgba(0,0,0,0.12); }
 .item-del { position:absolute; right:-6px; top:-8px; width:16px; height:16px; background:var(--crit); color:#fff; border-radius:50%; font-size:10px; display:none; align-items:center; justify-content:center; cursor:pointer; z-index:60; }
 .milestone .item-del { transform:rotate(-45deg); }
 .bar:hover .item-del, .milestone:hover .item-del { display:flex; }
