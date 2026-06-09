@@ -16,6 +16,21 @@ function formatMonthYearShort(dStr){
 }
 let currentPage = 1;
 const rowsPerPage = 6;
+
+let _autoSaveTimer = null;
+function scheduleAutoSave() {
+    if (!Auth.canManage()) return;
+    clearTimeout(_autoSaveTimer);
+    _autoSaveTimer = setTimeout(() => saveToDatabase(true), 1500);
+}
+
+let _searchQuery = '';
+function onProjectSearch(q) {
+    _searchQuery = (q || '').toLowerCase().trim();
+    currentPage = 1;
+    updatePagination();
+    refreshActiveView();
+}
 let activeFilter = 'all';
 let _weeklyViewKey = null; // null = Live; berisi weekKey saat melihat kondisi minggu lampau (read-only)
 let _myAssignments = []; // project IDs assigned to current user
@@ -719,6 +734,17 @@ async function reloadFromDatabase(){
         const stateData = result && result.data !== undefined ? result.data : result;
         _appData = stateData;
         renderDashboardFromData(_appData);
+        // Restore dept filter for admin
+        const _rUser = Auth.getUser();
+        if (_rUser && _rUser.role === 'admin') {
+            const saved = localStorage.getItem('dpcd-dept-filter');
+            if (saved) {
+                _deptFilter = saved;
+                const sel = document.getElementById('dept-filter');
+                if (sel) sel.value = saved;
+                filterByDept(saved);
+            }
+        }
         setOptionalText('ds-path-display', 'PostgreSQL Railway');
         const ts = result && result.updatedAt ? new Date(result.updatedAt).toLocaleString('id-ID') : null;
         setDsStatus('connected', ts ? ('Terhubung - ' + ts) : 'Terhubung ke database');
@@ -732,7 +758,7 @@ async function reloadFromDatabase(){
     }
 }
 
-async function saveToDatabase(){
+async function saveToDatabase(silent){
     if(_weeklyViewKey){ showToast('Mode lihat riwayat — keluar ke Terkini untuk mengedit'); return; }
 
     const user = Auth.getUser();
@@ -741,6 +767,10 @@ async function saveToDatabase(){
         showToast('Hanya Admin atau Manager yang bisa menyimpan perubahan');
         return;
     }
+
+    const simpanBtn = document.getElementById('btnSave') || document.querySelector('[onclick="saveToDatabase()"]');
+    const origBtnHTML = simpanBtn ? simpanBtn.innerHTML : null;
+    if (!silent && simpanBtn) simpanBtn.innerHTML = '💾 Menyimpan...';
 
     try{
         captureSnapshot();
@@ -754,11 +784,17 @@ async function saveToDatabase(){
         _appData = result.data || data;
         setOptionalText('ds-path-display', 'PostgreSQL Railway');
         setDsStatus('connected', result.updatedAt ? ('Tersimpan - ' + new Date(result.updatedAt).toLocaleString('id-ID')) : 'Tersimpan ke database');
-        showToast('Data berhasil disimpan oleh ' + (result.updatedBy || user.full_name));
+        if (silent) {
+            showToast('Tersimpan otomatis', 'success');
+        } else {
+            showToast('Data berhasil disimpan oleh ' + (result.updatedBy || user.full_name), 'success');
+        }
         populateWeeklyFilter();
     }catch(err){
         setDsStatus('disconnected','Gagal menyimpan database');
-        alert('Gagal menyimpan: ' + err.message);
+        showToast('Gagal menyimpan: ' + err.message, 'error');
+    } finally {
+        if (simpanBtn && origBtnHTML !== null) simpanBtn.innerHTML = origBtnHTML;
     }
 }
 
@@ -1051,8 +1087,14 @@ function generateTimeline(isLoad=false) {
 // Returns all rows visible for current dept filter (used by ALL views)
 function getVisibleRows() {
     const all = Array.from(document.querySelectorAll('.gantt-row'));
-    if (!_deptFilter) return all;
-    return all.filter(row => (row.dataset.dept || '') === _deptFilter);
+    let rows = _deptFilter ? all.filter(row => (row.dataset.dept || '') === _deptFilter) : all;
+    if (_searchQuery) {
+        rows = rows.filter(row => {
+            const name = (row.querySelector('.activity-name-text') || {}).innerText || '';
+            return name.toLowerCase().includes(_searchQuery);
+        });
+    }
+    return rows;
 }
 
 function getFilteredRows() {
@@ -1093,6 +1135,7 @@ function filterByCard(filter) {
 let _deptFilter = '';
 function filterByDept(deptName) {
     _deptFilter = deptName || '';
+    localStorage.setItem('dpcd-dept-filter', _deptFilter);
     activeFilter = 'all';
     document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('card-active'));
     const banner = document.getElementById('filter-banner');
@@ -1387,6 +1430,7 @@ function initSingleBar(el, rowOverride) {
             if (lbl) lbl.textContent = 'Act: ' + (c.actualProgress||0) + '%';
         }
         refreshTrafficLight(row);
+        scheduleAutoSave();
         // sync popover footer inputs if row-focus is open
         const rfRow = document.getElementById('rf-grid') && document.getElementById('rf-grid')._sourceRow;
         if (rfRow === row) {
@@ -1942,6 +1986,7 @@ function bpopApply() {
     setRowCanonical(row, existing);
     redrawGanttPillFromDates(row);
     closeBarPopover();
+    scheduleAutoSave();
 }
 
 // ===================================================================
@@ -1951,11 +1996,17 @@ function escapeHTML(str){ if(!str)return''; const div=document.createElement('di
 function getCutoffDate(){ const cv=(document.getElementById('cfg-cutoff')||{}).value; const d=cv?new Date(cv):new Date(); d.setHours(0,0,0,0); return d; }
 function isOverdue(dueStr, ragKey){ if(!dueStr)return false; if(ragKey==='blue'||ragKey==='bg-blue')return false; const d=new Date(dueStr); if(isNaN(d))return false; d.setHours(0,0,0,0); return d < getCutoffDate(); }
 function formatDue(dueStr){ if(!dueStr)return''; const d=new Date(dueStr); if(isNaN(d))return dueStr; return d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}); }
-function showToast(msg){
-    const t=document.createElement('div');
-    t.style.cssText='position:fixed;bottom:24px;right:24px;background:#0E2444;color:#fff;padding:12px 20px;border-radius:9px;font-size:0.85rem;font-weight:500;z-index:99999;box-shadow:0 8px 28px rgba(10,26,48,0.35);animation:dtFadeIn 0.2s ease;max-width:360px;';
-    t.textContent=msg; document.body.appendChild(t);
-    setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity 0.3s';setTimeout(()=>t.remove(),300);},3200);
+function showToast(msg, type) {
+    // type: 'success' | 'error' | 'info' (default)
+    const colors = { success:'#1a7a4a', error:'#c0392b', info:'#0E2444' };
+    const icons = { success:'✓', error:'✕', info:'ℹ' };
+    const bg = colors[type] || colors.info;
+    const icon = icons[type] || icons.info;
+    const t = document.createElement('div');
+    t.style.cssText = `position:fixed;bottom:24px;right:24px;background:${bg};color:#fff;padding:12px 18px;border-radius:10px;font-size:0.84rem;font-weight:500;z-index:99999;box-shadow:0 8px 28px rgba(10,26,48,0.35);animation:dtFadeIn 0.2s ease;max-width:360px;display:flex;align-items:center;gap:10px;`;
+    t.innerHTML = `<span style="font-size:1rem;flex-shrink:0">${icon}</span><span>${msg}</span>`;
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 3200);
 }
 
 // ===================================================================

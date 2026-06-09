@@ -71,6 +71,7 @@
         <select id="dept-filter" style="padding:6px 10px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.35);background:#1a3a5c;color:white;font-size:13px;cursor:pointer;display:none;outline:none" onchange="onDeptFilterChange(this.value)">
             <option value="" style="background:#1a3a5c;color:white">Semua Bagian</option>
         </select>
+        <input id="project-search" type="search" placeholder="Cari project..." style="padding:6px 12px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.35);background:rgba(255,255,255,0.1);color:white;font-size:13px;outline:none;width:180px;transition:background 0.2s" oninput="onProjectSearch(this.value)" />
         <button class="config-toggle" id="config-toggle" onclick="toggleConfig()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 6.8 19l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 5 12.6H4.9a2 2 0 1 1 0-4H5a1.6 1.6 0 0 0 1.1-2.7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 12 3.9V4a2 2 0 1 1 4 0v.1A1.6 1.6 0 0 0 19 5.2"></path></svg>
             Setup Timeline <span class="chev">▾</span>
