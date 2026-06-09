@@ -319,6 +319,9 @@ function blockerItemRowHTML(cat,owner,action){
 function openMasterData(){
     const md=getMasterData();
     const meta=md.blockerMeta||{};
+    const user = Auth.getUser();
+    const isAdmin = user && (user.role === 'admin' || user.role === 'manager');
+
     const sectionsHTML=MASTER_DATA_SECTIONS.map(sec=>{
         if(sec.key==='blockerCategories'){
             const items=(md.blockerCategories||[]).map(c=>{ const m=meta[c]||{}; return blockerItemRowHTML(c,m.owner,m.action); }).join('');
@@ -327,10 +330,96 @@ function openMasterData(){
         const items=(md[sec.key]||[]).map(v=>masterItemRowHTML(v,sec.placeholder)).join('');
         return '<div class="detail-section"><div class="detail-section-title">'+escapeHTML(sec.title)+'</div><div class="detail-links-list" id="md-list-'+sec.key+'">'+items+'</div><button class="btn-add-link" onclick="addMasterItem(\''+sec.key+'\',\''+escapeAttr(sec.placeholder)+'\')">+ Tambah</button></div>';
     }).join('');
+
+    const deptTabHTML = isAdmin ? `
+        <div class="md-tab-content" id="md-tab-bagian">
+            <div class="detail-section">
+                <div class="detail-section-title">Bagian / Divisi</div>
+                <div id="md-dept-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+                    <div style="color:#6b7a8d;font-size:13px">Memuat...</div>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:8px">
+                    <input type="text" id="md-new-dept-name" placeholder="Nama bagian baru" style="flex:1;padding:8px 12px;border:1.5px solid #dde3ec;border-radius:8px;font-size:13px">
+                    <input type="text" id="md-new-dept-desc" placeholder="Deskripsi (opsional)" style="flex:1;padding:8px 12px;border:1.5px solid #dde3ec;border-radius:8px;font-size:13px">
+                    <button class="btn-add-link" onclick="mdAddDept()" style="white-space:nowrap">+ Tambah</button>
+                </div>
+            </div>
+        </div>
+    ` : '';
+
+    const userTabHTML = isAdmin ? `
+        <div class="md-tab-content" id="md-tab-user">
+            <div class="detail-section">
+                <div class="detail-section-title">Pengguna Sistem</div>
+                <div id="md-user-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+                    <div style="color:#6b7a8d;font-size:13px">Memuat...</div>
+                </div>
+                <div style="border-top:1px solid #eef2f7;padding-top:14px;margin-top:4px">
+                    <div class="detail-section-title" style="margin-bottom:10px">Tambah User Baru</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+                        <input type="text" id="md-new-user-name" placeholder="Nama Lengkap *" style="padding:8px 12px;border:1.5px solid #dde3ec;border-radius:8px;font-size:13px">
+                        <input type="text" id="md-new-user-username" placeholder="Username *" style="padding:8px 12px;border:1.5px solid #dde3ec;border-radius:8px;font-size:13px">
+                        <input type="password" id="md-new-user-pw" placeholder="Password *" style="padding:8px 12px;border:1.5px solid #dde3ec;border-radius:8px;font-size:13px">
+                        <select id="md-new-user-role" style="padding:8px 12px;border:1.5px solid #dde3ec;border-radius:8px;font-size:13px">
+                            <option value="member">Member</option>
+                            <option value="manager">Manager</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                        <select id="md-new-user-dept" style="padding:8px 12px;border:1.5px solid #dde3ec;border-radius:8px;font-size:13px;grid-column:1/-1">
+                            <option value="">— Pilih Bagian (opsional) —</option>
+                        </select>
+                    </div>
+                    <button class="btn-add-link" onclick="mdAddUser()">+ Buat User</button>
+                </div>
+            </div>
+        </div>
+    ` : '';
+
+    const tabNavHTML = isAdmin ? `
+        <div class="md-tabs" style="display:flex;border-bottom:2px solid #eef2f7;margin-bottom:16px">
+            <button class="md-tab-btn active" onclick="mdSwitchTab('data',this)">🗂️ Master Data</button>
+            <button class="md-tab-btn" onclick="mdSwitchTab('bagian',this)">🏢 Bagian</button>
+            <button class="md-tab-btn" onclick="mdSwitchTab('user',this)">👥 Pengguna</button>
+        </div>
+    ` : '';
+
     const overlay=document.createElement('div'); overlay.className='detail-overlay master-overlay'; overlay.id='master-overlay';
     overlay.addEventListener('click',function(e){if(e.target===overlay)closeMasterData();});
-    overlay.innerHTML='<div class="detail-modal master-modal"><div class="detail-header"><div class="detail-header-left"><h2>Master Data</h2><div class="detail-status-badge">🗂️ Admin</div></div><button class="detail-close" onclick="closeMasterData()">&times;</button></div><div class="detail-body"><p class="md-hint">Perubahan hanya tersimpan oleh admin (memerlukan token saat menyimpan).</p>'+sectionsHTML+'</div><div class="detail-footer"><button class="detail-btn-close" onclick="closeMasterData()">Tutup</button><button class="detail-btn-save" onclick="saveMasterData()">Simpan Master Data</button></div></div>';
+    overlay.innerHTML=`<div class="detail-modal master-modal" style="max-width:700px">
+        <div class="detail-header">
+            <div class="detail-header-left">
+                <h2>Master Data</h2>
+                <div class="detail-status-badge">🗂️ ${user ? user.role.charAt(0).toUpperCase()+user.role.slice(1) : 'Admin'}</div>
+            </div>
+            <button class="detail-close" onclick="closeMasterData()">&times;</button>
+        </div>
+        <div class="detail-body">
+            <p class="md-hint">Data disimpan otomatis menggunakan akun yang sedang login.</p>
+            ${tabNavHTML}
+            <div class="md-tab-content" id="md-tab-data" style="display:block">${sectionsHTML}</div>
+            ${deptTabHTML}
+            ${userTabHTML}
+        </div>
+        <div class="detail-footer">
+            <button class="detail-btn-close" onclick="closeMasterData()">Tutup</button>
+            <button class="detail-btn-save" id="md-save-btn" onclick="saveMasterData()">Simpan Master Data</button>
+        </div>
+    </div>`;
     document.body.appendChild(overlay);
+
+    // Add tab styles inline if not present
+    if (!document.getElementById('md-tab-styles')) {
+        const s = document.createElement('style');
+        s.id = 'md-tab-styles';
+        s.textContent = `.md-tab-btn{padding:10px 18px;border:none;background:none;font-size:13px;font-weight:500;color:#6b7a8d;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s}.md-tab-btn.active{color:#0a2240;border-bottom-color:#00a99d;font-weight:600}.md-tab-content{display:none}.md-tab-content[style*="display:block"]{display:block!important}.md-user-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f8fafc;border-radius:8px;border:1px solid #eef2f7}.md-user-row .role-b{padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase}.md-dept-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f8fafc;border-radius:8px;border:1px solid #eef2f7}`;
+        document.head.appendChild(s);
+    }
+
+    // Load dept/user data if admin
+    if (isAdmin) {
+        mdLoadDepts();
+        mdLoadUsers();
+    }
 }
 function addMasterItem(key,placeholder){
     const list=document.getElementById('md-list-'+key); if(!list)return;
@@ -376,4 +465,134 @@ async function saveMasterData(){
     if(typeof saveToDatabase==='function'){ await saveToDatabase(); }
     else if(typeof showToast==='function'){ showToast('Master data diperbarui'); }
     if(typeof refreshActiveView==='function') refreshActiveView();
+}
+
+// ─── Master Data: Tab navigation ──────────────────────────────────────────────
+
+function mdSwitchTab(name, btn) {
+    document.querySelectorAll('.md-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.md-tab-content').forEach(c => { c.style.display = 'none'; });
+    if (btn) btn.classList.add('active');
+    const tab = document.getElementById('md-tab-' + name);
+    if (tab) tab.style.display = 'block';
+
+    // Show/hide save button — only relevant for master data tab
+    const saveBtn = document.getElementById('md-save-btn');
+    if (saveBtn) saveBtn.style.display = name === 'data' ? '' : 'none';
+
+    if (name === 'bagian') mdLoadDepts();
+    if (name === 'user') mdLoadUsers();
+}
+
+// ─── Departments ──────────────────────────────────────────────────────────────
+
+async function mdLoadDepts() {
+    const list = document.getElementById('md-dept-list');
+    if (!list) return;
+    try {
+        const res = await Auth.apiFetch('/api/departments');
+        if (!res || !res.ok) { list.innerHTML = '<span style="color:#e63946;font-size:13px">Gagal memuat bagian</span>'; return; }
+        const depts = await res.json();
+        if (!depts.length) { list.innerHTML = '<span style="color:#6b7a8d;font-size:13px">Belum ada bagian. Tambah di bawah.</span>'; }
+        else list.innerHTML = depts.map(d => `
+            <div class="md-dept-row">
+                <span style="font-size:18px">🏢</span>
+                <div style="flex:1">
+                    <strong style="font-size:13px;color:#0a2240">${escapeHTML(d.name)}</strong>
+                    ${d.description ? `<span style="font-size:12px;color:#6b7a8d;margin-left:6px">${escapeHTML(d.description)}</span>` : ''}
+                    <span style="font-size:11px;color:#9ca3af;margin-left:6px">👥 ${d.member_count} anggota</span>
+                </div>
+                <button onclick="mdDeleteDept(${d.id},'${escapeAttr(d.name)}')" style="background:none;border:none;cursor:pointer;color:#e63946;font-size:16px;padding:4px" title="Hapus">🗑️</button>
+            </div>`).join('');
+
+        // Also update dept select in user form
+        const deptSel = document.getElementById('md-new-user-dept');
+        if (deptSel) {
+            deptSel.innerHTML = '<option value="">— Pilih Bagian (opsional) —</option>' +
+                depts.map(d => `<option value="${d.id}">${escapeHTML(d.name)}</option>`).join('');
+        }
+    } catch(e) { if(list) list.innerHTML = '<span style="color:#e63946;font-size:13px">Error: '+escapeHTML(e.message)+'</span>'; }
+}
+
+async function mdAddDept() {
+    const nameEl = document.getElementById('md-new-dept-name');
+    const descEl = document.getElementById('md-new-dept-desc');
+    const name = nameEl ? nameEl.value.trim() : '';
+    if (!name) { nameEl && nameEl.focus(); return; }
+    try {
+        const res = await Auth.apiFetch('/api/departments', {
+            method: 'POST',
+            body: JSON.stringify({ name, description: descEl ? descEl.value.trim() : '' })
+        });
+        if (!res || !res.ok) { const e = await res?.json(); alert(e?.error || 'Gagal tambah bagian'); return; }
+        if (nameEl) nameEl.value = '';
+        if (descEl) descEl.value = '';
+        await mdLoadDepts();
+        showToast('Bagian berhasil ditambahkan');
+    } catch(e) { alert(e.message); }
+}
+
+async function mdDeleteDept(id, name) {
+    if (!confirm('Hapus bagian "' + name + '"?')) return;
+    const res = await Auth.apiFetch('/api/departments/' + id, { method: 'DELETE' });
+    if (!res || !res.ok) { alert('Gagal hapus bagian'); return; }
+    await mdLoadDepts();
+    showToast('Bagian dihapus');
+}
+
+// ─── Users ────────────────────────────────────────────────────────────────────
+
+async function mdLoadUsers() {
+    const list = document.getElementById('md-user-list');
+    if (!list) return;
+    const roleBg = { admin: '#fef3c7;color:#92400e', manager: '#dbeafe;color:#1e40af', member: '#f0fdf4;color:#166534' };
+    try {
+        const res = await Auth.apiFetch('/api/users');
+        if (!res || !res.ok) { list.innerHTML = '<span style="color:#e63946;font-size:13px">Gagal memuat user</span>'; return; }
+        const users = await res.json();
+        list.innerHTML = users.map(u => `
+            <div class="md-user-row">
+                <div style="width:32px;height:32px;border-radius:50%;background:#0a2240;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">${escapeHTML((u.full_name||'U')[0].toUpperCase())}</div>
+                <div style="flex:1;min-width:0">
+                    <strong style="font-size:13px;color:#0a2240">${escapeHTML(u.full_name)}</strong>
+                    <span style="font-size:12px;color:#6b7a8d;margin-left:6px">@${escapeHTML(u.username)}</span>
+                    <div style="font-size:11px;color:#9ca3af;margin-top:2px">${u.dept_name ? '🏢 ' + escapeHTML(u.dept_name) : 'Tanpa bagian'}</div>
+                </div>
+                <span class="role-b" style="background:${roleBg[u.role]||'#f3f4f6;color:#374151'}">${u.role}</span>
+                <span style="font-size:11px;padding:3px 7px;border-radius:20px;background:${u.is_active?'#dcfce7;color:#166534':'#fee2e2;color:#991b1b'}">${u.is_active?'Aktif':'Nonaktif'}</span>
+                <button onclick="mdToggleUser(${u.id},${u.is_active})" style="background:none;border:none;cursor:pointer;font-size:15px;padding:4px" title="${u.is_active?'Nonaktifkan':'Aktifkan'}">${u.is_active?'🔒':'🔓'}</button>
+            </div>`).join('') || '<span style="color:#6b7a8d;font-size:13px">Belum ada user</span>';
+    } catch(e) { if(list) list.innerHTML = '<span style="color:#e63946;font-size:13px">Error: '+escapeHTML(e.message)+'</span>'; }
+}
+
+async function mdAddUser() {
+    const fullName = (document.getElementById('md-new-user-name')?.value||'').trim();
+    const username = (document.getElementById('md-new-user-username')?.value||'').trim().toLowerCase();
+    const password = (document.getElementById('md-new-user-pw')?.value||'').trim();
+    const role = document.getElementById('md-new-user-role')?.value || 'member';
+    const deptId = document.getElementById('md-new-user-dept')?.value || null;
+    if (!fullName || !username || !password) { alert('Nama, username, dan password wajib diisi'); return; }
+    try {
+        const res = await Auth.apiFetch('/api/users', {
+            method: 'POST',
+            body: JSON.stringify({ full_name: fullName, username, password, role, department_id: deptId || null })
+        });
+        if (!res || !res.ok) { const e = await res?.json(); alert(e?.error || 'Gagal buat user'); return; }
+        document.getElementById('md-new-user-name').value = '';
+        document.getElementById('md-new-user-username').value = '';
+        document.getElementById('md-new-user-pw').value = '';
+        await mdLoadUsers();
+        showToast('User berhasil dibuat');
+    } catch(e) { alert(e.message); }
+}
+
+async function mdToggleUser(id, isActive) {
+    if (!confirm((isActive ? 'Nonaktifkan' : 'Aktifkan') + ' user ini?')) return;
+    const res = await Auth.apiFetch('/api/users/' + id, {
+        method: 'PUT',
+        body: JSON.stringify({ is_active: !isActive })
+    });
+    if (!res || !res.ok) { alert('Gagal update user'); return; }
+    await mdLoadUsers();
+    showToast('Status user diperbarui');
 }
