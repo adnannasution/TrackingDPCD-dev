@@ -349,21 +349,14 @@ function redrawGanttPill(row, data){
     const html=buildGanttPillHTML(data);
     if(html){
         grid.insertAdjacentHTML('afterbegin',html);
-        const item=grid.querySelector('.bar-combo');
-        if(item){
-            initInteract(item);
-            item.ondblclick=function(e){e.stopPropagation();updateProgress(this);};
-            item.addEventListener('click', function(e){
-                if(e.detail > 1) return; // ignore dblclick
-                const row = item.closest('.gantt-row');
-                if(row && row.dataset.dragEnabled === 'true') {
-                    const rect = item.getBoundingClientRect();
-                    const relY = (e.clientY - rect.top) / rect.height;
-                    const type = relY > 0.5 ? 'actual' : 'plan';
-                    openBarPopover(item, type, row);
-                }
+        grid.querySelectorAll('.bar-plan, .bar-actual').forEach(bar => {
+            initSingleBar(bar);
+            bar.addEventListener('click', function(e){
+                if(e.detail > 1) return;
+                const r = bar.closest('.gantt-row');
+                if(r && r.dataset.dragEnabled === 'true') openBarPopover(bar, bar.dataset.barType, r);
             });
-        }
+        });
     }
     refreshTrafficLight(row);
     updateDateLine();
@@ -538,57 +531,44 @@ function editActualData(row){
 }
 function buildGanttPillHTML(proj){
     proj = proj || {};
-    // Sumber kebenaran: tanggal absolut (planStart/planEnd, actualStart/actualEnd).
-    // Bila ada, posisi % diturunkan dari tanggal dgn clipping ke window saat ini.
-    // Bila tidak ada (data lama), pakai persentit lama (back-compat).
-    const cfg=getTimelineConfig();
+    const cfg = getTimelineConfig();
     const hasDates = !!(proj.planStart||proj.planEnd||proj.actualStart||proj.actualEnd);
-    let pLeft, pWidth, aLeft, aWidth, planClip=null, actualClip=null;
+    let pLeft=0, pWidth=0, aLeft=0, aWidth=0, planClip=null, actualClip=null;
     if(hasDates){
         const pc=(proj.planStart&&proj.planEnd)?clippedMetricsFromAbs(proj.planStart,proj.planEnd,cfg):{hidden:true};
         const ac=(proj.actualStart&&proj.actualEnd)?clippedMetricsFromAbs(proj.actualStart,proj.actualEnd,cfg):{hidden:true};
-        if(pc.hidden){ pLeft=0; pWidth=0; } else { pLeft=pc.left; pWidth=pc.width; planClip=pc; }
-        if(ac.hidden){ aLeft=0; aWidth=0; } else { aLeft=ac.left; aWidth=ac.width; actualClip=ac; }
+        if(!pc.hidden){ pLeft=pc.left; pWidth=pc.width; planClip=pc; }
+        if(!ac.hidden){ aLeft=ac.left; aWidth=ac.width; actualClip=ac; }
     } else {
         pLeft=clampNum(proj.planLeft,0,100); pWidth=clampNum(proj.planWidth,0,100);
         aLeft=clampNum(proj.actualLeft,0,100); aWidth=clampNum(proj.actualWidth,0,100);
     }
-    const aProgress=clampNum(proj.actualProgress,0,100);
-    const hasPlan=pWidth>0, hasActual=aWidth>0;
+    const aProgress = clampNum(proj.actualProgress,0,100);
+    const hasPlan = pWidth>0, hasActual = aWidth>0;
     if(!hasPlan && !hasActual) return '';
-    const starts=[], ends=[];
-    if(hasPlan){ starts.push(pLeft); ends.push(pLeft+pWidth); }
-    if(hasActual){ starts.push(aLeft); ends.push(aLeft+aWidth); }
-    const outerLeft=Math.max(0, Math.min.apply(null, starts));
-    const outerEnd=Math.min(100, Math.max.apply(null, ends));
-    const outerWidth=Math.max(1, outerEnd-outerLeft);
-    const seg = function(left,width){ return { left: ((left-outerLeft)/outerWidth)*100, width: (width/outerWidth)*100 }; };
-    const ps = hasPlan ? seg(pLeft,pWidth) : {left:0,width:0};
-    const as = hasActual ? seg(aLeft,aWidth) : {left:0,width:0};
-    const planLabel = hasPlan ? 'Plan' : '';
-    // Label bulan+tahun di ujung pill — hanya tampil di mode portrait/HP (via CSS).
-    // Saat bar terpotong (clip), label memakai bulan ASLI (true start/end), bukan
-    // bulan di tepi window, agar mgmt tahu task bermula sebelum window.
-    const edgeLabels = function(sg, absLeft, absWidth, cls, clip){
-        let sIdx, eIdx;
-        if(clip){ sIdx=clip.trueStartIdx; eIdx=clip.trueEndIdx; }
-        else { const r=rangeFromMetrics(absLeft, absWidth); sIdx=r.start; eIdx=r.end; }
-        if(sIdx === eIdx){
-            // Pill 1 bulan: satu label di tengah track agar tidak bertumpuk.
-            return '<span class="bar-edge ' + cls + '" style="left:' + (sg.left + sg.width/2) + '%;transform:translateX(-50%);">' + monthLabelShort(sIdx) + '</span>';
-        }
-        return '<span class="bar-edge ' + cls + '" style="left:' + sg.left + '%;">' + monthLabelShort(sIdx) + '</span>' +
-               '<span class="bar-edge ' + cls + '" style="left:' + (sg.left + sg.width) + '%;transform:translateX(-100%);">' + monthLabelShort(eIdx) + '</span>';
-    };
-    const planEdges = hasPlan ? edgeLabels(ps, pLeft, pWidth, 'bar-edge-plan', planClip) : '';
-    const actualEdges = hasActual ? edgeLabels(as, aLeft, aWidth, 'bar-edge-actual', actualClip) : '';
-    const comboClipLeft=(planClip&&planClip.clipLeft)||(actualClip&&actualClip.clipLeft);
-    const comboClipRight=(planClip&&planClip.clipRight)||(actualClip&&actualClip.clipRight);
-    const comboCls='bar bar-combo bar-plan bar-actual'+(comboClipLeft?' bar-clip-left':'')+(comboClipRight?' bar-clip-right':'');
-    const planTrackCls='bar-plan-track'+(planClip&&planClip.clipLeft?' track-clip-left':'')+(planClip&&planClip.clipRight?' track-clip-right':'');
-    const actualTrackCls='bar-actual-track'+(actualClip&&actualClip.clipLeft?' track-clip-left':'')+(actualClip&&actualClip.clipRight?' track-clip-right':'');
-    const dateAttrs=' data-plan-start="'+escapeAttr(proj.planStart||'')+'" data-plan-end="'+escapeAttr(proj.planEnd||'')+'" data-actual-start="'+escapeAttr(proj.actualStart||'')+'" data-actual-end="'+escapeAttr(proj.actualEnd||'')+'"';
-    return '<div class="' + comboCls + '" style="left:' + outerLeft + '%;width:' + outerWidth + '%;" data-plan-left="' + pLeft + '" data-plan-width="' + pWidth + '" data-actual-left="' + aLeft + '" data-actual-width="' + aWidth + '"' + dateAttrs + '>' + '<div class="' + planTrackCls + '" style="left:' + ps.left + '%;width:' + ps.width + '%;"></div>' + '<div class="' + actualTrackCls + '" style="left:' + as.left + '%;width:' + as.width + '%;"><div class="bar-fill" style="width:' + aProgress + '%;"></div></div>' + planEdges + actualEdges + '<span class="bar-label plan-label">' + planLabel + '</span>' + '<span class="bar-label actual-label" ondblclick="event.stopPropagation();updateProgress(this.closest(\'.bar\'))">Act: ' + aProgress + '%</span>' + '<div class="item-del" onclick="this.parentElement.remove()">?</div><div class="resize-handle"></div></div>';
+    let html = '';
+    if(hasPlan){
+        const clipL = planClip&&planClip.clipLeft ? ' bar-clip-left':'';
+        const clipR = planClip&&planClip.clipRight ? ' bar-clip-right':'';
+        html += `<div class="bar bar-plan${clipL}${clipR}" data-bar-type="plan"
+            data-plan-start="${escapeAttr(proj.planStart||'')}" data-plan-end="${escapeAttr(proj.planEnd||'')}"
+            style="position:absolute;top:6%;height:38%;left:${pLeft}%;width:${pWidth}%">
+            <span class="bar-label plan-label">Plan</span>
+            <div class="resize-handle"></div>
+        </div>`;
+    }
+    if(hasActual){
+        const clipL = actualClip&&actualClip.clipLeft ? ' bar-clip-left':'';
+        const clipR = actualClip&&actualClip.clipRight ? ' bar-clip-right':'';
+        html += `<div class="bar bar-actual${clipL}${clipR}" data-bar-type="actual"
+            data-actual-start="${escapeAttr(proj.actualStart||'')}" data-actual-end="${escapeAttr(proj.actualEnd||'')}"
+            style="position:absolute;top:56%;height:38%;left:${aLeft}%;width:${aWidth}%">
+            <div class="bar-fill" style="width:${aProgress}%"></div>
+            <span class="bar-label actual-label" ondblclick="event.stopPropagation();updateProgress(this.closest('.bar'))">Act: ${aProgress}%</span>
+            <div class="resize-handle"></div>
+        </div>`;
+    }
+    return html;
 }
 
 // ===================================================================
@@ -946,10 +926,14 @@ function createRowFromData(proj) {
         <div class="editable-cell" contenteditable="true" data-placeholder="Update Status...">${statusHTML}</div>`;
     row.querySelectorAll('.bar, .milestone').forEach(el => {
         if (el.classList.contains('milestone')) { bindMilestone(el); return; }
-        initInteract(el);
-        if (el.classList.contains('bar-combo')) el.ondblclick = function(e){ e.stopPropagation(); updateProgress(this); };
-        else if (el.classList.contains('bar-actual')) el.ondblclick = function(e){ e.stopPropagation(); updateProgress(this); };
-        else if (el.classList.contains('bar-plan')) el.ondblclick = function(e){ e.stopPropagation(); updatePlanTarget(this); };
+        initInteract(el); // routes to initSingleBar for bars, keeps milestone logic
+        if (el.classList.contains('bar-plan') || el.classList.contains('bar-actual')) {
+            el.addEventListener('click', function(e){
+                if(e.detail > 1) return;
+                const r = el.closest('.gantt-row');
+                if(r && r.dataset.dragEnabled === 'true') openBarPopover(el, el.dataset.barType, r);
+            });
+        }
     });
     // Lock editing for members on non-assigned projects
     if (!_canEdit && !_canUpdateProgress) {
@@ -1292,41 +1276,103 @@ function updateProgress(bar) {
     if(row)openBarForm(row,'actual');
 }
 function initInteract(el) {
-    const isMilestone=el.classList.contains('milestone'); const handle=el.querySelector('.resize-handle');
-    // Bar terselip (terpotong kiri/kanan) dikunci: porsi di luar window tak punya
-    // geometri, menggesernya akan menghilangkan riwayat. Edit lewat form.
-    const isClipped=()=>!isMilestone && el.classList && (el.classList.contains('bar-clip-left')||el.classList.contains('bar-clip-right'));
+    // Milestones still use old logic; bars now use initSingleBar
+    if (!el.classList.contains('milestone')) { initSingleBar(el); return; }
+    const handle = el.querySelector('.resize-handle');
     const startDrag=(e)=>{
         const rowEl=el.closest('.gantt-row'); if(rowEl && rowEl.dataset.dragEnabled!=='true')return;
-        if(isClipped())return;
-        if(e.target===handle||e.target.getAttribute('contenteditable')==='true'||e.target.classList.contains('item-del'))return;
+        if(e.target===handle)return;
         const clientX=e.touches?e.touches[0].clientX:e.clientX; const clientY=e.touches?e.touches[0].clientY:e.clientY;
         let shiftX=clientX-el.getBoundingClientRect().left; let shiftY=clientY-el.getBoundingClientRect().top;
         const parentRect=el.parentElement.getBoundingClientRect(); const parentWidth=el.parentElement.offsetWidth; const parentHeight=el.parentElement.offsetHeight;
         const moveAt=(cx,cy)=>{
             let nl=cx-shiftX-parentRect.left; if(nl<0)nl=0; if(nl+el.offsetWidth>parentWidth)nl=parentWidth-el.offsetWidth;
             el.style.left=(nl/parentWidth*100)+'%';
-            if(isMilestone){let nt=cy-shiftY-parentRect.top;if(nt<2)nt=2;if(nt+el.offsetHeight>parentHeight-5)nt=parentHeight-el.offsetHeight-5;el.style.top=nt+'px';}
+            let nt=cy-shiftY-parentRect.top;if(nt<2)nt=2;if(nt+el.offsetHeight>parentHeight-5)nt=parentHeight-el.offsetHeight-5;el.style.top=nt+'px';
         };
         const onMove=(em)=>moveAt(em.touches?em.touches[0].clientX:em.clientX,em.touches?em.touches[0].clientY:em.clientY);
-        const onEnd=()=>{syncComboDataFromOuter(el);if(!isMilestone)syncRowDatesFromBar(el);document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onEnd);document.removeEventListener('touchmove',onMove);document.removeEventListener('touchend',onEnd);};
+        const onEnd=()=>{document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onEnd);document.removeEventListener('touchmove',onMove);document.removeEventListener('touchend',onEnd);};
         document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onEnd);
         document.addEventListener('touchmove',onMove);document.addEventListener('touchend',onEnd);
     };
     el.addEventListener('mousedown',startDrag); el.addEventListener('touchstart',startDrag,{passive:false});
-    if(handle){
-        const startResize=(e)=>{
-            const rowEl=el.closest('.gantt-row'); if(rowEl && rowEl.dataset.dragEnabled!=='true')return;
-            if(isClipped())return;
-            e.preventDefault();e.stopPropagation();
-            const clientX=e.touches?e.touches[0].clientX:e.clientX;
-            const startX=clientX;const startWidth=el.offsetWidth;const parentWidth=el.parentElement.offsetWidth;
-            const onMove=(em)=>{const cx=em.touches?em.touches[0].clientX:em.clientX;let nw=startWidth+(cx-startX);el.style.width=(nw/parentWidth*100)+'%';};
-            const onEnd=()=>{syncComboDataFromOuter(el);if(!isMilestone)syncRowDatesFromBar(el);document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onEnd);document.removeEventListener('touchmove',onMove);document.removeEventListener('touchend',onEnd);};
-            document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onEnd);
-            document.addEventListener('touchmove',onMove);document.addEventListener('touchend',onEnd);
+}
+
+function initSingleBar(el) {
+    const handle = el.querySelector('.resize-handle');
+    const isClipped = () => el.classList.contains('bar-clip-left') || el.classList.contains('bar-clip-right');
+
+    const syncDates = () => {
+        const row = el.closest('.gantt-row'); if (!row) return;
+        const left = parseFloat(el.style.left) || 0;
+        const width = parseFloat(el.style.width) || 0;
+        if (width <= 0) return;
+        const cfg = getTimelineConfig();
+        const winStart = cfg.startY * 12 + cfg.startM;
+        const r = rangeFromMetrics(left, width);
+        const start = absValueFromIndex(winStart + r.start);
+        const end   = absValueFromIndex(winStart + r.end);
+        const type = el.dataset.barType || (el.classList.contains('bar-actual') ? 'actual' : 'plan');
+        const c = getRowCanonical(row) || {};
+        if (type === 'actual') { c.actualStart = start; c.actualEnd = end; el.dataset.actualStart = start; el.dataset.actualEnd = end; }
+        else                   { c.planStart   = start; c.planEnd   = end; el.dataset.planStart   = start; el.dataset.planEnd   = end; }
+        setRowCanonical(row, c);
+        // update actual label text
+        if (type === 'actual') {
+            const lbl = el.querySelector('.actual-label');
+            if (lbl) lbl.textContent = 'Act: ' + (c.actualProgress||0) + '%';
+        }
+        refreshTrafficLight(row);
+        // sync popover footer inputs if row-focus is open
+        const rfRow = document.getElementById('rf-grid') && document.getElementById('rf-grid')._sourceRow;
+        if (rfRow === row) {
+            const s = id => document.getElementById(id);
+            if (type === 'actual') { if(s('rf-act-start')) s('rf-act-start').value=start; if(s('rf-act-end')) s('rf-act-end').value=end; }
+            else                   { if(s('rf-plan-start')) s('rf-plan-start').value=start; if(s('rf-plan-end')) s('rf-plan-end').value=end; }
+        }
+    };
+
+    // Drag (move whole bar)
+    const startDrag = (e) => {
+        const rowEl = el.closest('.gantt-row'); if (!rowEl || rowEl.dataset.dragEnabled !== 'true') return;
+        if (isClipped()) return;
+        if (e.target === handle) return;
+        e.preventDefault(); e.stopPropagation();
+        const cx0 = e.touches ? e.touches[0].clientX : e.clientX;
+        const left0 = parseFloat(el.style.left) || 0;
+        const pw = el.parentElement.offsetWidth;
+        const onMove = (em) => {
+            const cx = em.touches ? em.touches[0].clientX : em.clientX;
+            const dx = (cx - cx0) / pw * 100;
+            const w = parseFloat(el.style.width) || 0;
+            el.style.left = Math.max(0, Math.min(100 - w, left0 + dx)) + '%';
         };
-        handle.addEventListener('mousedown',startResize);handle.addEventListener('touchstart',startResize,{passive:false});
+        const onEnd = () => { syncDates(); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onEnd); document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onEnd); };
+        document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onEnd);
+        document.addEventListener('touchmove', onMove, {passive:false}); document.addEventListener('touchend', onEnd);
+    };
+    el.addEventListener('mousedown', startDrag); el.addEventListener('touchstart', startDrag, {passive:false});
+
+    // Resize (right edge)
+    if (handle) {
+        const startResize = (e) => {
+            const rowEl = el.closest('.gantt-row'); if (!rowEl || rowEl.dataset.dragEnabled !== 'true') return;
+            if (isClipped()) return;
+            e.preventDefault(); e.stopPropagation();
+            const cx0 = e.touches ? e.touches[0].clientX : e.clientX;
+            const w0 = el.offsetWidth;
+            const pw = el.parentElement.offsetWidth;
+            const minW = pw / (getTimelineConfig().duration || 24); // min 1 month
+            const onMove = (em) => {
+                const cx = em.touches ? em.touches[0].clientX : em.clientX;
+                const nw = Math.max(minW, w0 + (cx - cx0));
+                el.style.width = (nw / pw * 100) + '%';
+            };
+            const onEnd = () => { syncDates(); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onEnd); document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onEnd); };
+            document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onEnd);
+            document.addEventListener('touchmove', onMove, {passive:false}); document.addEventListener('touchend', onEnd);
+        };
+        handle.addEventListener('mousedown', startResize); handle.addEventListener('touchstart', startResize, {passive:false});
     }
 }
 
@@ -1446,21 +1492,17 @@ function rfRedraw() {
     const html = buildGanttPillHTML(c);
     if (html) {
         grid.insertAdjacentHTML('afterbegin', html);
-        const bar = grid.querySelector('.bar-combo');
-        if (bar) {
-            synth.style.pointerEvents = 'auto';
-            initInteract(bar);
-            bar.ondblclick = e => { e.stopPropagation(); };
+        synth.style.pointerEvents = 'auto';
+        grid.querySelectorAll('.bar-plan, .bar-actual').forEach(bar => {
+            initSingleBar(bar);
             bar.addEventListener('click', e => {
                 if (e.detail > 1) return;
-                const rect = bar.getBoundingClientRect();
-                const type = (e.clientY - rect.top) / rect.height > 0.5 ? 'actual' : 'plan';
-                openBarPopover(bar, type, sourceRow);
+                openBarPopover(bar, bar.dataset.barType, sourceRow);
             });
-            // After drag ends, sync back to source row and update footer inputs
-            const origOnEnd = bar.onmouseup;
+        });
+        if (grid.querySelector('.bar-plan, .bar-actual')) {
+            const bar = grid.querySelector('.bar-plan') || grid.querySelector('.bar-actual');
             const patchSync = () => {
-                syncRowDatesFromBar(bar);
                 const c2 = getRowCanonical(sourceRow) || {};
                 const s = id => document.getElementById(id);
                 if(s('rf-plan-start')) s('rf-plan-start').value = c2.planStart||'';
@@ -1606,7 +1648,8 @@ function initGridDraw(row) {
         setRowCanonical(row, existing);
         redrawGanttPillFromDates(row);
         // Open popover immediately so user can fine-tune
-        const bar = grid.querySelector('.bar-combo');
+        const barSel = drawType === 'actual' ? '.bar-actual' : '.bar-plan';
+        const bar = grid.querySelector(barSel);
         if (bar) openBarPopover(bar, drawType, row);
     };
 
@@ -1620,12 +1663,7 @@ function openBarPopover(bar, barType, row) {
     if (!row) row = bar.closest('.gantt-row');
     const c = getRowCanonical(row) || {};
 
-    // Determine which type was clicked based on click position if not provided
-    if (!barType) {
-        const planTrack = bar.querySelector('.bar-plan-track');
-        const actTrack = bar.querySelector('.bar-actual-track');
-        barType = (actTrack && parseFloat(actTrack.style.width) > 0) ? 'actual' : 'plan';
-    }
+    if (!barType) barType = bar.dataset.barType || (bar.classList.contains('bar-actual') ? 'actual' : 'plan');
 
     const isActual = barType === 'actual';
     const startVal = isActual ? (c.actualStart || '') : (c.planStart || '');
