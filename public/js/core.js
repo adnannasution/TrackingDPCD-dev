@@ -823,7 +823,9 @@ function serializeCurrentState() {
             planStart: _can.planStart||'', planEnd: _can.planEnd||'', actualStart: _can.actualStart||'', actualEnd: _can.actualEnd||'',
             pic: parsePicValue(row.getAttribute('data-pic')), blockers: parseBlockers(row.getAttribute('data-blockers')),
             category: row.getAttribute('data-category')||'',
-            priority: row.getAttribute('data-priority')||'', notes: row.getAttribute('data-notes')||'',
+            priority: row.getAttribute('data-priority')||'',
+            department: row.getAttribute('data-dept')||'',
+            notes: row.getAttribute('data-notes')||'',
             links: (row.getAttribute('data-links')||'').split('|||').filter(Boolean),
             nextAction: row.getAttribute('data-next-action')||'', dueDate: row.getAttribute('data-due')||'',
             prognosa: row.getAttribute('data-prognosa')||'', milestones
@@ -876,6 +878,7 @@ function createRowFromData(proj) {
     const _blkArr = parseBlockers(proj.blockers); if (_blkArr.length) row.setAttribute('data-blockers', _blkArr.join('|||'));
     if (proj.category) row.setAttribute('data-category', proj.category);
     if (proj.priority) row.setAttribute('data-priority', proj.priority);
+    if (proj.department) row.setAttribute('data-dept', proj.department);
     if (proj.notes) row.setAttribute('data-notes', proj.notes);
     if (proj.nextAction) row.setAttribute('data-next-action', proj.nextAction);
     if (proj.dueDate) row.setAttribute('data-due', proj.dueDate);
@@ -1010,14 +1013,7 @@ function generateTimeline(isLoad=false) {
 function getFilteredRows() {
     let all = Array.from(document.querySelectorAll('.gantt-row'));
     if (_deptFilter) {
-        all = all.filter(row => {
-            const picEl = row.querySelector('.pic-cell');
-            const nameEl = row.querySelector('.activity-name-text');
-            const text = (picEl ? picEl.textContent : '') + (nameEl ? nameEl.textContent : '');
-            // filter by dept tag if present, else show all (fallback)
-            const deptTag = row.dataset.dept || '';
-            return deptTag === _deptFilter || (!deptTag);
-        });
+        all = all.filter(row => (row.dataset.dept || '') === _deptFilter);
     }
     if (activeFilter==='all') return all;
     return all.filter(row => { const tl=row.querySelector('.traffic-light'); return tl && tl.classList.contains(activeFilter); });
