@@ -125,10 +125,9 @@ app.get('/api/auth/me', authRequired, async (req, res) => {
 app.get('/api/departments', authRequired, async (req, res) => {
   try {
     const { rows } = await pool.query(`
-      SELECT d.*, COUNT(DISTINCT u.id) as member_count, COUNT(DISTINCT p.id) as project_count
+      SELECT d.*, COUNT(DISTINCT u.id) as member_count
       FROM departments d
       LEFT JOIN users u ON u.department_id = d.id
-      LEFT JOIN projects p ON p.department_id = d.id
       GROUP BY d.id ORDER BY d.name
     `);
     res.json(rows);
@@ -623,13 +622,64 @@ app.get('/api/stats', authRequired, async (req, res) => {
   }
 });
 
-// ─── Legacy state endpoints (for backward compatibility) ──────────────────────
+// ─── Dashboard state endpoints (main dashboard JSONB) ────────────────────────
 
-app.get('/api/state', async (req, res) => {
+app.get('/api/state', authRequired, async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM dashboard_state WHERE id=1');
-    if (!rows.length) return res.json({ data: null });
+    if (!rows.length) {
+      // Load from seed file if DB empty
+      try {
+        const fs = require('fs');
+        const seed = JSON.parse(fs.readFileSync(path.join(__dirname, 'data_projects_dpcd.json'), 'utf8'));
+        return res.json(seed);
+      } catch {
+        return res.json(null);
+      }
+    }
     res.json(rows[0].data);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.put('/api/state', authRequired, requireRole('admin', 'manager'), async (req, res) => {
+  try {
+    const data = req.body;
+    const editorName = req.user.full_name;
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const { rows } = await client.query(
+        `INSERT INTO dashboard_state (id, data, updated_at, updated_by) VALUES (1, $1, NOW(), $2)
+         ON CONFLICT (id) DO UPDATE SET data=$1, updated_at=NOW(), updated_by=$2 RETURNING updated_at`,
+        [JSON.stringify(data), editorName]
+      );
+      await client.query(
+        'INSERT INTO dashboard_revisions (data, saved_by) VALUES ($1, $2)',
+        [JSON.stringify(data), editorName]
+      );
+      await client.query('COMMIT');
+      await logActivity(req.user.id, 'save_dashboard', 'dashboard', 1, 'Dashboard State');
+      res.json({ data, updatedAt: rows[0].updated_at, updatedBy: editorName });
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/api/state/revisions', authRequired, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT id, saved_by, created_at FROM dashboard_revisions ORDER BY created_at DESC LIMIT 50'
+    );
+    res.json(rows);
   } catch (e) {
     res.status(500).json({ error: 'Server error' });
   }
