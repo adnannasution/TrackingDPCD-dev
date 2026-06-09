@@ -129,6 +129,14 @@ CREATE TABLE IF NOT EXISTS user_sessions (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- project assignments (maps project JSONB ids to users)
+CREATE TABLE IF NOT EXISTS project_assignments (
+  project_id TEXT NOT NULL,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  assigned_at TIMESTAMPTZ DEFAULT NOW(),
+  PRIMARY KEY (project_id, user_id)
+);
+
 -- legacy dashboard state (keep for backward compat / migration)
 CREATE TABLE IF NOT EXISTS dashboard_state (
   id INTEGER PRIMARY KEY CHECK (id = 1),
