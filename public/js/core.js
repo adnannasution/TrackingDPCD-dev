@@ -16,21 +16,6 @@ function formatMonthYearShort(dStr){
 }
 let currentPage = 1;
 const rowsPerPage = 6;
-
-let _autoSaveTimer = null;
-function scheduleAutoSave() {
-    if (!Auth.canManage()) return;
-    clearTimeout(_autoSaveTimer);
-    _autoSaveTimer = setTimeout(() => saveToDatabase(true), 1500);
-}
-
-let _searchQuery = '';
-function onProjectSearch(q) {
-    _searchQuery = (q || '').toLowerCase().trim();
-    currentPage = 1;
-    updatePagination();
-    refreshActiveView();
-}
 let activeFilter = 'all';
 let _weeklyViewKey = null; // null = Live; berisi weekKey saat melihat kondisi minggu lampau (read-only)
 let _myAssignments = []; // project IDs assigned to current user
@@ -734,17 +719,6 @@ async function reloadFromDatabase(){
         const stateData = result && result.data !== undefined ? result.data : result;
         _appData = stateData;
         renderDashboardFromData(_appData);
-        // Restore dept filter for admin
-        const _rUser = Auth.getUser();
-        if (_rUser && _rUser.role === 'admin') {
-            const saved = localStorage.getItem('dpcd-dept-filter');
-            if (saved) {
-                _deptFilter = saved;
-                const sel = document.getElementById('dept-filter');
-                if (sel) sel.value = saved;
-                filterByDept(saved);
-            }
-        }
         setOptionalText('ds-path-display', 'PostgreSQL Railway');
         const ts = result && result.updatedAt ? new Date(result.updatedAt).toLocaleString('id-ID') : null;
         setDsStatus('connected', ts ? ('Terhubung - ' + ts) : 'Terhubung ke database');
@@ -758,7 +732,7 @@ async function reloadFromDatabase(){
     }
 }
 
-async function saveToDatabase(silent){
+async function saveToDatabase(){
     if(_weeklyViewKey){ showToast('Mode lihat riwayat — keluar ke Terkini untuk mengedit'); return; }
 
     const user = Auth.getUser();
@@ -767,10 +741,6 @@ async function saveToDatabase(silent){
         showToast('Hanya Admin atau Manager yang bisa menyimpan perubahan');
         return;
     }
-
-    const simpanBtn = document.getElementById('btnSave') || document.querySelector('[onclick="saveToDatabase()"]');
-    const origBtnHTML = simpanBtn ? simpanBtn.innerHTML : null;
-    if (!silent && simpanBtn) simpanBtn.innerHTML = '💾 Menyimpan...';
 
     try{
         captureSnapshot();
@@ -784,17 +754,11 @@ async function saveToDatabase(silent){
         _appData = result.data || data;
         setOptionalText('ds-path-display', 'PostgreSQL Railway');
         setDsStatus('connected', result.updatedAt ? ('Tersimpan - ' + new Date(result.updatedAt).toLocaleString('id-ID')) : 'Tersimpan ke database');
-        if (silent) {
-            showToast('Tersimpan otomatis', 'success');
-        } else {
-            showToast('Data berhasil disimpan oleh ' + (result.updatedBy || user.full_name), 'success');
-        }
+        showToast('Data berhasil disimpan oleh ' + (result.updatedBy || user.full_name));
         populateWeeklyFilter();
     }catch(err){
         setDsStatus('disconnected','Gagal menyimpan database');
-        showToast('Gagal menyimpan: ' + err.message, 'error');
-    } finally {
-        if (simpanBtn && origBtnHTML !== null) simpanBtn.innerHTML = origBtnHTML;
+        alert('Gagal menyimpan: ' + err.message);
     }
 }
 
@@ -978,15 +942,13 @@ function createRowFromData(proj) {
     const _canUpdateProgress = _canEdit || (_role === 'member' && _isAssigned);
 
     const zoomBtn = `<button class="icon-btn btn-zoom" onclick="openRowFocus(this)" title="Fokus & Edit Timeline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>`;
-    const lockRowBtn = `<button class="icon-btn row-lock-btn" onclick="toggleRowLock(this)" title="Buka kunci untuk edit timeline (Plan/Actual/Milestone)">🔒</button>`;
     const actionColHTML = _canEdit ? `
         <div class="action-col">
-            ${lockRowBtn}
-            <button class="icon-btn btn-p row-edit-btn" onclick="addItemToRow(this,'plan')" title="Buat/Edit bar Plan (buka kunci dulu)" disabled>&#128197;</button>
-            <button class="icon-btn btn-a row-edit-btn" onclick="addItemToRow(this,'actual')" title="Buat/Edit bar Actual (buka kunci dulu)" disabled>&#9889;</button>
-            <button class="icon-btn btn-m row-edit-btn" onclick="addItemToRow(this,'milestone')" title="Tambah Milestone (buka kunci dulu)" disabled>&#9670;</button>
+            <button class="icon-btn btn-p" onclick="addItemToRow(this,'plan')" title="Edit data Plan">&#128197;</button>
+            <button class="icon-btn btn-a" onclick="addItemToRow(this,'actual')" title="Edit data Actual">&#9889;</button>
+            <button class="icon-btn btn-m" onclick="addItemToRow(this,'milestone')" title="Tambah Milestone">&#9670;</button>
             ${zoomBtn}
-            <button class="icon-btn btn-d row-edit-btn" onclick="deleteRow(this)" title="Hapus baris (buka kunci dulu)" disabled><svg class="btn-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 15H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
+            <button class="icon-btn btn-d" onclick="deleteRow(this)" title="Hapus baris"><svg class="btn-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 15H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
         </div>` : _canUpdateProgress ? `
         <div class="action-col">
             <button class="icon-btn btn-a" onclick="openMemberProgressModal(this)" title="Update Progress" style="background:#e8f5e9;color:#2e7d32">✏️</button>
@@ -1089,14 +1051,8 @@ function generateTimeline(isLoad=false) {
 // Returns all rows visible for current dept filter (used by ALL views)
 function getVisibleRows() {
     const all = Array.from(document.querySelectorAll('.gantt-row'));
-    let rows = _deptFilter ? all.filter(row => (row.dataset.dept || '') === _deptFilter) : all;
-    if (_searchQuery) {
-        rows = rows.filter(row => {
-            const name = (row.querySelector('.activity-name-text') || {}).innerText || '';
-            return name.toLowerCase().includes(_searchQuery);
-        });
-    }
-    return rows;
+    if (!_deptFilter) return all;
+    return all.filter(row => (row.dataset.dept || '') === _deptFilter);
 }
 
 function getFilteredRows() {
@@ -1137,7 +1093,6 @@ function filterByCard(filter) {
 let _deptFilter = '';
 function filterByDept(deptName) {
     _deptFilter = deptName || '';
-    localStorage.setItem('dpcd-dept-filter', _deptFilter);
     activeFilter = 'all';
     document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('card-active'));
     const banner = document.getElementById('filter-banner');
@@ -1432,7 +1387,6 @@ function initSingleBar(el, rowOverride) {
             if (lbl) lbl.textContent = 'Act: ' + (c.actualProgress||0) + '%';
         }
         refreshTrafficLight(row);
-        scheduleAutoSave();
         // sync popover footer inputs if row-focus is open
         const rfRow = document.getElementById('rf-grid') && document.getElementById('rf-grid')._sourceRow;
         if (rfRow === row) {
@@ -1988,37 +1942,20 @@ function bpopApply() {
     setRowCanonical(row, existing);
     redrawGanttPillFromDates(row);
     closeBarPopover();
-    scheduleAutoSave();
 }
 
 // ===================================================================
 // UTILITIES
 // ===================================================================
-// Remove any stuck overlay elements (escape hatch for zombie modals)
-function clearStuckOverlays() {
-    ['detail-overlay','history-overlay','weekly-reminder','exec-overlay','milestone-form-overlay','bar-form-overlay','row-focus-ov','member-progress-overlay','member-add-project-overlay'].forEach(id => {
-        const el = document.getElementById(id); if (el) el.remove();
-    });
-    closeBarPopover();
-}
-// Expose globally — Escape key clears stuck overlays
-document.addEventListener('keydown', e => { if (e.key === 'Escape') clearStuckOverlays(); });
-
 function escapeHTML(str){ if(!str)return''; const div=document.createElement('div'); div.appendChild(document.createTextNode(str)); return div.innerHTML; }
 function getCutoffDate(){ const cv=(document.getElementById('cfg-cutoff')||{}).value; const d=cv?new Date(cv):new Date(); d.setHours(0,0,0,0); return d; }
 function isOverdue(dueStr, ragKey){ if(!dueStr)return false; if(ragKey==='blue'||ragKey==='bg-blue')return false; const d=new Date(dueStr); if(isNaN(d))return false; d.setHours(0,0,0,0); return d < getCutoffDate(); }
 function formatDue(dueStr){ if(!dueStr)return''; const d=new Date(dueStr); if(isNaN(d))return dueStr; return d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}); }
-function showToast(msg, type) {
-    // type: 'success' | 'error' | 'info' (default)
-    const colors = { success:'#1a7a4a', error:'#c0392b', info:'#0E2444' };
-    const icons = { success:'✓', error:'✕', info:'ℹ' };
-    const bg = colors[type] || colors.info;
-    const icon = icons[type] || icons.info;
-    const t = document.createElement('div');
-    t.style.cssText = `position:fixed;bottom:24px;right:24px;background:${bg};color:#fff;padding:12px 18px;border-radius:10px;font-size:0.84rem;font-weight:500;z-index:99999;box-shadow:0 8px 28px rgba(10,26,48,0.35);animation:dtFadeIn 0.2s ease;max-width:360px;display:flex;align-items:center;gap:10px;`;
-    t.innerHTML = `<span style="font-size:1rem;flex-shrink:0">${icon}</span><span>${msg}</span>`;
-    document.body.appendChild(t);
-    setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 3200);
+function showToast(msg){
+    const t=document.createElement('div');
+    t.style.cssText='position:fixed;bottom:24px;right:24px;background:#0E2444;color:#fff;padding:12px 20px;border-radius:9px;font-size:0.85rem;font-weight:500;z-index:99999;box-shadow:0 8px 28px rgba(10,26,48,0.35);animation:dtFadeIn 0.2s ease;max-width:360px;';
+    t.textContent=msg; document.body.appendChild(t);
+    setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity 0.3s';setTimeout(()=>t.remove(),300);},3200);
 }
 
 // ===================================================================
@@ -2159,21 +2096,6 @@ function setWeeklyReadOnly(on, label){
 // ===================================================================
 // DETAIL buttons
 // ===================================================================
-function toggleRowLock(btn) {
-    const row = btn.closest('.gantt-row');
-    if (!row) return;
-    const on = row.dataset.dragEnabled === 'true';
-    row.dataset.dragEnabled = on ? 'false' : 'true';
-    btn.textContent = on ? '🔒' : '🔓';
-    btn.title = on ? 'Buka kunci untuk edit timeline' : 'Kunci timeline';
-    btn.classList.toggle('active', !on);
-    // Enable/disable all edit buttons in the same action-col
-    row.querySelectorAll('.row-edit-btn').forEach(b => {
-        b.disabled = on;
-        b.style.opacity = on ? '' : '1';
-    });
-}
-
 function initDetailButtons(){
     document.querySelectorAll('.gantt-row').forEach(row=>{
         // Wire drag-to-create on timeline grid
@@ -2191,6 +2113,24 @@ function initDetailButtons(){
         btn.onmousedown=function(e){e.preventDefault();e.stopPropagation();};
         btn.onclick=function(e){e.preventDefault();e.stopPropagation();openProjectDetail(row);};
         nameCell.appendChild(btn);
+        const lockBtn=document.createElement('button');
+        lockBtn.type='button';
+        lockBtn.className='drag-lock-btn';
+        lockBtn.setAttribute('contenteditable','false');
+        lockBtn.contentEditable='false';
+        lockBtn.tabIndex=-1;
+        lockBtn.textContent='🔒';
+        lockBtn.title='Aktifkan geser Gantt';
+        lockBtn.onmousedown=function(e){e.preventDefault();e.stopPropagation();};
+        lockBtn.onclick=function(e){
+            e.preventDefault();e.stopPropagation();
+            const on=row.dataset.dragEnabled==='true';
+            row.dataset.dragEnabled=on?'false':'true';
+            lockBtn.classList.toggle('active',!on);
+            lockBtn.textContent=on?'🔒':'🔓';
+            lockBtn.title=on?'Aktifkan geser Gantt':'Kunci geser Gantt';
+        };
+        nameCell.appendChild(lockBtn);
     });
 }
 
