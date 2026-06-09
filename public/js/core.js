@@ -964,8 +964,7 @@ function createRowFromData(proj) {
         <div class="rag-col"><div class="traffic-light ${ragClass}"></div></div>
         <div class="editable-cell" contenteditable="true" data-placeholder="Update Status...">${statusHTML}</div>`;
     row.querySelectorAll('.bar, .milestone').forEach(el => {
-        if (el.classList.contains('milestone')) { bindMilestone(el); return; }
-        initInteract(el); // routes to initSingleBar for bars, keeps milestone logic
+        initInteract(el); // bars → initSingleBar; milestones → drag+date sync
         if (el.classList.contains('bar-plan') || el.classList.contains('bar-actual')) {
             el.addEventListener('click', function(e){
                 if(e.detail > 1) return;
@@ -1315,8 +1314,9 @@ function updateProgress(bar) {
     if(row)openBarForm(row,'actual');
 }
 function initInteract(el) {
-    // Milestones still use old logic; bars now use initSingleBar
     if (!el.classList.contains('milestone')) { initSingleBar(el); return; }
+    // Milestone: dblclick → edit form; drag → move + sync date
+    el.addEventListener('dblclick', e => { e.preventDefault(); e.stopPropagation(); openMilestoneForm(el.closest('.gantt-row'), el); });
     const startDrag=(e)=>{
         const rowEl=el.closest('.gantt-row'); if(rowEl && rowEl.dataset.dragEnabled!=='true')return;
         if(e.target.classList.contains('item-del')) return;
