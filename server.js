@@ -1,237 +1,691 @@
 const express = require('express');
-const fs = require('fs/promises');
-const path = require('path');
 const { Pool } = require('pg');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const path = require('path');
 
 const app = express();
-const port = process.env.PORT || 3000;
-const publicDir = path.join(__dirname, 'public');
-const seedPath = path.join(__dirname, 'data_projects_dpcd.json');
-const adminToken = normalizeSecret(process.env.ADMIN_TOKEN || '');
+app.use(express.json());
+app.use(express.static('public'));
 
-let pool;
-let initPromise;
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.PGSSL === 'true' ? { rejectUnauthorized: false } : false
+});
 
-app.use(express.json({ limit: '8mb' }));
-app.use(express.static(publicDir));
+const JWT_SECRET = process.env.JWT_SECRET || 'change-this-secret';
+const JWT_EXPIRES = '24h';
 
-app.get('/api/health', async (_req, res) => {
-  const health = {
-    ok: true,
-    databaseConfigured: Boolean(process.env.DATABASE_URL),
-    databaseConnected: false,
-    authEnabled: Boolean(adminToken)
+// ─── Middleware ─────────────────────────────────────────────────────────────
+
+function authRequired(req, res, next) {
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith('Bearer ')) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    req.user = jwt.verify(auth.slice(7), JWT_SECRET);
+    next();
+  } catch {
+    res.status(401).json({ error: 'Token invalid or expired' });
+  }
+}
+
+function requireRole(...roles) {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) return res.status(403).json({ error: 'Forbidden' });
+    next();
   };
+}
 
-  if (process.env.DATABASE_URL) {
-    try {
-      await getPool().query('SELECT 1');
-      health.databaseConnected = true;
-    } catch (err) {
-      health.ok = false;
-      health.databaseError = sanitizeDatabaseError(err);
+// ─── DB Init ─────────────────────────────────────────────────────────────────
+
+async function initDB() {
+  const fs = require('fs');
+  const schema = fs.readFileSync(path.join(__dirname, 'db/schema.sql'), 'utf8');
+  await pool.query(schema);
+
+  // Create default admin if no users exist
+  const { rows } = await pool.query('SELECT COUNT(*) FROM users');
+  if (rows[0].count === '0') {
+    const hash = await bcrypt.hash('admin123', 12);
+    await pool.query(
+      `INSERT INTO users (username, password_hash, full_name, role) VALUES ($1,$2,$3,$4)`,
+      ['admin', hash, 'System Administrator', 'admin']
+    );
+    console.log('Default admin created: admin / admin123');
+  }
+}
+
+// ─── Auth Routes ──────────────────────────────────────────────────────────────
+
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
+
+    const { rows } = await pool.query(
+      'SELECT u.*, d.name as dept_name FROM users u LEFT JOIN departments d ON u.department_id = d.id WHERE u.username = $1 AND u.is_active = true',
+      [username]
+    );
+    if (!rows.length) return res.status(401).json({ error: 'Invalid credentials' });
+
+    const user = rows[0];
+    const valid = await bcrypt.compare(password, user.password_hash);
+    if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
+
+    const token = jwt.sign(
+      { id: user.id, username: user.username, role: user.role, department_id: user.department_id, full_name: user.full_name },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES }
+    );
+
+    await pool.query(
+      `INSERT INTO activity_log (user_id, action, entity_type) VALUES ($1, 'login', 'user')`,
+      [user.id]
+    );
+
+    res.json({ token, user: { id: user.id, username: user.username, full_name: user.full_name, role: user.role, department_id: user.department_id, dept_name: user.dept_name } });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/auth/change-password', authRequired, async (req, res) => {
+  try {
+    const { old_password, new_password } = req.body;
+    if (!old_password || !new_password) return res.status(400).json({ error: 'Both passwords required' });
+    if (new_password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+
+    const { rows } = await pool.query('SELECT password_hash FROM users WHERE id = $1', [req.user.id]);
+    const valid = await bcrypt.compare(old_password, rows[0].password_hash);
+    if (!valid) return res.status(401).json({ error: 'Current password incorrect' });
+
+    const hash = await bcrypt.hash(new_password, 12);
+    await pool.query('UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2', [hash, req.user.id]);
+    res.json({ message: 'Password changed successfully' });
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/api/auth/me', authRequired, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT u.id, u.username, u.full_name, u.role, u.department_id, u.is_active, u.created_at, d.name as dept_name FROM users u LEFT JOIN departments d ON u.department_id = d.id WHERE u.id = $1',
+      [req.user.id]
+    );
+    res.json(rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── Department Routes ────────────────────────────────────────────────────────
+
+app.get('/api/departments', authRequired, async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT d.*, COUNT(DISTINCT u.id) as member_count, COUNT(DISTINCT p.id) as project_count
+      FROM departments d
+      LEFT JOIN users u ON u.department_id = d.id
+      LEFT JOIN projects p ON p.department_id = d.id
+      GROUP BY d.id ORDER BY d.name
+    `);
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/departments', authRequired, requireRole('admin'), async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    if (!name) return res.status(400).json({ error: 'Name required' });
+    const { rows } = await pool.query('INSERT INTO departments (name, description) VALUES ($1,$2) RETURNING *', [name, description]);
+    await logActivity(req.user.id, 'create_department', 'department', rows[0].id, name);
+    res.status(201).json(rows[0]);
+  } catch (e) {
+    if (e.code === '23505') return res.status(409).json({ error: 'Department name already exists' });
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.put('/api/departments/:id', authRequired, requireRole('admin'), async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const { rows } = await pool.query('UPDATE departments SET name=$1, description=$2 WHERE id=$3 RETURNING *', [name, description, req.params.id]);
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    await logActivity(req.user.id, 'update_department', 'department', rows[0].id, name);
+    res.json(rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.delete('/api/departments/:id', authRequired, requireRole('admin'), async (req, res) => {
+  try {
+    const { rows } = await pool.query('DELETE FROM departments WHERE id=$1 RETURNING *', [req.params.id]);
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    await logActivity(req.user.id, 'delete_department', 'department', req.params.id, rows[0].name);
+    res.json({ message: 'Deleted' });
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── User Routes ──────────────────────────────────────────────────────────────
+
+app.get('/api/users', authRequired, requireRole('admin', 'manager'), async (req, res) => {
+  try {
+    let query = `SELECT u.id, u.username, u.full_name, u.role, u.department_id, u.is_active, u.created_at, d.name as dept_name
+                 FROM users u LEFT JOIN departments d ON u.department_id = d.id`;
+    const params = [];
+    if (req.user.role === 'manager') {
+      query += ' WHERE u.department_id = $1';
+      params.push(req.user.department_id);
     }
+    query += ' ORDER BY u.full_name';
+    const { rows } = await pool.query(query, params);
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
   }
-
-  res.status(health.ok ? 200 : 503).json(health);
 });
 
-app.get('/api/state', async (_req, res, next) => {
+app.post('/api/users', authRequired, requireRole('admin'), async (req, res) => {
   try {
-    const state = await getDashboardState();
-    res.json({
-      data: state.data,
-      updatedAt: state.updated_at,
-      updatedBy: state.updated_by || ''
-    });
-  } catch (err) {
-    next(err);
+    const { username, password, full_name, role, department_id } = req.body;
+    if (!username || !password || !full_name || !role) return res.status(400).json({ error: 'Missing required fields' });
+    if (!['admin','manager','member'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
+
+    const hash = await bcrypt.hash(password, 12);
+    const { rows } = await pool.query(
+      'INSERT INTO users (username, password_hash, full_name, role, department_id) VALUES ($1,$2,$3,$4,$5) RETURNING id, username, full_name, role, department_id',
+      [username, hash, full_name, role, department_id || null]
+    );
+    await logActivity(req.user.id, 'create_user', 'user', rows[0].id, full_name, { role, department_id });
+    res.status(201).json(rows[0]);
+  } catch (e) {
+    if (e.code === '23505') return res.status(409).json({ error: 'Username already exists' });
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
-app.put('/api/state', requireAdminToken, async (req, res, next) => {
+app.put('/api/users/:id', authRequired, requireRole('admin'), async (req, res) => {
   try {
-    const data = req.body;
-    const savedBy = sanitizeEditorName(req.get('x-editor-name') || '');
-    validateDashboardState(data);
-    const state = await saveDashboardState(data, savedBy);
-    res.json({
-      data: state.data,
-      updatedAt: state.updated_at,
-      updatedBy: state.updated_by || ''
-    });
-  } catch (err) {
-    next(err);
-  }
-});
-
-app.use('/api', (_req, res) => {
-  res.status(404).json({ error: 'API route tidak ditemukan.' });
-});
-
-app.get('*', (_req, res) => {
-  res.sendFile(path.join(publicDir, 'index.html'));
-});
-
-app.use((err, _req, res, _next) => {
-  const status = err.status || 500;
-  const message = status >= 500 && !err.expose ? 'Server error' : err.message;
-  if (status >= 500) console.error(err);
-  res.status(status).json({ error: message });
-});
-
-app.listen(port, () => {
-  console.log(`DPCD dashboard listening on port ${port}`);
-  if (!process.env.DATABASE_URL) {
-    console.warn('DATABASE_URL is not set. /api/state will fail until PostgreSQL is configured.');
-  }
-  if (!adminToken) {
-    console.warn('ADMIN_TOKEN is not set. Writes to /api/state are currently open.');
-  }
-});
-
-function getPool() {
-  if (!process.env.DATABASE_URL) {
-    const err = new Error('DATABASE_URL belum dikonfigurasi.');
-    err.status = 503;
-    err.expose = true;
-    throw err;
-  }
-  if (!pool) {
-    const sslEnabled = process.env.PGSSL === 'true' || process.env.PGSSLMODE === 'require';
-    pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: sslEnabled ? { rejectUnauthorized: false } : undefined
-    });
-  }
-  return pool;
-}
-
-async function initDatabase() {
-  const db = getPool();
-  await db.query(`
-    CREATE TABLE IF NOT EXISTS dashboard_state (
-      id integer PRIMARY KEY CHECK (id = 1),
-      data jsonb NOT NULL,
-      updated_at timestamptz NOT NULL DEFAULT now(),
-      updated_by text NOT NULL DEFAULT ''
-    )
-  `);
-  await db.query(`
-    CREATE TABLE IF NOT EXISTS dashboard_revisions (
-      id bigserial PRIMARY KEY,
-      data jsonb NOT NULL,
-      created_at timestamptz NOT NULL DEFAULT now(),
-      saved_by text NOT NULL DEFAULT ''
-    )
-  `);
-  await db.query(`ALTER TABLE dashboard_state ADD COLUMN IF NOT EXISTS updated_by text NOT NULL DEFAULT ''`);
-  await db.query(`ALTER TABLE dashboard_revisions ADD COLUMN IF NOT EXISTS saved_by text NOT NULL DEFAULT ''`);
-
-  const existing = await db.query('SELECT id FROM dashboard_state WHERE id = 1');
-  if (existing.rowCount === 0) {
-    const seed = await readSeedState();
-    validateDashboardState(seed);
-    await db.query(
-      'INSERT INTO dashboard_state (id, data, updated_by) VALUES (1, $1::jsonb, $2)',
-      [JSON.stringify(seed), 'seed']
+    const { full_name, role, department_id, is_active, password } = req.body;
+    if (password) {
+      const hash = await bcrypt.hash(password, 12);
+      await pool.query('UPDATE users SET password_hash=$1, updated_at=NOW() WHERE id=$2', [hash, req.params.id]);
+    }
+    const { rows } = await pool.query(
+      'UPDATE users SET full_name=COALESCE($1,full_name), role=COALESCE($2,role), department_id=$3, is_active=COALESCE($4,is_active), updated_at=NOW() WHERE id=$5 RETURNING id, username, full_name, role, department_id, is_active',
+      [full_name, role, department_id || null, is_active !== undefined ? is_active : null, req.params.id]
     );
-    await db.query(
-      'INSERT INTO dashboard_revisions (data, saved_by) VALUES ($1::jsonb, $2)',
-      [JSON.stringify(seed), 'seed']
-    );
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    await logActivity(req.user.id, 'update_user', 'user', rows[0].id, rows[0].full_name);
+    res.json(rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
   }
-}
+});
 
-async function ensureDatabase() {
-  if (!initPromise) {
-    initPromise = initDatabase().catch((err) => {
-      initPromise = null;
-      throw err;
-    });
-  }
-  return initPromise;
-}
-
-async function getDashboardState() {
-  await ensureDatabase();
-  const result = await getPool().query('SELECT data, updated_at, updated_by FROM dashboard_state WHERE id = 1');
-  if (result.rowCount === 0) {
-    const err = new Error('Data dashboard belum tersedia.');
-    err.status = 404;
-    throw err;
-  }
-  return result.rows[0];
-}
-
-async function saveDashboardState(data, savedBy) {
-  await ensureDatabase();
-  const db = getPool();
-  const payload = JSON.stringify(data);
-  const client = await db.connect();
+app.delete('/api/users/:id', authRequired, requireRole('admin'), async (req, res) => {
   try {
-    await client.query('BEGIN');
-    await client.query('INSERT INTO dashboard_revisions (data, saved_by) VALUES ($1::jsonb, $2)', [payload, savedBy]);
-    const result = await client.query(
-      `INSERT INTO dashboard_state (id, data, updated_at, updated_by)
-       VALUES (1, $1::jsonb, now(), $2)
-       ON CONFLICT (id)
-       DO UPDATE SET data = EXCLUDED.data, updated_at = now(), updated_by = EXCLUDED.updated_by
-       RETURNING data, updated_at, updated_by`,
-      [payload, savedBy]
+    if (parseInt(req.params.id) === req.user.id) return res.status(400).json({ error: 'Cannot delete yourself' });
+    await pool.query('UPDATE users SET is_active=false, updated_at=NOW() WHERE id=$1', [req.params.id]);
+    res.json({ message: 'User deactivated' });
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── Project Routes ───────────────────────────────────────────────────────────
+
+app.get('/api/projects', authRequired, async (req, res) => {
+  try {
+    let query = `
+      SELECT p.*, d.name as dept_name, u.full_name as created_by_name,
+        COALESCE(json_agg(DISTINCT jsonb_build_object('user_id', pm.user_id, 'full_name', mu.full_name, 'can_edit', pm.can_edit)) FILTER (WHERE pm.user_id IS NOT NULL), '[]') as members,
+        COALESCE(json_agg(DISTINCT jsonb_build_object('id', m.id, 'label', m.label, 'target_date', m.target_date, 'is_completed', m.is_completed)) FILTER (WHERE m.id IS NOT NULL), '[]') as milestones,
+        COALESCE(json_agg(DISTINCT jsonb_build_object('id', pl.id, 'label', pl.label, 'url', pl.url)) FILTER (WHERE pl.id IS NOT NULL), '[]') as links
+      FROM projects p
+      LEFT JOIN departments d ON p.department_id = d.id
+      LEFT JOIN users u ON p.created_by = u.id
+      LEFT JOIN project_members pm ON pm.project_id = p.id
+      LEFT JOIN users mu ON mu.id = pm.user_id
+      LEFT JOIN milestones m ON m.project_id = p.id
+      LEFT JOIN project_links pl ON pl.project_id = p.id
+    `;
+    const params = [];
+    if (req.user.role === 'manager') {
+      query += ' WHERE p.department_id = $1';
+      params.push(req.user.department_id);
+    } else if (req.user.role === 'member') {
+      query += ' WHERE (pm.user_id = $1 OR p.created_by = $1)';
+      params.push(req.user.id);
+    }
+    query += ' GROUP BY p.id, d.name, u.full_name ORDER BY p.created_at DESC';
+    const { rows } = await pool.query(query, params);
+    res.json(rows);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/projects', authRequired, requireRole('admin', 'manager'), async (req, res) => {
+  try {
+    const { name, description, department_id, category, priority, status, plan_start, plan_end, plan_target, pic, notes } = req.body;
+    if (!name) return res.status(400).json({ error: 'Project name required' });
+
+    // Manager can only create in their department
+    const deptId = req.user.role === 'manager' ? req.user.department_id : (department_id || null);
+
+    const { rows } = await pool.query(
+      `INSERT INTO projects (name, description, department_id, category, priority, status, plan_start, plan_end, plan_target, pic, notes, created_by)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
+      [name, description, deptId, category, priority || 'Medium', status || 'On Track', plan_start, plan_end, plan_target || 0, pic, notes, req.user.id]
     );
-    await client.query('COMMIT');
-    return result.rows[0];
-  } catch (err) {
-    await client.query('ROLLBACK');
-    throw err;
-  } finally {
-    client.release();
+    await logActivity(req.user.id, 'create_project', 'project', rows[0].id, name);
+    res.status(201).json(rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.put('/api/projects/:id', authRequired, async (req, res) => {
+  try {
+    const projectId = parseInt(req.params.id);
+
+    // Check permissions
+    const { rows: pRows } = await pool.query('SELECT * FROM projects WHERE id = $1', [projectId]);
+    if (!pRows.length) return res.status(404).json({ error: 'Project not found' });
+    const project = pRows[0];
+
+    if (req.user.role === 'member') {
+      // Members can only update progress on assigned projects
+      const { rows: aRows } = await pool.query('SELECT * FROM project_members WHERE project_id=$1 AND user_id=$2 AND can_edit=true', [projectId, req.user.id]);
+      if (!aRows.length) return res.status(403).json({ error: 'Not assigned to this project' });
+
+      // Members can only update progress, status, rag, notes
+      const { actual_progress, status, rag, notes } = req.body;
+
+      await pool.query(
+        'UPDATE projects SET actual_progress=COALESCE($1,actual_progress), status=COALESCE($2,status), rag=COALESCE($3,rag), notes=COALESCE($4,notes), updated_at=NOW() WHERE id=$5',
+        [actual_progress, status, rag, notes, projectId]
+      );
+
+      // Log progress update
+      await pool.query(
+        'INSERT INTO project_updates (project_id, user_id, old_progress, new_progress, old_status, new_status, notes) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+        [projectId, req.user.id, project.actual_progress, actual_progress ?? project.actual_progress, project.status, status ?? project.status, notes]
+      );
+
+      // Notify project creator
+      if (project.created_by && project.created_by !== req.user.id) {
+        await createNotification(project.created_by, 'progress_update', `Progress Update: ${project.name}`,
+          `${req.user.full_name} updated progress to ${actual_progress ?? project.actual_progress}%`, `/projects/${projectId}`);
+      }
+
+      return res.json({ message: 'Progress updated' });
+    }
+
+    // Admin/manager can update everything
+    if (req.user.role === 'manager' && project.department_id !== req.user.department_id) {
+      return res.status(403).json({ error: 'Cannot edit projects from other departments' });
+    }
+
+    const { name, description, department_id, category, priority, status, rag, plan_start, plan_end, plan_target, actual_progress, pic, notes } = req.body;
+
+    const { rows } = await pool.query(
+      `UPDATE projects SET name=COALESCE($1,name), description=COALESCE($2,description), department_id=COALESCE($3,department_id),
+       category=COALESCE($4,category), priority=COALESCE($5,priority), status=COALESCE($6,status), rag=COALESCE($7,rag),
+       plan_start=COALESCE($8,plan_start), plan_end=COALESCE($9,plan_end), plan_target=COALESCE($10,plan_target),
+       actual_progress=COALESCE($11,actual_progress), pic=COALESCE($12,pic), notes=COALESCE($13,notes), updated_at=NOW()
+       WHERE id=$14 RETURNING *`,
+      [name, description, req.user.role === 'manager' ? project.department_id : (department_id || project.department_id),
+       category, priority, status, rag, plan_start, plan_end, plan_target, actual_progress, pic, notes, projectId]
+    );
+
+    await logActivity(req.user.id, 'update_project', 'project', projectId, rows[0].name);
+    res.json(rows[0]);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.delete('/api/projects/:id', authRequired, requireRole('admin', 'manager'), async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM projects WHERE id = $1', [req.params.id]);
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    if (req.user.role === 'manager' && rows[0].department_id !== req.user.department_id) {
+      return res.status(403).json({ error: 'Cannot delete projects from other departments' });
+    }
+    await pool.query('DELETE FROM projects WHERE id = $1', [req.params.id]);
+    await logActivity(req.user.id, 'delete_project', 'project', req.params.id, rows[0].name);
+    res.json({ message: 'Deleted' });
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── Project Members (Assignment) ─────────────────────────────────────────────
+
+app.get('/api/projects/:id/members', authRequired, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT pm.*, u.full_name, u.username, u.role FROM project_members pm
+       JOIN users u ON u.id = pm.user_id WHERE pm.project_id = $1`,
+      [req.params.id]
+    );
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/projects/:id/members', authRequired, requireRole('admin', 'manager'), async (req, res) => {
+  try {
+    const { user_id, can_edit } = req.body;
+    const projectId = parseInt(req.params.id);
+
+    if (req.user.role === 'manager') {
+      const { rows: pRows } = await pool.query('SELECT department_id FROM projects WHERE id=$1', [projectId]);
+      if (!pRows.length || pRows[0].department_id !== req.user.department_id) {
+        return res.status(403).json({ error: 'Can only assign members to your department projects' });
+      }
+    }
+
+    const { rows } = await pool.query(
+      'INSERT INTO project_members (project_id, user_id, can_edit, assigned_by) VALUES ($1,$2,$3,$4) ON CONFLICT (project_id, user_id) DO UPDATE SET can_edit=$3 RETURNING *',
+      [projectId, user_id, can_edit !== false, req.user.id]
+    );
+
+    // Get user and project info for notification
+    const { rows: uRows } = await pool.query('SELECT full_name FROM users WHERE id=$1', [user_id]);
+    const { rows: prRows } = await pool.query('SELECT name FROM projects WHERE id=$1', [projectId]);
+
+    await createNotification(user_id, 'assigned', `Assigned to Project`,
+      `You have been assigned to project: ${prRows[0]?.name}`, `/projects/${projectId}`);
+    await logActivity(req.user.id, 'assign_member', 'project', projectId, prRows[0]?.name, { assigned_user: uRows[0]?.full_name });
+
+    res.status(201).json(rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.delete('/api/projects/:id/members/:userId', authRequired, requireRole('admin', 'manager'), async (req, res) => {
+  try {
+    await pool.query('DELETE FROM project_members WHERE project_id=$1 AND user_id=$2', [req.params.id, req.params.userId]);
+    res.json({ message: 'Member removed' });
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── Comments ─────────────────────────────────────────────────────────────────
+
+app.get('/api/projects/:id/comments', authRequired, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT c.*, u.full_name, u.username FROM project_comments c JOIN users u ON u.id = c.user_id WHERE c.project_id=$1 ORDER BY c.created_at DESC',
+      [req.params.id]
+    );
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/projects/:id/comments', authRequired, async (req, res) => {
+  try {
+    const { content } = req.body;
+    if (!content) return res.status(400).json({ error: 'Content required' });
+    const { rows } = await pool.query(
+      'INSERT INTO project_comments (project_id, user_id, content) VALUES ($1,$2,$3) RETURNING *',
+      [req.params.id, req.user.id, content]
+    );
+    res.status(201).json(rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.delete('/api/projects/:id/comments/:commentId', authRequired, async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT user_id FROM project_comments WHERE id=$1', [req.params.commentId]);
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    if (rows[0].user_id !== req.user.id && req.user.role === 'member') return res.status(403).json({ error: 'Cannot delete others comments' });
+    await pool.query('DELETE FROM project_comments WHERE id=$1', [req.params.commentId]);
+    res.json({ message: 'Deleted' });
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── Milestones ────────────────────────────────────────────────────────────────
+
+app.post('/api/projects/:id/milestones', authRequired, async (req, res) => {
+  try {
+    const { label, target_date } = req.body;
+    const { rows } = await pool.query(
+      'INSERT INTO milestones (project_id, label, target_date) VALUES ($1,$2,$3) RETURNING *',
+      [req.params.id, label, target_date]
+    );
+    res.status(201).json(rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.put('/api/milestones/:id', authRequired, async (req, res) => {
+  try {
+    const { label, target_date, is_completed } = req.body;
+    const { rows } = await pool.query(
+      'UPDATE milestones SET label=COALESCE($1,label), target_date=COALESCE($2,target_date), is_completed=COALESCE($3,is_completed) WHERE id=$4 RETURNING *',
+      [label, target_date, is_completed, req.params.id]
+    );
+    res.json(rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.delete('/api/milestones/:id', authRequired, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM milestones WHERE id=$1', [req.params.id]);
+    res.json({ message: 'Deleted' });
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── Links ─────────────────────────────────────────────────────────────────────
+
+app.post('/api/projects/:id/links', authRequired, async (req, res) => {
+  try {
+    const { label, url } = req.body;
+    if (!url) return res.status(400).json({ error: 'URL required' });
+    const { rows } = await pool.query('INSERT INTO project_links (project_id, label, url) VALUES ($1,$2,$3) RETURNING *', [req.params.id, label, url]);
+    res.status(201).json(rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.delete('/api/links/:id', authRequired, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM project_links WHERE id=$1', [req.params.id]);
+    res.json({ message: 'Deleted' });
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── Progress History ─────────────────────────────────────────────────────────
+
+app.get('/api/projects/:id/updates', authRequired, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT pu.*, u.full_name FROM project_updates pu LEFT JOIN users u ON u.id = pu.user_id WHERE pu.project_id=$1 ORDER BY pu.created_at DESC LIMIT 50',
+      [req.params.id]
+    );
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── Notifications ─────────────────────────────────────────────────────────────
+
+app.get('/api/notifications', authRequired, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT * FROM notifications WHERE user_id=$1 ORDER BY created_at DESC LIMIT 30',
+      [req.user.id]
+    );
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.put('/api/notifications/read-all', authRequired, async (req, res) => {
+  try {
+    await pool.query('UPDATE notifications SET is_read=true WHERE user_id=$1', [req.user.id]);
+    res.json({ message: 'All marked as read' });
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.put('/api/notifications/:id/read', authRequired, async (req, res) => {
+  try {
+    await pool.query('UPDATE notifications SET is_read=true WHERE id=$1 AND user_id=$2', [req.params.id, req.user.id]);
+    res.json({ message: 'Marked as read' });
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── Activity Log ──────────────────────────────────────────────────────────────
+
+app.get('/api/activity', authRequired, requireRole('admin', 'manager'), async (req, res) => {
+  try {
+    let query = `SELECT al.*, u.full_name FROM activity_log al LEFT JOIN users u ON u.id = al.user_id`;
+    const params = [];
+    if (req.user.role === 'manager') {
+      // Only show activities related to their department's projects
+      query += ` WHERE al.entity_type = 'project' AND al.entity_id IN (SELECT id FROM projects WHERE department_id=$1)`;
+      params.push(req.user.department_id);
+    }
+    query += ' ORDER BY al.created_at DESC LIMIT 100';
+    const { rows } = await pool.query(query, params);
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── Dashboard Stats ──────────────────────────────────────────────────────────
+
+app.get('/api/stats', authRequired, async (req, res) => {
+  try {
+    let whereClause = '';
+    const params = [];
+    if (req.user.role === 'manager') {
+      whereClause = 'WHERE p.department_id = $1';
+      params.push(req.user.department_id);
+    } else if (req.user.role === 'member') {
+      whereClause = 'WHERE pm.user_id = $1';
+      params.push(req.user.id);
+    }
+
+    const q = `
+      SELECT
+        COUNT(DISTINCT p.id) as total_projects,
+        COUNT(DISTINCT CASE WHEN p.status='Done' THEN p.id END) as done,
+        COUNT(DISTINCT CASE WHEN p.status='On Track' THEN p.id END) as on_track,
+        COUNT(DISTINCT CASE WHEN p.status='Warning' THEN p.id END) as warning,
+        COUNT(DISTINCT CASE WHEN p.status='Critical' THEN p.id END) as critical,
+        ROUND(AVG(p.actual_progress)) as avg_progress
+      FROM projects p
+      LEFT JOIN project_members pm ON pm.project_id = p.id
+      ${whereClause}
+    `;
+    const { rows } = await pool.query(q, params);
+    res.json(rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── Legacy state endpoints (for backward compatibility) ──────────────────────
+
+app.get('/api/state', async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM dashboard_state WHERE id=1');
+    if (!rows.length) return res.json({ data: null });
+    res.json(rows[0].data);
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── Health ───────────────────────────────────────────────────────────────────
+
+app.get('/api/health', async (req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.json({ status: 'ok', db: 'connected' });
+  } catch (e) {
+    res.status(503).json({ status: 'error', db: 'disconnected' });
+  }
+});
+
+// ─── Catch-all for SPA ────────────────────────────────────────────────────────
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+async function logActivity(userId, action, entityType, entityId, entityName, details) {
+  try {
+    await pool.query(
+      'INSERT INTO activity_log (user_id, action, entity_type, entity_id, entity_name, details) VALUES ($1,$2,$3,$4,$5,$6)',
+      [userId, action, entityType, entityId, entityName, details ? JSON.stringify(details) : null]
+    );
+  } catch (e) {
+    console.error('Activity log error:', e.message);
   }
 }
 
-async function readSeedState() {
-  const raw = await fs.readFile(seedPath, 'utf8');
-  return JSON.parse(raw);
-}
-
-function validateDashboardState(data) {
-  if (!data || typeof data !== 'object' || Array.isArray(data)) {
-    const err = new Error('Payload harus berupa object dashboard.');
-    err.status = 400;
-    throw err;
-  }
-  if (!data.meta || typeof data.meta !== 'object') {
-    const err = new Error('Payload dashboard harus memiliki meta.');
-    err.status = 400;
-    throw err;
-  }
-  if (!Array.isArray(data.projects)) {
-    const err = new Error('Payload dashboard harus memiliki projects array.');
-    err.status = 400;
-    throw err;
+async function createNotification(userId, type, title, message, link) {
+  try {
+    await pool.query(
+      'INSERT INTO notifications (user_id, type, title, message, link) VALUES ($1,$2,$3,$4,$5)',
+      [userId, type, title, message, link]
+    );
+  } catch (e) {
+    console.error('Notification error:', e.message);
   }
 }
 
-function requireAdminToken(req, res, next) {
-  if (!adminToken) return next();
-  const header = req.get('x-admin-token') || '';
-  const bearer = req.get('authorization') || '';
-  const token = normalizeSecret(header || bearer.replace(/^Bearer\s+/i, ''));
-  if (token === adminToken) return next();
-  res.status(401).json({ error: 'ADMIN_TOKEN tidak valid.' });
-}
+// ─── Start ────────────────────────────────────────────────────────────────────
 
-function normalizeSecret(value) {
-  return String(value || '').trim().replace(/^["']|["']$/g, '');
-}
+const PORT = process.env.PORT || 3000;
 
-function sanitizeEditorName(value) {
-  return String(value || '').trim().replace(/\s+/g, ' ').slice(0, 100) || 'unknown';
-}
-
-function sanitizeDatabaseError(err) {
-  return String(err && err.message ? err.message : err)
-    .replace(/postgres(?:ql)?:\/\/[^@\s]+@/gi, 'postgres://***@')
-    .replace(/password=[^&\s]+/gi, 'password=***');
-}
+pool.connect()
+  .then(() => initDB())
+  .then(() => {
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch(err => {
+    console.error('Failed to connect to database:', err.message);
+    // Start anyway for static serving
+    app.listen(PORT, () => console.log(`Server running on port ${PORT} (no DB)`));
+  });

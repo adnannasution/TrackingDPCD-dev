@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel – DPCD Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body { background: #f0f4f8; font-family: 'Inter', sans-serif; margin: 0; }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 240px;
+      background: var(--navy, #0a2240);
+      color: white;
+      padding: 0;
+      flex-shrink: 0;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+    }
+    .sidebar-brand {
+      padding: 24px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .sidebar-brand h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 800; margin: 0; }
+    .sidebar-brand p { font-size: 11px; opacity: 0.6; margin: 4px 0 0; }
+    .sidebar-nav { padding: 16px 0; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.1); color: white; }
+    .nav-item .icon { font-size: 18px; width: 24px; text-align: center; }
+    .sidebar-footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .user-chip { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+    .user-info { flex: 1; min-width: 0; }
+    .user-info strong { display: block; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-info span { font-size: 11px; opacity: 0.6; text-transform: capitalize; }
+    .btn-logout { width: 100%; padding: 8px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); border: none; border-radius: 8px; font-size: 13px; cursor: pointer; text-align: center; }
+    .btn-logout:hover { background: rgba(255,255,255,0.2); color: white; }
+    .main-content { margin-left: 240px; flex: 1; padding: 32px; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+    .page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 800; color: #0a2240; }
+    .page-subtitle { font-size: 14px; color: #6b7a8d; margin-top: 4px; }
+    .btn-primary { background: #0a2240; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; }
+    .btn-primary:hover { background: #1a3a5c; }
+    .card { background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(10,34,64,0.08); overflow: hidden; }
+    .card-header { padding: 20px 24px; border-bottom: 1px solid #eef2f7; display: flex; justify-content: space-between; align-items: center; }
+    .card-header h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 700; color: #0a2240; margin: 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f8fafc; padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7a8d; text-transform: uppercase; letter-spacing: 0.5px; }
+    td { padding: 14px 16px; font-size: 14px; border-bottom: 1px solid #f0f4f8; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    .role-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .role-admin { background: #fef3c7; color: #92400e; }
+    .role-manager { background: #dbeafe; color: #1e40af; }
+    .role-member { background: #f0fdf4; color: #166534; }
+    .status-pill { padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .status-pill.active { background: #dcfce7; color: #166534; }
+    .status-pill.inactive { background: #fee2e2; color: #991b1b; }
+    .btn-icon { background: none; border: none; cursor: pointer; padding: 6px; border-radius: 6px; font-size: 15px; transition: background 0.15s; }
+    .btn-icon:hover { background: #f0f4f8; }
+    .btn-icon.btn-danger:hover { background: #fee2e2; }
+    .dept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; padding: 24px; }
+    .dept-card { border: 1.5px solid #eef2f7; border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .dept-info h4 { font-size: 15px; font-weight: 700; color: #0a2240; margin: 0 0 6px; }
+    .dept-info p { font-size: 13px; color: #6b7a8d; margin: 0 0 12px; }
+    .dept-stats { display: flex; gap: 12px; font-size: 12px; color: #6b7a8d; }
+    .tabs { display: flex; border-bottom: 2px solid #eef2f7; }
+    .tab-btn { padding: 14px 24px; border: none; background: none; font-size: 14px; font-weight: 500; color: #6b7a8d; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+    .tab-btn.active { color: #0a2240; border-bottom-color: #00a99d; font-weight: 600; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .activity-list { padding: 16px 24px; max-height: 500px; overflow-y: auto; }
+    .activity-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f4f8; }
+    .activity-icon { font-size: 20px; width: 32px; text-align: center; flex-shrink: 0; }
+    .activity-body { font-size: 13px; color: #1a2332; }
+    .activity-body em { color: #0a2240; font-style: normal; font-weight: 600; }
+    .activity-time { font-size: 11px; color: #6b7a8d; margin-top: 4px; }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,34,64,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: white; border-radius: 16px; padding: 32px; width: 100%; max-width: 480px; position: relative; }
+    .modal-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; color: #0a2240; margin: 0 0 24px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #1a2332; margin-bottom: 8px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #dde3ec;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      background: #f8fafc;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: #00a99d; background: white; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+    .btn-secondary { padding: 10px 20px; border: 1.5px solid #dde3ec; background: white; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .stat-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(10,34,64,0.08); }
+    .stat-card .label { font-size: 12px; color: #6b7a8d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .stat-card .value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; font-weight: 800; color: #0a2240; }
+    a.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #6b7a8d; text-decoration: none; margin-bottom: 20px; }
+    a.back-link:hover { color: #0a2240; }
+  </style>
+</head>
+<body>
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <h2>📊 DPCD Tracker</h2>
+      <p>Panel Administrasi</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/" class="nav-item"><span class="icon">🏠</span> Dashboard</a>
+      <a href="/admin.html" class="nav-item active"><span class="icon">⚙️</span> Admin Panel</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar" id="sidebarAvatar">?</div>
+        <div class="user-info">
+          <strong id="sidebarName">Loading...</strong>
+          <span id="sidebarRole">—</span>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="Auth.logout()">🚪 Keluar</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <a href="/" class="back-link">← Kembali ke Dashboard</a>
+
+    <!-- Stats -->
+    <div class="stat-cards" id="statCards">
+      <div class="stat-card"><div class="label">Total Proyek</div><div class="value" id="statProjects">—</div></div>
+      <div class="stat-card"><div class="label">Total User</div><div class="value" id="statUsers">—</div></div>
+      <div class="stat-card"><div class="label">Total Bagian</div><div class="value" id="statDepts">—</div></div>
+      <div class="stat-card"><div class="label">Rata-rata Progress</div><div class="value" id="statAvg">—</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="card">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('users')">👥 Pengguna</button>
+        <button class="tab-btn" onclick="switchTab('depts')">🏢 Bagian</button>
+        <button class="tab-btn" onclick="switchTab('activity')">📋 Log Aktivitas</button>
+      </div>
+
+      <!-- Users Tab -->
+      <div class="tab-content active" id="tab-users">
+        <div class="card-header">
+          <h3>Manajemen Pengguna</h3>
+          <button class="btn-primary" id="btnAddUser" onclick="showUserModal(null, [])">+ Tambah User</button>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Nama</th><th>Role</th><th>Bagian</th><th>Status</th><th>Aksi</th></tr>
+          </thead>
+          <tbody id="usersTableBody"><tr><td colspan="5" style="text-align:center;padding:32px;color:#6b7a8d">Memuat...</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- Departments Tab -->
+      <div class="tab-content" id="tab-depts">
+        <div class="card-header">
+          <h3>Manajemen Bagian</h3>
+          <button class="btn-primary" id="btnAddDept" onclick="showDeptModal()">+ Tambah Bagian</button>
+        </div>
+        <div class="dept-grid" id="deptsContainer">
+          <p style="padding:16px;color:#6b7a8d">Memuat...</p>
+        </div>
+      </div>
+
+      <!-- Activity Tab -->
+      <div class="tab-content" id="tab-activity">
+        <div class="card-header">
+          <h3>Log Aktivitas</h3>
+          <button class="btn-primary" onclick="Admin.loadActivity()">🔄 Refresh</button>
+        </div>
+        <div class="activity-list" id="activityList">
+          <p style="color:#6b7a8d">Memuat...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal: User -->
+<div class="modal-overlay" id="modalUser">
+  <div class="modal-box">
+    <h3 class="modal-title" id="userModalTitle">Tambah User</h3>
+    <input type="hidden" id="userId">
+    <div class="form-group">
+      <label>Nama Lengkap *</label>
+      <input type="text" id="userFullName" placeholder="Nama lengkap">
+    </div>
+    <div class="form-group" id="usernameGroup">
+      <label>Username *</label>
+      <input type="text" id="userUsername" placeholder="Username (lowercase, tanpa spasi)">
+    </div>
+    <div class="form-group">
+      <label id="pwLabel">Password *</label>
+      <input type="password" id="userPassword" placeholder="Minimal 6 karakter">
+    </div>
+    <div class="form-group">
+      <label>Role *</label>
+      <select id="userRole">
+        <option value="member">Member</option>
+        <option value="manager">Manager</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Bagian</label>
+      <select id="userDept"><option value="">— Pilih Bagian —</option></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modalUser')">Batal</button>
+      <button class="btn-primary" onclick="submitUserForm()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Department -->
+<div class="modal-overlay" id="modalDept">
+  <div class="modal-box">
+    <h3 class="modal-title" id="deptModalTitle">Tambah Bagian</h3>
+    <input type="hidden" id="deptId">
+    <div class="form-group">
+      <label>Nama Bagian *</label>
+      <input type="text" id="deptName" placeholder="Nama bagian/divisi">
+    </div>
+    <div class="form-group">
+      <label>Deskripsi</label>
+      <textarea id="deptDesc" rows="3" placeholder="Deskripsi singkat bagian"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modalDept')">Batal</button>
+      <button class="btn-primary" onclick="submitDeptForm()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/auth.js"></script>
+<script src="/js/admin.js"></script>
+<script>
+  // Initialize
+  if (!Auth.init()) throw new Error('Not logged in');
+
+  const user = Auth.getUser();
+  document.getElementById('sidebarName').textContent = user?.full_name || 'User';
+  document.getElementById('sidebarRole').textContent = user?.role || '';
+  document.getElementById('sidebarAvatar').textContent = (user?.full_name || 'U')[0].toUpperCase();
+
+  // Only admin sees add-user button
+  if (!Auth.isAdmin()) {
+    document.getElementById('btnAddUser').style.display = 'none';
+    document.getElementById('btnAddDept').style.display = 'none';
+  }
+
+  // Load initial data
+  Admin.loadUsers();
+  loadStats();
+
+  async function loadStats() {
+    const [statsRes, usersRes, deptsRes] = await Promise.all([
+      Auth.apiFetch('/api/stats'),
+      Auth.apiFetch('/api/users'),
+      Auth.apiFetch('/api/departments')
+    ]);
+    if (statsRes) {
+      const s = await statsRes.json();
+      document.getElementById('statProjects').textContent = s.total_projects || 0;
+      document.getElementById('statAvg').textContent = (s.avg_progress || 0) + '%';
+    }
+    if (usersRes) {
+      const u = await usersRes.json();
+      document.getElementById('statUsers').textContent = u.length;
+    }
+    if (deptsRes) {
+      const d = await deptsRes.json();
+      document.getElementById('statDepts').textContent = d.length;
+    }
+  }
+
+  function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    const tabs = ['users', 'depts', 'activity'];
+    const idx = tabs.indexOf(name);
+    document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+    document.getElementById(`tab-${name}`).classList.add('active');
+
+    if (name === 'depts') Admin.loadDepartments();
+    if (name === 'activity') Admin.loadActivity();
+  }
+
+  function openModal(id) { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  async function showUserModal(user, depts) {
+    if (!depts || !depts.length) {
+      const res = await Auth.apiFetch('/api/departments');
+      depts = res ? await res.json() : [];
+    }
+
+    document.getElementById('userModalTitle').textContent = user ? 'Edit User' : 'Tambah User';
+    document.getElementById('userId').value = user?.id || '';
+    document.getElementById('userFullName').value = user?.full_name || '';
+    document.getElementById('userUsername').value = user?.username || '';
+    document.getElementById('userPassword').value = '';
+    document.getElementById('userRole').value = user?.role || 'member';
+    document.getElementById('userDept').value = user?.department_id || '';
+    document.getElementById('pwLabel').textContent = user ? 'Password Baru (kosongkan jika tidak diubah)' : 'Password *';
+    document.getElementById('usernameGroup').style.display = user ? 'none' : 'block';
+
+    const deptSelect = document.getElementById('userDept');
+    deptSelect.innerHTML = '<option value="">— Pilih Bagian —</option>' +
+      depts.map(d => `<option value="${d.id}" ${user?.department_id === d.id ? 'selected' : ''}>${d.name}</option>`).join('');
+
+    openModal('modalUser');
+  }
+
+  function showDeptModal() {
+    document.getElementById('deptModalTitle').textContent = 'Tambah Bagian';
+    document.getElementById('deptId').value = '';
+    document.getElementById('deptName').value = '';
+    document.getElementById('deptDesc').value = '';
+    openModal('modalDept');
+  }
+
+  async function submitUserForm() {
+    const id = document.getElementById('userId').value;
+    const data = {
+      full_name: document.getElementById('userFullName').value.trim(),
+      username: document.getElementById('userUsername').value.trim().toLowerCase(),
+      password: document.getElementById('userPassword').value,
+      role: document.getElementById('userRole').value,
+      department_id: document.getElementById('userDept').value || null
+    };
+    if (!data.full_name) { alert('Nama lengkap wajib diisi'); return; }
+    if (!id && !data.username) { alert('Username wajib diisi'); return; }
+    if (!id && !data.password) { alert('Password wajib diisi'); return; }
+
+    if (id) {
+      if (!data.password) delete data.password;
+      delete data.username;
+      await Admin.updateUser(id, data);
+    } else {
+      await Admin.createUser(data);
+    }
+  }
+
+  async function submitDeptForm() {
+    const id = document.getElementById('deptId').value;
+    const data = {
+      name: document.getElementById('deptName').value.trim(),
+      description: document.getElementById('deptDesc').value.trim()
+    };
+    if (!data.name) { alert('Nama bagian wajib diisi'); return; }
+
+    if (id) await Admin.editDept(id, data.name, data.description);
+    else await Admin.createDept(data);
+  }
+
+  // Close modal on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+  });
+</script>
+</body>
+</html>
