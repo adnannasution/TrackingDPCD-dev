@@ -350,7 +350,20 @@ function redrawGanttPill(row, data){
     if(html){
         grid.insertAdjacentHTML('afterbegin',html);
         const item=grid.querySelector('.bar-combo');
-        if(item){initInteract(item); item.ondblclick=function(e){e.stopPropagation();updateProgress(this);};}
+        if(item){
+            initInteract(item);
+            item.ondblclick=function(e){e.stopPropagation();updateProgress(this);};
+            item.addEventListener('click', function(e){
+                if(e.detail > 1) return; // ignore dblclick
+                const row = item.closest('.gantt-row');
+                if(row && row.dataset.dragEnabled === 'true') {
+                    const rect = item.getBoundingClientRect();
+                    const relY = (e.clientY - rect.top) / rect.height;
+                    const type = relY > 0.5 ? 'actual' : 'plan';
+                    openBarPopover(item, type, row);
+                }
+            });
+        }
     }
     refreshTrafficLight(row);
     updateDateLine();
@@ -1316,7 +1329,8 @@ function initInteract(el) {
 
 // ===================================================================
 // DRAG-TO-CREATE: draw Plan/Actual bar by dragging on empty timeline grid
-// Hold Shift while dragging → creates Actual. Single click → Milestone.
+// Top half of grid → Plan, Bottom half → Actual. Click → Milestone.
+// Click existing bar → open quick-edit popover.
 // ===================================================================
 function initGridDraw(row) {
     const grid = row.querySelector('.timeline-grid');
@@ -1331,6 +1345,12 @@ function initGridDraw(row) {
         return Math.max(0, Math.min(100, (cx - rect.left) / rect.width * 100));
     };
 
+    const zoneFromEvent = (e) => {
+        const cy = e.touches ? e.touches[0].clientY : e.clientY;
+        const rect = grid.getBoundingClientRect();
+        return (cy - rect.top) / rect.height < 0.5 ? 'plan' : 'actual';
+    };
+
     const pctToAbsDate = (pct) => {
         const cfg = getTimelineConfig();
         const idx = Math.round(pct / 100 * cfg.duration);
@@ -1341,17 +1361,16 @@ function initGridDraw(row) {
 
     const onDown = (e) => {
         if (row.dataset.dragEnabled !== 'true') return;
-        // Only trigger on empty grid background (not on existing bars)
         if (e.target !== grid && e.target.closest('.bar, .milestone')) return;
         e.preventDefault();
         clickOnly = true;
-        drawType = e.shiftKey ? 'actual' : 'plan';
+        drawType = zoneFromEvent(e);
         startPct = pctFromEvent(e);
 
         ghost = document.createElement('div');
         ghost.className = 'draw-ghost draw-ghost-' + drawType;
-        ghost.style.cssText = `position:absolute;top:${drawType==='actual'?'60%':'10%'};height:${drawType==='actual'?'32%':'32%'};left:${startPct}%;width:0.5%;pointer-events:none;border-radius:6px;opacity:0.7;z-index:5;`;
-        ghost.style.background = drawType === 'actual' ? '#0e7c86' : '#7ba7c9';
+        const isActual = drawType === 'actual';
+        ghost.style.cssText = `position:absolute;top:${isActual?'58%':'8%'};height:30%;left:${startPct}%;width:0.5%;pointer-events:none;border-radius:6px;opacity:0.75;z-index:5;background:${isActual?'#0e7c86':'#7ba7c9'};box-shadow:0 2px 6px rgba(0,0,0,0.15);`;
         grid.appendChild(ghost);
 
         document.addEventListener('mousemove', onMove);
@@ -1381,13 +1400,7 @@ function initGridDraw(row) {
         const endPct = pctFromEvent(e);
 
         if (clickOnly || Math.abs(endPct - startPct) < 1) {
-            // Single click → place milestone
-            const absDate = pctToAbsDate(startPct);
-            const cfg = getTimelineConfig();
-            const winStart = cfg.startY * 12 + cfg.startM;
-            const idx = Math.round(startPct / 100 * cfg.duration);
-            const left = (idx / cfg.duration) * 100;
-            openMilestoneForm(row, null, absDate, left);
+            openMilestoneForm(row, null);
             return;
         }
 
@@ -1396,7 +1409,6 @@ function initGridDraw(row) {
         const startDate = pctToAbsDate(leftPct);
         const endDate = pctToAbsDate(rightPct);
 
-        // Read existing bar data then update only the drawn type
         const existing = getRowCanonical(row) || {};
         if (drawType === 'plan') {
             existing.planStart = startDate;
@@ -1407,15 +1419,157 @@ function initGridDraw(row) {
         }
         setRowCanonical(row, existing);
         redrawGanttPillFromDates(row);
-        showToast((drawType === 'plan' ? 'Plan' : 'Actual') + ' bar dibuat: ' + startDate + ' → ' + endDate);
+        // Open popover immediately so user can fine-tune
+        const bar = grid.querySelector('.bar-combo');
+        if (bar) openBarPopover(bar, drawType, row);
     };
 
     grid.addEventListener('mousedown', onDown);
     grid.addEventListener('touchstart', onDown, { passive: false });
 }
 
-// Patch openMilestoneForm to accept optional pre-filled date and left position
-const _origOpenMilestoneForm = typeof openMilestoneForm === 'function' ? openMilestoneForm : null;
+// ── Bar click → quick-edit popover ────────────────────────────────────────────
+function openBarPopover(bar, barType, row) {
+    closeBarPopover();
+    if (!row) row = bar.closest('.gantt-row');
+    const c = getRowCanonical(row) || {};
+
+    // Determine which type was clicked based on click position if not provided
+    if (!barType) {
+        const planTrack = bar.querySelector('.bar-plan-track');
+        const actTrack = bar.querySelector('.bar-actual-track');
+        barType = (actTrack && parseFloat(actTrack.style.width) > 0) ? 'actual' : 'plan';
+    }
+
+    const isActual = barType === 'actual';
+    const startVal = isActual ? (c.actualStart || '') : (c.planStart || '');
+    const endVal   = isActual ? (c.actualEnd   || '') : (c.planEnd   || '');
+
+    const fmtMonth = (v) => {
+        if (!v) return '';
+        const m = String(v).match(/^(\d{4})-(\d{1,2})$/);
+        if (!m) return v;
+        const names = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+        return names[parseInt(m[2])-1] + ' ' + m[1];
+    };
+
+    const pop = document.createElement('div');
+    pop.id = 'bar-popover';
+    pop.style.cssText = `position:fixed;z-index:9999;background:white;border-radius:12px;box-shadow:0 8px 32px rgba(10,34,64,0.18);padding:0;width:300px;animation:dtFadeIn 0.15s ease;`;
+
+    pop.innerHTML = `
+    <div style="background:${isActual?'linear-gradient(135deg,#0e7c86,#0a5f6a)':'linear-gradient(135deg,#1a5f8a,#0a2240)'};padding:12px 16px;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between">
+        <div style="color:white">
+            <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;opacity:0.75">${isActual?'Actual Bar':'Plan Bar'}</div>
+            <div id="bpop-range" style="font-size:13px;font-weight:600;margin-top:2px">${fmtMonth(startVal)} → ${fmtMonth(endVal)}</div>
+        </div>
+        <button onclick="closeBarPopover()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:26px;height:26px;border-radius:6px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&times;</button>
+    </div>
+    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div>
+                <label style="font-size:10px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:4px">Mulai</label>
+                <input type="month" id="bpop-start" value="${startVal}" style="width:100%;padding:7px 10px;border:1.5px solid #dde3ec;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box" oninput="bpopUpdate()">
+            </div>
+            <div>
+                <label style="font-size:10px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:4px">Selesai</label>
+                <input type="month" id="bpop-end" value="${endVal}" style="width:100%;padding:7px 10px;border:1.5px solid #dde3ec;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box" oninput="bpopUpdate()">
+            </div>
+        </div>
+        <div style="display:flex;gap:6px">
+            <button onclick="bpopShift(-1)" title="Geser mundur 1 bulan" style="flex:1;padding:7px;border:1.5px solid #dde3ec;background:white;border-radius:8px;font-size:12px;cursor:pointer">← 1 bln</button>
+            <button onclick="bpopShift(1)"  title="Geser maju 1 bulan"  style="flex:1;padding:7px;border:1.5px solid #dde3ec;background:white;border-radius:8px;font-size:12px;cursor:pointer">1 bln →</button>
+            <button onclick="bpopApply()" style="flex:2;padding:7px 14px;background:${isActual?'#0e7c86':'#0a2240'};color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Terapkan</button>
+        </div>
+        ${isActual ? `<div>
+            <label style="font-size:10px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:4px">Progress Aktual (%)</label>
+            <div style="display:flex;align-items:center;gap:8px">
+                <input type="range" id="bpop-progress" min="0" max="100" value="${c.actualProgress||0}" style="flex:1" oninput="document.getElementById('bpop-progress-val').textContent=this.value+'%'">
+                <span id="bpop-progress-val" style="font-size:13px;font-weight:600;color:#0e7c86;min-width:36px">${c.actualProgress||0}%</span>
+            </div>
+        </div>` : ''}
+    </div>`;
+
+    // Position near bar
+    const barRect = bar.getBoundingClientRect();
+    document.body.appendChild(pop);
+    const popH = pop.offsetHeight;
+    let top = barRect.bottom + 6;
+    if (top + popH > window.innerHeight - 10) top = barRect.top - popH - 6;
+    let left = barRect.left + barRect.width / 2 - 150;
+    left = Math.max(8, Math.min(left, window.innerWidth - 308));
+    pop.style.top = top + 'px';
+    pop.style.left = left + 'px';
+
+    pop._row = row;
+    pop._barType = barType;
+
+    // Close on outside click
+    setTimeout(() => document.addEventListener('mousedown', _bpopOutside), 0);
+}
+
+function _bpopOutside(e) {
+    const pop = document.getElementById('bar-popover');
+    if (pop && !pop.contains(e.target)) { closeBarPopover(); }
+}
+function closeBarPopover() {
+    const pop = document.getElementById('bar-popover');
+    if (pop) pop.remove();
+    document.removeEventListener('mousedown', _bpopOutside);
+}
+
+function bpopUpdate() {
+    const s = document.getElementById('bpop-start')?.value || '';
+    const en = document.getElementById('bpop-end')?.value || '';
+    const fmtMonth = (v) => {
+        if (!v) return '—';
+        const m = String(v).match(/^(\d{4})-(\d{1,2})$/);
+        if (!m) return v;
+        const names = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+        return names[parseInt(m[2])-1] + ' ' + m[1];
+    };
+    const rangeEl = document.getElementById('bpop-range');
+    if (rangeEl) rangeEl.textContent = fmtMonth(s) + ' → ' + fmtMonth(en);
+}
+
+function bpopShift(months) {
+    const shiftDate = (val, delta) => {
+        const m = String(val||'').match(/^(\d{4})-(\d{1,2})$/);
+        if (!m) return val;
+        let y = parseInt(m[1]), mo = parseInt(m[2]) - 1;
+        mo += delta; y += Math.floor(mo / 12); mo = ((mo % 12) + 12) % 12;
+        return y + '-' + String(mo + 1).padStart(2, '0');
+    };
+    const sEl = document.getElementById('bpop-start');
+    const eEl = document.getElementById('bpop-end');
+    if (sEl) sEl.value = shiftDate(sEl.value, months);
+    if (eEl) eEl.value = shiftDate(eEl.value, months);
+    bpopUpdate();
+}
+
+function bpopApply() {
+    const pop = document.getElementById('bar-popover');
+    if (!pop) return;
+    const row = pop._row;
+    const barType = pop._barType;
+    const startVal = document.getElementById('bpop-start')?.value;
+    const endVal   = document.getElementById('bpop-end')?.value;
+    if (!startVal || !endVal) { alert('Isi tanggal mulai dan selesai.'); return; }
+
+    const existing = getRowCanonical(row) || {};
+    if (barType === 'actual') {
+        existing.actualStart = startVal;
+        existing.actualEnd   = endVal;
+        const prog = document.getElementById('bpop-progress');
+        if (prog) existing.actualProgress = parseInt(prog.value) || 0;
+    } else {
+        existing.planStart = startVal;
+        existing.planEnd   = endVal;
+    }
+    setRowCanonical(row, existing);
+    redrawGanttPillFromDates(row);
+    closeBarPopover();
+}
 
 // ===================================================================
 // UTILITIES
