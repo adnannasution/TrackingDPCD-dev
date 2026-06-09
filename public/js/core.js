@@ -922,18 +922,21 @@ function createRowFromData(proj) {
     const _canEdit = (_role === 'admin' || _role === 'manager');
     const _canUpdateProgress = _canEdit || (_role === 'member' && _isAssigned);
 
+    const zoomBtn = `<button class="icon-btn btn-zoom" onclick="openRowFocus(this)" title="Fokus & Edit Timeline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>`;
     const actionColHTML = _canEdit ? `
         <div class="action-col">
             <button class="icon-btn btn-p" onclick="addItemToRow(this,'plan')" title="Edit data Plan">&#128197;</button>
             <button class="icon-btn btn-a" onclick="addItemToRow(this,'actual')" title="Edit data Actual">&#9889;</button>
             <button class="icon-btn btn-m" onclick="addItemToRow(this,'milestone')" title="Tambah Milestone">&#9670;</button>
+            ${zoomBtn}
             <button class="icon-btn btn-d" onclick="deleteRow(this)" title="Hapus baris"><svg class="btn-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 15H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
         </div>` : _canUpdateProgress ? `
         <div class="action-col">
             <button class="icon-btn btn-a" onclick="openMemberProgressModal(this)" title="Update Progress" style="background:#e8f5e9;color:#2e7d32">✏️</button>
+            ${zoomBtn}
         </div>` : `
         <div class="action-col" title="Read-only">
-            <span style="font-size:11px;color:#aaa;padding:4px">👁️</span>
+            ${zoomBtn}
         </div>`;
 
     row.innerHTML = actionColHTML +
@@ -1400,7 +1403,7 @@ function initGridDraw(row) {
         const endPct = pctFromEvent(e);
 
         if (clickOnly || Math.abs(endPct - startPct) < 1) {
-            openMilestoneForm(row, null);
+            // Too short — ignore, milestone stays button-only
             return;
         }
 
