@@ -310,6 +310,9 @@
     // Hide manager-only buttons for members
     if (_u.role === 'member') {
       document.querySelectorAll('.manager-only').forEach(el => el.style.display = 'none');
+    }
+    // Show Tambah Project button for members and managers
+    if (_u.role === 'member' || _u.role === 'manager') {
       const memberBtn = document.getElementById('btnMemberAddProject');
       if (memberBtn) memberBtn.style.display = '';
     }
