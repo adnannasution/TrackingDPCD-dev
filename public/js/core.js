@@ -1164,35 +1164,75 @@ function deleteRow(btn) {
     if(confirm('Hapus baris ini?')){ btn.closest('.gantt-row').remove(); updatePagination(); updateSummaryCards(); refreshActiveView(); }
 }
 
-// ── Member: add own project ───────────────────────────────────────────────────
+// ── Tambah Project (semua role) ────────────────────────────────────────────────
 function openMemberAddProject() {
     const user = Auth.getUser();
     if (!user) return;
+    if (document.getElementById('member-add-ov')) return;
     const ov = document.createElement('div');
     ov.className = 'detail-overlay'; ov.id = 'member-add-ov';
     ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
     ov.innerHTML = `
-    <div class="detail-modal" style="max-width:480px;border-radius:16px;overflow:hidden;padding:0">
-        <div style="background:#0a2240;padding:20px 24px;display:flex;align-items:center;justify-content:space-between">
-            <div>
-                <div style="font-size:16px;font-weight:700;color:white">Tambah Project</div>
-                <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:2px">Project akan otomatis di-assign ke ${escapeHTML(user.full_name||user.username)}</div>
+    <div class="detail-modal" style="max-width:520px;width:calc(100% - 32px);border-radius:18px;overflow:hidden;padding:0;box-shadow:0 24px 60px rgba(0,0,0,0.25)">
+        <!-- Header -->
+        <div style="background:linear-gradient(135deg,#0a2240 0%,#1a3a5c 100%);padding:22px 24px;display:flex;align-items:center;gap:14px">
+            <div style="width:40px;height:40px;background:rgba(0,169,157,0.25);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📋</div>
+            <div style="flex:1;min-width:0">
+                <div style="font-size:16px;font-weight:700;color:white;letter-spacing:.3px">Tambah Project Baru</div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.55);margin-top:3px">Bagian: ${escapeHTML(user.dept_name || '—')}</div>
             </div>
-            <button onclick="document.getElementById('member-add-ov').remove()" style="background:rgba(255,255,255,0.1);border:none;color:white;width:30px;height:30px;border-radius:8px;font-size:18px;cursor:pointer">&times;</button>
+            <button onclick="document.getElementById('member-add-ov').remove()" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.8);width:32px;height:32px;border-radius:8px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">&times;</button>
         </div>
-        <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px">
-            <div class="mdr-field">
-                <label>Nama Project <span class="req">*</span></label>
-                <input type="text" id="map-name" placeholder="Masukkan nama project…" style="padding:10px 12px;border:1.5px solid #dde3ec;border-radius:8px;font-size:14px;outline:none" onfocus="this.style.borderColor='#00a99d'" onblur="this.style.borderColor='#dde3ec'">
+        <!-- Body -->
+        <div style="padding:24px;display:flex;flex-direction:column;gap:18px;background:#fff">
+            <div style="display:flex;flex-direction:column;gap:6px">
+                <label style="font-size:12px;font-weight:600;color:#4a5568;text-transform:uppercase;letter-spacing:.5px">Nama Project <span style="color:#e53e3e">*</span></label>
+                <input type="text" id="map-name" placeholder="Masukkan nama project…"
+                    style="padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;outline:none;transition:border-color .15s;width:100%;box-sizing:border-box;color:#1a202c"
+                    onfocus="this.style.borderColor='#00a99d';this.style.boxShadow='0 0 0 3px rgba(0,169,157,0.12)'"
+                    onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'"
+                    onkeydown="if(event.key==='Enter'){event.preventDefault();submitMemberAddProject()}">
             </div>
-            <div class="mdr-field">
-                <label>Deskripsi / Scope</label>
-                <input type="text" id="map-desc" placeholder="Ringkasan project (opsional)…" style="padding:10px 12px;border:1.5px solid #dde3ec;border-radius:8px;font-size:14px;outline:none" onfocus="this.style.borderColor='#00a99d'" onblur="this.style.borderColor='#dde3ec'">
+            <div style="display:flex;flex-direction:column;gap:6px">
+                <label style="font-size:12px;font-weight:600;color:#4a5568;text-transform:uppercase;letter-spacing:.5px">Deskripsi / Scope</label>
+                <textarea id="map-desc" placeholder="Ringkasan singkat project (opsional)…" rows="3"
+                    style="padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;outline:none;resize:vertical;transition:border-color .15s;width:100%;box-sizing:border-box;color:#1a202c;font-family:inherit"
+                    onfocus="this.style.borderColor='#00a99d';this.style.boxShadow='0 0 0 3px rgba(0,169,157,0.12)'"
+                    onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'"></textarea>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                <div style="display:flex;flex-direction:column;gap:6px">
+                    <label style="font-size:12px;font-weight:600;color:#4a5568;text-transform:uppercase;letter-spacing:.5px">Kategori</label>
+                    <select id="map-category" style="padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;outline:none;color:#1a202c;background:#fff;cursor:pointer;transition:border-color .15s"
+                        onfocus="this.style.borderColor='#00a99d'" onblur="this.style.borderColor='#e2e8f0'">
+                        <option value="">— Pilih —</option>
+                        <option value="Infrastruktur">Infrastruktur</option>
+                        <option value="Sistem Informasi">Sistem Informasi</option>
+                        <option value="SDM">SDM</option>
+                        <option value="Pengadaan">Pengadaan</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                    <label style="font-size:12px;font-weight:600;color:#4a5568;text-transform:uppercase;letter-spacing:.5px">Prioritas</label>
+                    <select id="map-priority" style="padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;outline:none;color:#1a202c;background:#fff;cursor:pointer;transition:border-color .15s"
+                        onfocus="this.style.borderColor='#00a99d'" onblur="this.style.borderColor='#e2e8f0'">
+                        <option value="Low">Low</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="High">High</option>
+                        <option value="Critical">Critical</option>
+                    </select>
+                </div>
             </div>
         </div>
-        <div style="padding:14px 24px;background:#f8fafc;border-top:1px solid #e8edf5;display:flex;justify-content:flex-end;gap:10px">
-            <button onclick="document.getElementById('member-add-ov').remove()" style="padding:9px 18px;border:1.5px solid #dde3ec;background:white;border-radius:8px;font-size:13px;cursor:pointer">Batal</button>
-            <button onclick="submitMemberAddProject()" style="padding:9px 20px;background:linear-gradient(135deg,#00a99d,#0a7c86);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Buat Project</button>
+        <!-- Footer -->
+        <div style="padding:16px 24px;background:#f7fafc;border-top:1px solid #e8edf5;display:flex;justify-content:flex-end;align-items:center;gap:10px">
+            <button onclick="document.getElementById('member-add-ov').remove()"
+                style="padding:10px 20px;border:1.5px solid #e2e8f0;background:white;border-radius:10px;font-size:13px;font-weight:500;color:#4a5568;cursor:pointer;transition:all .15s"
+                onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='white'">Batal</button>
+            <button id="map-submit-btn" onclick="submitMemberAddProject()"
+                style="padding:10px 24px;background:linear-gradient(135deg,#00a99d,#0a7c86);color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s;letter-spacing:.3px"
+                onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">Buat Project</button>
         </div>
     </div>`;
     document.body.appendChild(ov);
@@ -1201,18 +1241,26 @@ function openMemberAddProject() {
 
 async function submitMemberAddProject() {
     const name = (document.getElementById('map-name')?.value || '').trim();
-    if (!name) { alert('Nama project wajib diisi.'); return; }
+    if (!name) {
+        const inp = document.getElementById('map-name');
+        if (inp) { inp.style.borderColor='#e53e3e'; inp.style.boxShadow='0 0 0 3px rgba(229,62,62,0.12)'; inp.focus(); }
+        showToast('Nama project wajib diisi.');
+        return;
+    }
     const user = Auth.getUser();
     if (!user) return;
 
-    // Build a minimal project object
+    const btn = document.getElementById('map-submit-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Menyimpan…'; btn.style.opacity = '.7'; }
+
     const projId = 'proj_' + Date.now();
     const proj = {
         id: projId,
         name,
         department: user.dept_name || '',
         pics: [user.full_name || user.username],
-        category: '', priority: 'Medium',
+        category: document.getElementById('map-category')?.value || '',
+        priority: document.getElementById('map-priority')?.value || 'Medium',
         actualProgress: 0, planProgress: 0,
         notes: document.getElementById('map-desc')?.value?.trim() || ''
     };
@@ -1231,9 +1279,10 @@ async function submitMemberAddProject() {
         document.getElementById('member-add-ov')?.remove();
         _myAssignments.push(data.projectId || projId);
         await reloadFromDatabase();
-        showToast('Project berhasil dibuat dan di-assign ke ' + (user.full_name || user.username) + '!');
+        showToast('✅ Project "' + name + '" berhasil dibuat!');
     } catch(e) {
-        alert('Gagal membuat project: ' + e.message);
+        if (btn) { btn.disabled = false; btn.textContent = 'Buat Project'; btn.style.opacity = '1'; }
+        showToast('Gagal membuat project: ' + e.message);
     }
 }
 
