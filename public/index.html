@@ -85,8 +85,7 @@
         </button>
         <div class="spacer"></div>
         <div class="btn-group">
-            <button class="btn manager-only" id="btnAddRow" onclick="addNewRow()">➕ Baris</button>
-            <button class="btn member-add-project" id="btnMemberAddProject" onclick="openMemberAddProject()" style="display:none">➕ Tambah Project</button>
+            <button class="btn primary" id="btnAddProject" onclick="openMemberAddProject()">➕ Tambah Project</button>
             <button class="btn" onclick="toggleSCurve()">📈 S-Curve</button>
             <button class="btn" onclick="showWeeklyReminder()">🔔 Reminder</button>
             <button class="btn" onclick="showVersionHistory()">🕘 History</button>
@@ -310,11 +309,6 @@
     // Hide manager-only buttons for members
     if (_u.role === 'member') {
       document.querySelectorAll('.manager-only').forEach(el => el.style.display = 'none');
-    }
-    // Show Tambah Project button for members and managers
-    if (_u.role === 'member' || _u.role === 'manager') {
-      const memberBtn = document.getElementById('btnMemberAddProject');
-      if (memberBtn) memberBtn.style.display = '';
     }
     // Load departments for filter dropdown
     loadDeptFilter();
